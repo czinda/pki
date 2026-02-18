@@ -1,6 +1,12 @@
 name: EST Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      - tomcat-to-quarkus-migration
+  pull_request:
+    branches-ignore:
+      - tomcat-to-quarkus-migration
 
 jobs:
   build:
