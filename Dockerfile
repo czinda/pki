@@ -461,7 +461,7 @@ COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
 
 # Install minimal runtime dependencies for Quarkus
 RUN dnf install -y \
-    java-17-openjdk-headless \
+    java-latest-openjdk-headless \
     nss \
     nss-tools \
     openldap-clients \
