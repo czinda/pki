@@ -5,7 +5,7 @@
 //
 package org.dogtagpki.server.kra.quarkus;
 
-import java.io.InputStream;
+import java.io.File;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -16,15 +16,16 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 import org.dogtagpki.server.rest.base.AuditServletBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.logging.AuditConfig;
-import com.netscape.certsrv.logging.AuditFile;
 import com.netscape.certsrv.logging.AuditFileCollection;
 import com.netscape.certsrv.util.JSONSerializer;
 
@@ -40,6 +41,9 @@ public class KRAAuditResource {
     @Inject
     KRAEngineQuarkus engineQuarkus;
 
+    @Context
+    SecurityContext securityContext;
+
     private AuditServletBase createBase() {
         return new AuditServletBase(engineQuarkus.getEngine());
     }
@@ -48,7 +52,7 @@ public class KRAAuditResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAuditConfig() throws Exception {
         logger.debug("KRAAuditResource.getAuditConfig()");
-        AuditConfig config = createBase().getAuditConfig();
+        AuditConfig config = createBase().createAuditConfig();
         return Response.ok(config.toJSON()).build();
     }
 
@@ -58,15 +62,18 @@ public class KRAAuditResource {
     public Response updateAuditConfig(String requestData) throws Exception {
         logger.debug("KRAAuditResource.updateAuditConfig()");
         AuditConfig auditConfig = JSONSerializer.fromJSON(requestData, AuditConfig.class);
-        AuditConfig updated = createBase().updateAuditConfig(auditConfig);
+        String principalName = securityContext.getUserPrincipal().getName();
+        AuditConfig updated = createBase().updateAuditConfig(auditConfig, principalName);
         return Response.ok(updated.toJSON()).build();
     }
 
     @POST
+    @Produces(MediaType.APPLICATION_JSON)
     public Response changeAuditStatus(@QueryParam("action") String action) throws Exception {
         logger.debug("KRAAuditResource.changeAuditStatus(): action={}", action);
-        createBase().changeAuditStatus(action);
-        return Response.ok().build();
+        String principalName = securityContext.getUserPrincipal().getName();
+        AuditConfig config = createBase().changeAuditStatus(action, principalName);
+        return Response.ok(config.toJSON()).build();
     }
 
     @GET
@@ -83,9 +90,8 @@ public class KRAAuditResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getAuditFile(@PathParam("filename") String filename) throws Exception {
         logger.debug("KRAAuditResource.getAuditFile(): filename={}", filename);
-        AuditFile auditFile = createBase().getAuditFile(filename);
-        InputStream is = createBase().getAuditFileContent(filename);
-        return Response.ok(is)
+        File auditFile = createBase().getAuditFile(filename);
+        return Response.ok(auditFile)
                 .type(MediaType.APPLICATION_OCTET_STREAM)
                 .header("Content-Disposition", "attachment; filename=\"" + auditFile.getName() + "\"")
                 .build();

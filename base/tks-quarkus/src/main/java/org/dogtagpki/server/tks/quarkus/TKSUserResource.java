@@ -5,7 +5,9 @@
 //
 package org.dogtagpki.server.tks.quarkus;
 
+import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Locale;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -61,7 +63,7 @@ public class TKSUserResource {
             @QueryParam("start") @DefaultValue("0") int start,
             @QueryParam("size") @DefaultValue("20") int size) throws Exception {
         logger.debug("TKSUserResource.findUsers()");
-        UserCollection users = createBase().findUsers(filter, start, size);
+        UserCollection users = createBase().findUsers(filter, start, size, Locale.getDefault());
         return Response.ok(users.toJSON()).build();
     }
 
@@ -71,9 +73,9 @@ public class TKSUserResource {
     public Response addUser(String requestData) throws Exception {
         logger.debug("TKSUserResource.addUser()");
         UserData data = JSONSerializer.fromJSON(requestData, UserData.class);
-        UserData user = createBase().addUser(data);
+        UserData user = createBase().addUser(data, Locale.getDefault());
         String encodedID = URLEncoder.encode(user.getUserID(), "UTF-8");
-        java.net.URI location = uriInfo.getAbsolutePathBuilder().path(encodedID).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(encodedID).build();
         return Response.created(location).entity(user.toJSON()).build();
     }
 
@@ -82,7 +84,7 @@ public class TKSUserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam("userId") String userId) throws Exception {
         logger.debug("TKSUserResource.getUser(): userId={}", userId);
-        UserData user = createBase().getUser(userId);
+        UserData user = createBase().getUser(userId, Locale.getDefault());
         return Response.ok(user.toJSON()).build();
     }
 
@@ -93,7 +95,7 @@ public class TKSUserResource {
     public Response modifyUser(@PathParam("userId") String userId, String requestData) throws Exception {
         logger.debug("TKSUserResource.modifyUser(): userId={}", userId);
         UserData data = JSONSerializer.fromJSON(requestData, UserData.class);
-        UserData user = createBase().modifyUser(userId, data);
+        UserData user = createBase().modifyUser(userId, data, Locale.getDefault());
         return Response.ok(user.toJSON()).build();
     }
 
@@ -101,7 +103,7 @@ public class TKSUserResource {
     @Path("{userId}")
     public Response removeUser(@PathParam("userId") String userId) throws Exception {
         logger.debug("TKSUserResource.removeUser(): userId={}", userId);
-        createBase().removeUser(userId);
+        createBase().removeUser(userId, Locale.getDefault());
         return Response.noContent().build();
     }
 
@@ -113,7 +115,7 @@ public class TKSUserResource {
             @QueryParam("start") @DefaultValue("0") int start,
             @QueryParam("size") @DefaultValue("20") int size) throws Exception {
         logger.debug("TKSUserResource.findUserCerts(): userId={}", userId);
-        UserCertCollection certs = createBase().findUserCerts(userId, start, size);
+        UserCertCollection certs = createBase().findUserCerts(userId, start, size, Locale.getDefault());
         return Response.ok(certs.toJSON()).build();
     }
 
@@ -124,8 +126,8 @@ public class TKSUserResource {
     public Response addUserCert(@PathParam("userId") String userId, String requestData) throws Exception {
         logger.debug("TKSUserResource.addUserCert(): userId={}", userId);
         UserCertData data = JSONSerializer.fromJSON(requestData, UserCertData.class);
-        UserCertData cert = createBase().addUserCert(userId, data);
-        return Response.ok(cert.toJSON()).build();
+        createBase().addUserCert(userId, data, Locale.getDefault());
+        return Response.created(uriInfo.getAbsolutePath()).build();
     }
 
     @GET
@@ -135,7 +137,7 @@ public class TKSUserResource {
             @PathParam("userId") String userId,
             @PathParam("certId") String certId) throws Exception {
         logger.debug("TKSUserResource.getUserCert(): userId={}, certId={}", userId, certId);
-        UserCertData cert = createBase().getUserCert(userId, certId);
+        UserCertData cert = createBase().getUserCert(userId, certId, Locale.getDefault());
         return Response.ok(cert.toJSON()).build();
     }
 
@@ -145,7 +147,7 @@ public class TKSUserResource {
             @PathParam("userId") String userId,
             @PathParam("certId") String certId) throws Exception {
         logger.debug("TKSUserResource.removeUserCert(): userId={}, certId={}", userId, certId);
-        createBase().removeUserCert(userId, certId);
+        createBase().removeUserCert(userId, certId, Locale.getDefault());
         return Response.noContent().build();
     }
 
@@ -158,19 +160,20 @@ public class TKSUserResource {
             @QueryParam("start") @DefaultValue("0") int start,
             @QueryParam("size") @DefaultValue("20") int size) throws Exception {
         logger.debug("TKSUserResource.findUserMemberships(): userId={}", userId);
-        UserMembershipCollection memberships = createBase().findUserMemberships(userId, filter, start, size);
+        UserMembershipCollection memberships = createBase().findUserMemberships(userId, filter, start, size, Locale.getDefault());
         return Response.ok(memberships.toJSON()).build();
     }
 
     @POST
     @Path("{userId}/memberships")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addUserMembership(@PathParam("userId") String userId, String requestData) throws Exception {
-        logger.debug("TKSUserResource.addUserMembership(): userId={}", userId);
-        UserMembershipData data = JSONSerializer.fromJSON(requestData, UserMembershipData.class);
-        UserMembershipData membership = createBase().addUserMembership(userId, data);
-        return Response.ok(membership.toJSON()).build();
+    public Response addUserMembership(@PathParam("userId") String userId, String groupId) throws Exception {
+        logger.debug("TKSUserResource.addUserMembership(): userId={}, groupId={}", userId, groupId);
+        UserMembershipData membership = createBase().addUserMembership(userId, groupId, Locale.getDefault());
+        String encodedGroupID = URLEncoder.encode(groupId, "UTF-8");
+        URI location = uriInfo.getAbsolutePathBuilder().path(encodedGroupID).build();
+        return Response.created(location).entity(membership.toJSON()).build();
     }
 
     @DELETE
@@ -179,7 +182,7 @@ public class TKSUserResource {
             @PathParam("userId") String userId,
             @PathParam("groupId") String groupId) throws Exception {
         logger.debug("TKSUserResource.removeUserMembership(): userId={}, groupId={}", userId, groupId);
-        createBase().removeUserMembership(userId, groupId);
+        createBase().removeUserMembership(userId, groupId, Locale.getDefault());
         return Response.noContent().build();
     }
 }
