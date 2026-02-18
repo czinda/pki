@@ -19,8 +19,6 @@ package com.netscape.cmscore.apps;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -28,7 +26,6 @@ import java.util.ResourceBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.SessionContext;
 import com.netscape.cmsutil.password.NuxwdogPasswordStore;
 import com.netscape.cmsutil.password.PasswordStore;
 import com.netscape.cmsutil.password.PasswordStoreConfig;
@@ -112,22 +109,11 @@ public final class CMS {
      * @return localized user message
      */
     public static String getUserMessage(Locale locale, String msgID, String... params) {
-        // if locale is null, try to get it out from session context
         if (locale == null) {
-            SessionContext sc = SessionContext.getExistingContext();
-
-            if (sc != null)
-                locale = (Locale) sc.get(SessionContext.LOCALE);
+            locale = Locale.ENGLISH;
         }
-        ResourceBundle rb = null;
 
-        if (locale == null) {
-            rb = ResourceBundle.getBundle(
-                        "UserMessages", Locale.ENGLISH);
-        } else {
-            rb = ResourceBundle.getBundle(
-                        "UserMessages", locale);
-        }
+        ResourceBundle rb = ResourceBundle.getBundle("UserMessages", locale);
         String msg = rb.getString(msgID);
 
         if (params == null)

@@ -21,9 +21,9 @@ import com.netscape.certsrv.base.PKIException;
  */
 public abstract class ESTBackend {
 
-    void start() throws Throwable { }
+    public void start() throws Throwable { }
 
-    void stop() throws Throwable { }
+    public void stop() throws Throwable { }
 
     protected ESTBackendConfig config;
 
