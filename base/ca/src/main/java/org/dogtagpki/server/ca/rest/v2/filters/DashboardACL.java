@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca.rest.v2.filters;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebFilter;
 
 import org.dogtagpki.server.rest.v2.filters.ACLFilter;
@@ -41,12 +42,8 @@ public class DashboardACL extends ACLFilter {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String ACL_NAME = "dashboard";
-
     @Override
-    protected String getACLName(String method, String path) {
-        // All dashboard endpoints use the same ACL
-        // The endpoint implementation enforces user-based filtering
-        return ACL_NAME;
+    public void init() throws ServletException {
+        setAcl("dashboard");
     }
 }
