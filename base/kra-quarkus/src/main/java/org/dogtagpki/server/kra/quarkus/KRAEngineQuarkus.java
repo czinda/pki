@@ -93,7 +93,7 @@ public class KRAEngineQuarkus {
         logger.info("KRAEngineQuarkus: Stopping KRA engine");
 
         if (engine != null) {
-            engine.stop();
+            engine.shutdown();
             engine = null;
         }
 

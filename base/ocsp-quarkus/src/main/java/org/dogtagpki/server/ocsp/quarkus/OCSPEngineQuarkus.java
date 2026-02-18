@@ -86,7 +86,7 @@ public class OCSPEngineQuarkus {
         logger.info("OCSPEngineQuarkus: Stopping OCSP engine");
 
         if (engine != null) {
-            engine.stop();
+            engine.shutdown();
             engine = null;
         }
 

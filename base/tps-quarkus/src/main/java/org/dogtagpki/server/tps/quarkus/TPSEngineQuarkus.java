@@ -100,7 +100,7 @@ public class TPSEngineQuarkus {
         logger.info("TPSEngineQuarkus: Stopping TPS engine");
 
         if (engine != null) {
-            engine.stop();
+            engine.shutdown();
             engine = null;
         }
 

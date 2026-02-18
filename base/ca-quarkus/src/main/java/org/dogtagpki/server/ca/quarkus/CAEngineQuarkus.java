@@ -92,7 +92,7 @@ public class CAEngineQuarkus {
         logger.info("CAEngineQuarkus: Stopping CA engine");
 
         if (engine != null) {
-            engine.stop();
+            engine.shutdown();
             engine = null;
         }
 

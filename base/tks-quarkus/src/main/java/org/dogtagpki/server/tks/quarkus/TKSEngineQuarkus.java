@@ -93,7 +93,7 @@ public class TKSEngineQuarkus {
         logger.info("TKSEngineQuarkus: Stopping TKS engine");
 
         if (engine != null) {
-            engine.stop();
+            engine.shutdown();
             engine = null;
         }
 
