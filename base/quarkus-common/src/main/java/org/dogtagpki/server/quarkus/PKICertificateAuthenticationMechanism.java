@@ -18,6 +18,7 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.ext.web.RoutingContext;
 
 import io.quarkus.security.credential.CertificateCredential;
+import io.quarkus.security.identity.request.AuthenticationRequest;
 import io.quarkus.vertx.http.runtime.security.ChallengeData;
 import io.quarkus.vertx.http.runtime.security.HttpAuthenticationMechanism;
 import io.quarkus.vertx.http.runtime.security.HttpCredentialTransport;
@@ -74,12 +75,12 @@ public class PKICertificateAuthenticationMechanism implements HttpAuthentication
     }
 
     @Override
-    public Set<Class<? extends io.quarkus.security.credential.Credential>> getCredentialTypes() {
-        return Set.of(CertificateCredential.class);
+    public Set<Class<? extends AuthenticationRequest>> getCredentialTypes() {
+        return Set.of(CertificateAuthenticationRequest.class);
     }
 
     @Override
     public Uni<HttpCredentialTransport> getCredentialTransport(RoutingContext context) {
-        return Uni.createFrom().item(new HttpCredentialTransport(HttpCredentialTransport.Type.X509));
+        return Uni.createFrom().item(new HttpCredentialTransport(HttpCredentialTransport.Type.X509, "Certificate"));
     }
 }
