@@ -34,7 +34,13 @@ RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
 
 # Install PKI runtime dependencies
 RUN dnf install -y dogtag-pki \
-    && rpm -e --nodeps $(rpm -qa | grep -E "^java-|^dogtag-|^python3-dogtag-|^pki-resteasy-|^jboss-logging-|^jboss-jaxrs-2.0-api-|^jackson-|^jaxb-api-|^jakarta-annotations-|^jakarta-activation-") \
+    && REGEX="^java-|^dogtag-|^python3-dogtag-" \
+    && REGEX="$REGEX|^apache-commons-cli-|^apache-commons-codec-|^apache-commons-io-|^apache-commons-lang3-|^apache-commons-logging-|^apache-commons-net-" \
+    && REGEX="$REGEX|^httpcomponents-|^slf4j-" \
+    && REGEX="$REGEX|^jakarta-activation-|^jakarta-annotations-|^jaxb-api-" \
+    && REGEX="$REGEX|^jboss-logging-|^jboss-jaxrs-2.0-api-" \
+    && REGEX="$REGEX|^jackson-|^pki-resteasy-" \
+    && rpm -e --nodeps $(rpm -qa | grep -E "$REGEX") \
     && dnf clean all \
     && rm -rf /var/cache/dnf
 
@@ -396,6 +402,73 @@ VOLUME [ \
     "/logs" ]
 
 CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
+
+################################################################################
+FROM pki-builder AS pki-quarkus-builder
+
+# Build Quarkus modules (requires the standard build to have run first)
+# The -Pquarkus profile activates quarkus-common and all *-quarkus modules
+RUN cd /root/pki \
+    && mvn install -Pquarkus \
+       -pl base/quarkus-common,base/est-quarkus,base/acme-quarkus,base/ocsp-quarkus,base/kra-quarkus,base/tks-quarkus,base/tps-quarkus,base/ca-quarkus \
+       -DskipTests
+
+################################################################################
+FROM pki-runner AS pki-quarkus-runner
+
+# Install Quarkus runner JARs from builder
+# Each *-quarkus module produces a quarkus-app/ directory with the uber-jar
+COPY --from=pki-quarkus-builder /root/pki/base/est-quarkus/target/quarkus-app/ /usr/share/pki/quarkus/est/
+COPY --from=pki-quarkus-builder /root/pki/base/acme-quarkus/target/quarkus-app/ /usr/share/pki/quarkus/acme/
+COPY --from=pki-quarkus-builder /root/pki/base/ocsp-quarkus/target/quarkus-app/ /usr/share/pki/quarkus/ocsp/
+COPY --from=pki-quarkus-builder /root/pki/base/kra-quarkus/target/quarkus-app/ /usr/share/pki/quarkus/kra/
+COPY --from=pki-quarkus-builder /root/pki/base/tks-quarkus/target/quarkus-app/ /usr/share/pki/quarkus/tks/
+COPY --from=pki-quarkus-builder /root/pki/base/tps-quarkus/target/quarkus-app/ /usr/share/pki/quarkus/tps/
+COPY --from=pki-quarkus-builder /root/pki/base/ca-quarkus/target/quarkus-app/ /usr/share/pki/quarkus/ca/
+
+# Copy shared libraries
+COPY --from=pki-quarkus-builder /root/pki/base/server-core/target/pki-server-core-*.jar /usr/share/pki/lib/
+COPY --from=pki-quarkus-builder /root/pki/base/quarkus-common/target/pki-quarkus-common-*.jar /usr/share/pki/lib/
+
+# Copy systemd unit files
+COPY --from=pki-quarkus-builder /root/pki/base/server/share/lib/systemd/system/pki-quarkusd@.service /usr/lib/systemd/system/
+COPY --from=pki-quarkus-builder /root/pki/base/server/share/lib/systemd/system/pki-quarkusd.target /usr/lib/systemd/system/
+
+EXPOSE 8080 8443
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-ca
+
+ARG SUMMARY="Dogtag PKI Certificate Authority (Quarkus)"
+
+LABEL name="pki-quarkus-ca" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-ca" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/ca/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-est
+
+ARG SUMMARY="Dogtag PKI EST Subsystem (Quarkus)"
+
+LABEL name="pki-quarkus-est" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-est" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/est/quarkus-run.jar" ]
 
 ################################################################################
 FROM pki-runner AS ipa-runner

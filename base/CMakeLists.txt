@@ -1,5 +1,13 @@
 project(base)
 
+execute_process(
+    COMMAND awk -F= "$1==\"ID\" { print $2 ;}" /etc/os-release
+    OUTPUT_VARIABLE DISTRO
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+find_program(XMVN_RESOLVE /bin/xmvn-resolve)
+
 find_file(SERVLET_JAR
     NAMES
         servlet.jar
@@ -40,71 +48,274 @@ else()
 
 endif (JAXRS_API_VERSION)
 
-find_file(SLF4J_API_JAR
-    NAMES
-        slf4j-api.jar
-    PATHS
-        /usr/share/java/slf4j
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^slf4j-api-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE SLF4J_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 
-find_file(SLF4J_JDK14_JAR
-    NAMES
-        slf4j-jdk14.jar
-    PATHS
-        /usr/share/java/slf4j
-        /usr/share/java
-)
+if (SLF4J_VERSION)
+    # use imported JARs
 
-find_file(SLF4J_SIMPLE_JAR
-    NAMES
-        slf4j-simple.jar
-    PATHS
-        /usr/share/java/slf4j
-        /usr/share/java
-)
+    set(SLF4J_API_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/slf4j-api-${SLF4J_VERSION}.jar")
+    set(SLF4J_API_LINK "slf4j-api-${SLF4J_VERSION}.jar")
 
-find_file(COMMONS_CLI_JAR
-    NAMES
-        commons-cli.jar
-    PATHS
-        /usr/share/java
-)
+    set(SLF4J_JDK14_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/slf4j-jdk14-${SLF4J_VERSION}.jar")
+    set(SLF4J_JDK14_LINK "slf4j-jdk14-${SLF4J_VERSION}.jar")
 
-find_file(COMMONS_CODEC_JAR
-    NAMES
-        commons-codec.jar
-    PATHS
-        /usr/share/java
-)
+else()
+    # use system JARs
 
-find_file(COMMONS_IO_JAR
-    NAMES
-        commons-io.jar
-    PATHS
-        /usr/share/java
-)
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.slf4j:slf4j-api
+            OUTPUT_VARIABLE SLF4J_API_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        execute_process(
+            COMMAND xmvn-resolve org.slf4j:slf4j-jdk14
+            OUTPUT_VARIABLE SLF4J_JDK14_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(SLF4J_API_JAR
+            NAMES
+                slf4j-api.jar
+            PATHS
+                /usr/share/java/slf4j
+                /usr/share/java
+        )
+        find_file(SLF4J_JDK14_JAR
+            NAMES
+                slf4j-jdk14.jar
+            PATHS
+                /usr/share/java/slf4j
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(SLF4J_API_LINK "../../../..${SLF4J_API_JAR}")
+    set(SLF4J_JDK14_LINK "../../../..${SLF4J_JDK14_JAR}")
 
-find_file(COMMONS_LANG3_JAR
-    NAMES
-        commons-lang3.jar
-    PATHS
-        /usr/share/java
-)
+endif (SLF4J_VERSION)
 
-find_file(COMMONS_LOGGING_JAR
-    NAMES
-        commons-logging.jar
-    PATHS
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-cli-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_CLI_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 
-find_file(COMMONS_NET_JAR
-    NAMES
-        commons-net.jar
-    PATHS
-        /usr/share/java
-)
+if (COMMONS_CLI_VERSION)
+    # use imported JARs
+
+    set(COMMONS_CLI_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-cli-${COMMONS_CLI_VERSION}.jar")
+    set(COMMONS_CLI_LINK "commons-cli-${COMMONS_CLI_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-cli:commons-cli
+            OUTPUT_VARIABLE COMMONS_CLI_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_CLI_JAR
+            NAMES
+                commons-cli.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_CLI_LINK "../../../..${COMMONS_CLI_JAR}")
+
+endif (COMMONS_CLI_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-codec-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_CODEC_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_CODEC_VERSION)
+    # use imported JARs
+
+    set(COMMONS_CODEC_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-codec-${COMMONS_CODEC_VERSION}.jar")
+    set(COMMONS_CODEC_LINK "commons-codec-${COMMONS_CODEC_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-codec:commons-codec
+            OUTPUT_VARIABLE COMMONS_CODEC_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_CODEC_JAR
+            NAMES
+                commons-codec.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_CODEC_LINK "../../../..${COMMONS_CODEC_JAR}")
+
+endif (COMMONS_CODEC_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-io-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_IO_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_IO_VERSION)
+    # use imported JARs
+
+    set(COMMONS_IO_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-io-${COMMONS_IO_VERSION}.jar")
+    set(COMMONS_IO_LINK "commons-io-${COMMONS_IO_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-io:commons-io
+            OUTPUT_VARIABLE COMMONS_IO_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_IO_JAR
+            NAMES
+                commons-io.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_IO_LINK "../../../..${COMMONS_IO_JAR}")
+
+endif (COMMONS_IO_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-lang3-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_LANG3_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_LANG3_VERSION)
+    # use imported JARs
+
+    set(COMMONS_LANG3_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-lang3-${COMMONS_LANG3_VERSION}.jar")
+    set(COMMONS_LANG3_LINK "commons-lang3-${COMMONS_LANG3_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.apache.commons:commons-lang3
+            OUTPUT_VARIABLE COMMONS_LANG3_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_LANG3_JAR
+            NAMES
+                commons-lang3.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_LANG3_LINK "../../../..${COMMONS_LANG3_JAR}")
+
+endif (COMMONS_LANG3_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-logging-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_LOGGING_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_LOGGING_VERSION)
+    # use imported JARs
+
+    set(COMMONS_LOGGING_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-logging-${COMMONS_LOGGING_VERSION}.jar")
+    set(COMMONS_LOGGING_LINK "commons-logging-${COMMONS_LOGGING_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-logging:commons-logging
+            OUTPUT_VARIABLE COMMONS_LOGGING_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_LOGGING_JAR
+            NAMES
+                commons-logging.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_LOGGING_LINK "../../../..${COMMONS_LOGGING_JAR}")
+
+endif (COMMONS_LOGGING_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^commons-net-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE COMMONS_NET_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (COMMONS_NET_VERSION)
+    # use imported JARs
+
+    set(COMMONS_NET_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/commons-net-${COMMONS_NET_VERSION}.jar")
+    set(COMMONS_NET_LINK "commons-net-${COMMONS_NET_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve commons-net:commons-net
+            OUTPUT_VARIABLE COMMONS_NET_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(COMMONS_NET_JAR
+            NAMES
+                commons-net.jar
+            PATHS
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(COMMONS_NET_LINK "../../../..${COMMONS_NET_JAR}")
+
+endif (COMMONS_NET_VERSION)
 
 find_file(HAMCREST_JAR
     NAMES
@@ -114,21 +325,79 @@ find_file(HAMCREST_JAR
         /usr/share/java
 )
 
-find_file(HTTPCLIENT_JAR
-    NAMES
-        httpclient.jar
-    PATHS
-        /usr/share/java/httpcomponents
-        /usr/share/java
-)
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^httpclient-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE HTTPCLIENT_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
 
-find_file(HTTPCORE_JAR
-    NAMES
-        httpcore.jar
-    PATHS
-        /usr/share/java/httpcomponents
-        /usr/share/java
-)
+if (HTTPCLIENT_VERSION)
+    # use imported JARs
+
+    set(HTTPCLIENT_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpclient-${HTTPCLIENT_VERSION}.jar")
+    set(HTTPCLIENT_LINK "httpclient-${HTTPCLIENT_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.apache.httpcomponents:httpclient
+            OUTPUT_VARIABLE HTTPCLIENT_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(HTTPCLIENT_JAR
+            NAMES
+                httpclient.jar
+            PATHS
+                /usr/share/java/httpcomponents
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(HTTPCLIENT_LINK "../../../..${HTTPCLIENT_JAR}")
+
+endif (HTTPCLIENT_VERSION)
+
+if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+    execute_process(
+        COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib
+        COMMAND sed -n "s/^httpcore-\\(.*\\)\\.jar\$/\\1/p"
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE HTTPCORE_VERSION
+    )
+endif (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
+
+if (HTTPCORE_VERSION)
+    # use imported JARs
+
+    set(HTTPCORE_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/httpcore-${HTTPCORE_VERSION}.jar")
+    set(HTTPCORE_LINK "httpcore-${HTTPCORE_VERSION}.jar")
+
+else()
+    # use system JARs
+
+    if(XMVN_RESOLVE)
+        execute_process(
+            COMMAND xmvn-resolve org.apache.httpcomponents:httpcore
+            OUTPUT_VARIABLE HTTPCORE_JAR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        find_file(HTTPCORE_JAR
+            NAMES
+                httpcore.jar
+            PATHS
+                /usr/share/java/httpcomponents
+                /usr/share/java
+        )
+    endif(XMVN_RESOLVE)
+    set(HTTPCORE_LINK "../../../..${HTTPCORE_JAR}")
+
+endif (HTTPCORE_VERSION)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
@@ -215,14 +484,6 @@ else()
     set(JACKSON_MODULE_JAXB_ANNOTATIONS_LINK "../../../..${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}")
 
 endif (JACKSON_VERSION)
-
-execute_process(
-    COMMAND awk -F= "$1==\"ID\" { print $2 ;}" /etc/os-release
-    OUTPUT_VARIABLE DISTRO
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-find_program(XMVN_RESOLVE /bin/xmvn-resolve)
 
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
@@ -586,10 +847,12 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
 
     add_subdirectory(tomcat)
     add_subdirectory(${APP_SERVER})
+    add_subdirectory(server-core)
     add_subdirectory(server)
     add_subdirectory(server-webapp)
 
     list(APPEND PKI_JAVADOC_SOURCEPATH
+        ${CMAKE_SOURCE_DIR}/base/server-core/src/main/java
         ${CMAKE_SOURCE_DIR}/base/server/src/main/java)
 
     list(APPEND PKI_JAVADOC_SUBPACKAGES
@@ -598,6 +861,7 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
     list(APPEND PKI_JAVADOC_CLASSPATH
         ${PKI_TOMCAT_JAR}
         ${PKI_TOMCAT_IMPL_JAR}
+        ${PKI_SERVER_CORE_JAR}
         ${PKI_SERVER_JAR})
 
     if(WITH_CA)

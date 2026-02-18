@@ -3,8 +3,9 @@ name: Build PKI
 on: [push, pull_request]
 
 env:
-  BASE_IMAGE: ${{ vars.BASE_IMAGE || 'registry.fedoraproject.org/fedora:latest' }}
-  COPR_REPO: ${{ vars.COPR_REPO || '@pki/master' }}
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  BASE_IMAGE: ${{ vars.BASE_IMAGE }}
+  COPR_REPO: ${{ vars.COPR_REPO }}
   NAMESPACE: ${{ vars.REGISTRY_NAMESPACE || 'dogtagpki' }}
 
 jobs:
@@ -15,6 +16,9 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+
+      - name: Initialization
+        run: tests/bin/test-init.sh
 
       - name: Update Dockerfile
         run: |
@@ -163,6 +167,54 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           outputs: type=docker
 
+      - name: Build pki-quarkus-builder image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-quarkus-builder
+          target: pki-quarkus-builder
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
+      - name: Build pki-quarkus-runner image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-quarkus-runner
+          target: pki-quarkus-runner
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
+      - name: Build pki-quarkus-ca image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-quarkus-ca
+          target: pki-quarkus-ca
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
+      - name: Build pki-quarkus-est image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            BASE_IMAGE=${{ env.BASE_IMAGE }}
+            COPR_REPO=${{ env.COPR_REPO }}
+          tags: pki-quarkus-est
+          target: pki-quarkus-est
+          cache-from: type=local,src=/tmp/.buildx-cache
+          outputs: type=docker
+
       - name: Save PKI images
         run: |
           docker images
@@ -174,7 +226,10 @@ jobs:
               pki-kra \
               pki-ocsp \
               pki-tks \
-              pki-tps
+              pki-tps \
+              pki-quarkus-runner \
+              pki-quarkus-ca \
+              pki-quarkus-est
 
       - name: Store PKI images
         uses: actions/cache@v4

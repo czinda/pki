@@ -206,7 +206,7 @@ jobs:
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
-          -rw-rw-r-- root root localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           drwxr-xr-x pkiuser pkiuser pki
           drwxrwx--- pkiuser pkiuser tks
@@ -307,7 +307,17 @@ jobs:
           docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
 
       - name: Run PKI healthcheck
-        run: docker exec pki pki-healthcheck --failures-only
+        run: |
+          docker exec pki pki-healthcheck \
+              --failures-only \
+              --debug \
+              > >(tee stdout) 2> >(tee stderr >&2)
+
+      - name: Check external commands
+        if: always()
+        run: |
+          sed -n '/^Command:/p' stderr | tee output
+          wc -l output
 
       - name: Verify TKS admin
         run: |
@@ -407,7 +417,7 @@ jobs:
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser backup
           drwxrwx--- pkiuser pkiuser ca
-          -rw-rw-r-- root root localhost.$DATE.log
+          -rw-r--r-- pkiuser pkiuser localhost.$DATE.log
           -rw-r--r-- pkiuser pkiuser localhost_access_log.$DATE.txt
           drwxr-xr-x pkiuser pkiuser pki
           drwxrwx--- pkiuser pkiuser tks
