@@ -5,26 +5,28 @@
 //
 package org.dogtagpki.server.tps.quarkus;
 
+import java.security.cert.X509Certificate;
+
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import org.dogtagpki.server.quarkus.PKIIdentityProvider;
-
-import com.netscape.cmscore.apps.CMSEngine;
+import org.dogtagpki.server.quarkus.PKIPrincipalCore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class TPSIdentityProvider extends PKIIdentityProvider {
 
-    @Inject
-    TPSEngineQuarkus engineQuarkus;
+    private static final Logger logger = LoggerFactory.getLogger(TPSIdentityProvider.class);
 
     @Override
-    protected CMSEngine getEngine() {
-        return engineQuarkus.getEngine();
-    }
+    protected PKIPrincipalCore authenticateCertificate(X509Certificate cert) {
+        String dn = cert.getSubjectX500Principal().getName();
+        String cn = extractCN(dn);
+        String principalName = cn != null ? cn : dn;
 
-    @Override
-    protected String getDefaultRole() {
-        return "TPS Agents";
+        logger.info("TPSIdentityProvider: Authenticated certificate for: {}", principalName);
+
+        return new PKIPrincipalCore(principalName, null, java.util.List.of("TPS Agents"));
     }
 }

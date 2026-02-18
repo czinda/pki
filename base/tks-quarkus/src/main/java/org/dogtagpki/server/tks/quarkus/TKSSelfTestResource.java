@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.selftests.SelfTestCollection;
 import com.netscape.certsrv.selftests.SelfTestData;
+import com.netscape.certsrv.selftests.SelfTestResult;
 import com.netscape.certsrv.selftests.SelfTestResults;
 
 /**
@@ -82,7 +83,7 @@ public class TKSSelfTestResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response runSelfTest(@PathParam("testId") String testId) throws Exception {
         logger.debug("TKSSelfTestResource.runSelfTest(): testId={}", testId);
-        SelfTestResults results = createBase().runSelfTest(testId);
-        return Response.ok(results.toJSON()).build();
+        SelfTestResult result = createBase().runSelfTest(testId);
+        return Response.ok(result.toJSON()).build();
     }
 }

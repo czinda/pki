@@ -5,31 +5,28 @@
 //
 package org.dogtagpki.server.tks.quarkus;
 
+import java.security.cert.X509Certificate;
+
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import org.dogtagpki.server.quarkus.PKIIdentityProvider;
-import org.dogtagpki.server.tks.TKSEngine;
+import org.dogtagpki.server.quarkus.PKIPrincipalCore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.netscape.cmscore.apps.CMSEngine;
-
-/**
- * TKS-specific identity provider for Quarkus.
- * Extends PKIIdentityProvider with TKS engine integration.
- */
 @ApplicationScoped
 public class TKSIdentityProvider extends PKIIdentityProvider {
 
-    @Inject
-    TKSEngineQuarkus engineQuarkus;
+    private static final Logger logger = LoggerFactory.getLogger(TKSIdentityProvider.class);
 
     @Override
-    protected CMSEngine getEngine() {
-        return engineQuarkus.getEngine();
-    }
+    protected PKIPrincipalCore authenticateCertificate(X509Certificate cert) {
+        String dn = cert.getSubjectX500Principal().getName();
+        String cn = extractCN(dn);
+        String principalName = cn != null ? cn : dn;
 
-    @Override
-    protected String getDefaultRole() {
-        return "TKS Agents";
+        logger.info("TKSIdentityProvider: Authenticated certificate for: {}", principalName);
+
+        return new PKIPrincipalCore(principalName, null, java.util.List.of("TKS Agents"));
     }
 }
