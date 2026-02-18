@@ -10,7 +10,7 @@ import java.security.cert.X509Certificate;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import org.dogtagpki.server.quarkus.PKIIdentityProvider;
-import org.dogtagpki.server.quarkus.PKIPrincipalCore;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
