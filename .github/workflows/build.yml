@@ -287,6 +287,7 @@ jobs:
               pki-ocsp \
               pki-tks \
               pki-tps \
+              pki-quarkus-builder \
               pki-quarkus-runner \
               pki-quarkus-ca \
               pki-quarkus-est \
