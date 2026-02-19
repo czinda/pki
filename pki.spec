@@ -623,6 +623,7 @@ Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
 Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.10.0
+Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
 Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
