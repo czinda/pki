@@ -279,6 +279,11 @@ generate_rpm_spec() {
         sed -i "s/%bcond_with *console\$/%bcond_without console/g" "$SPEC_FILE"
     fi
 
+    if [ "$WITH_QUARKUS" = true ] ; then
+        # convert bcond_with into bcond_without to build quarkus by default
+        sed -i "s/%bcond_with *quarkus\$/%bcond_without quarkus/g" "$SPEC_FILE"
+    fi
+
     # hard-code packages to build
     for package in "${PKGS_TO_SKIP[@]}"
     do

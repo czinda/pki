@@ -162,6 +162,9 @@ ExcludeArch: i686
 # Don't build console unless --with console is specified.
 %bcond_with console
 
+# Don't build Quarkus modules unless --with quarkus is specified.
+%bcond_with quarkus
+
 %if ! %{with debug}
 %define debug_package %{nil}
 %endif
@@ -839,6 +842,135 @@ Requires:         %{product_id}-server = %{version}-%{release}
 Secure Transport (RFC 7030) service.
 
 # with est
+%endif
+
+%if %{with quarkus}
+
+################################################################################
+%package -n       %{product_id}-quarkus-common
+################################################################################
+
+Summary:          %{product_name} Quarkus Common Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+
+%description -n   %{product_id}-quarkus-common
+Common systemd units and shared files for Quarkus-based %{product_name} subsystems.
+
+################################################################################
+%package -n       %{product_id}-ca-quarkus
+################################################################################
+
+Summary:          %{product_name} CA Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-ca-quarkus
+Quarkus-based deployment of the %{product_name} Certificate Authority (CA).
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-est-quarkus
+################################################################################
+
+Summary:          %{product_name} EST Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-est-quarkus
+Quarkus-based deployment of the %{product_name} EST subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-acme-quarkus
+################################################################################
+
+Summary:          %{product_name} ACME Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-acme-quarkus
+Quarkus-based deployment of the %{product_name} ACME subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-ocsp-quarkus
+################################################################################
+
+Summary:          %{product_name} OCSP Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-ocsp-quarkus
+Quarkus-based deployment of the %{product_name} OCSP subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-kra-quarkus
+################################################################################
+
+Summary:          %{product_name} KRA Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-kra-quarkus
+Quarkus-based deployment of the %{product_name} KRA subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-tks-quarkus
+################################################################################
+
+Summary:          %{product_name} TKS Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-tks-quarkus
+Quarkus-based deployment of the %{product_name} TKS subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-tps-quarkus
+################################################################################
+
+Summary:          %{product_name} TPS Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-tps-quarkus
+Quarkus-based deployment of the %{product_name} TPS subsystem.
+Runs as a standalone process without Tomcat.
+
+# with quarkus
 %endif
 
 %if %{with kra}
@@ -1525,6 +1657,50 @@ popd
 # with maven
 %endif
 
+%if %{with quarkus}
+# Phase 2: Build Quarkus modules with standard Maven (xmvn cannot resolve Quarkus BOM).
+# First install xmvn-built artifacts into a local repo so Quarkus modules can depend on them.
+_quarkus_repo=%{_builddir}/.m2/repository
+
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=base/common/target/pki-common.jar \
+    -DpomFile=base/common/pom.xml \
+    -Dmaven.repo.local=$_quarkus_repo
+
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=base/tools/target/pki-tools.jar \
+    -DpomFile=base/tools/pom.xml \
+    -Dmaven.repo.local=$_quarkus_repo
+
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=base/server-core/target/pki-server-core.jar \
+    -DpomFile=base/server-core/pom.xml \
+    -Dmaven.repo.local=$_quarkus_repo
+
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=base/server/target/pki-server.jar \
+    -DpomFile=base/server/pom.xml \
+    -Dmaven.repo.local=$_quarkus_repo
+
+for sub in ca kra ocsp tks tps acme est; do
+    mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+        -Dfile=base/$sub/target/pki-$sub.jar \
+        -DpomFile=base/$sub/pom.xml \
+        -Dmaven.repo.local=$_quarkus_repo
+done
+
+# Build Quarkus modules (downloads Quarkus BOM from Maven Central)
+mvn %{?_mvn_options} -f base/quarkus-common/pom.xml package -DskipTests \
+    -Dmaven.repo.local=$_quarkus_repo
+
+for sub in est acme ocsp kra tks tps ca; do
+    mvn %{?_mvn_options} -f base/${sub}-quarkus/pom.xml package -DskipTests \
+        -Dmaven.repo.local=$_quarkus_repo
+done
+
+# with quarkus
+%endif
+
 # Remove all symbol table and relocation information from the executable.
 C_FLAGS="%{optflags}"
 CXX_FLAGS="%{optflags}"
@@ -1596,6 +1772,24 @@ else
 fi
 
 # with maven
+%endif
+
+%if %{with quarkus}
+# Install Quarkus subsystem artifacts
+for sub in est acme ocsp kra tks tps ca; do
+    install -dm 755 %{buildroot}%{_datadir}/pki/${sub}-quarkus/quarkus-app
+    cp -rp base/${sub}-quarkus/target/quarkus-app/* \
+        %{buildroot}%{_datadir}/pki/${sub}-quarkus/quarkus-app/
+done
+
+# Install systemd units for Quarkus
+install -dm 755 %{buildroot}%{_unitdir}
+install -pm 644 base/server/share/lib/systemd/system/pki-quarkusd@.service \
+    %{buildroot}%{_unitdir}/pki-quarkusd@.service
+install -pm 644 base/server/share/lib/systemd/system/pki-quarkusd.target \
+    %{buildroot}%{_unitdir}/pki-quarkusd.target
+
+# with quarkus
 %endif
 
 # install PKI console, Javadoc, and native binaries
@@ -2229,6 +2423,60 @@ fi
 %endif
 
 # with est
+%endif
+
+%if %{with quarkus}
+
+################################################################################
+%files -n %{product_id}-quarkus-common
+################################################################################
+
+%{_unitdir}/pki-quarkusd@.service
+%{_unitdir}/pki-quarkusd.target
+
+################################################################################
+%files -n %{product_id}-ca-quarkus
+################################################################################
+
+%{_datadir}/pki/ca-quarkus/
+
+################################################################################
+%files -n %{product_id}-est-quarkus
+################################################################################
+
+%{_datadir}/pki/est-quarkus/
+
+################################################################################
+%files -n %{product_id}-acme-quarkus
+################################################################################
+
+%{_datadir}/pki/acme-quarkus/
+
+################################################################################
+%files -n %{product_id}-ocsp-quarkus
+################################################################################
+
+%{_datadir}/pki/ocsp-quarkus/
+
+################################################################################
+%files -n %{product_id}-kra-quarkus
+################################################################################
+
+%{_datadir}/pki/kra-quarkus/
+
+################################################################################
+%files -n %{product_id}-tks-quarkus
+################################################################################
+
+%{_datadir}/pki/tks-quarkus/
+
+################################################################################
+%files -n %{product_id}-tps-quarkus
+################################################################################
+
+%{_datadir}/pki/tps-quarkus/
+
+# with quarkus
 %endif
 
 %if %{with kra}
