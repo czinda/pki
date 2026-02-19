@@ -1,0 +1,8 @@
+<Context docBase="/usr/share/pki/tks/webapps/tks" crossContext="true">
+
+    <Manager
+        secureRandomProvider="Mozilla-JSS" secureRandomAlgorithm="pkcs11prng"/>
+
+    <Resources allowLinking="true" />
+
+</Context>
