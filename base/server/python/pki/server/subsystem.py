@@ -669,7 +669,7 @@ class PKISubsystem(object):
         else:
             # otherwise deploy default subsystem directly from
             # /usr/share/pki/<subsystem>/webapps/<subsystem>
-            doc_base = None
+            doc_base = self.default_doc_base
 
         self.instance.deploy_webapp(
             self.name,
