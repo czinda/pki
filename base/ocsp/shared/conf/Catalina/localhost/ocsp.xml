@@ -3,6 +3,11 @@
     <Manager
         secureRandomProvider="Mozilla-JSS" secureRandomAlgorithm="pkcs11prng"/>
 
+    <Valve className="org.apache.catalina.authenticator.SSLAuthenticator"
+        alwaysUseSession="true"
+        secureRandomProvider="Mozilla-JSS"
+        secureRandomAlgorithm="pkcs11prng"/>
+
     <Resources allowLinking="true" />
 
 </Context>
