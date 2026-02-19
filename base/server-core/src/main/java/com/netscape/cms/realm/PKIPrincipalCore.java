@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Container-agnostic PKI principal.
@@ -41,6 +42,7 @@ public class PKIPrincipalCore implements Principal, Serializable {
     private final List<String> roles;
     private Object user;
     private Object authToken;
+    private Map<String, Object> attributes;
 
     public PKIPrincipalCore(String name, String password, List<String> roles) {
         this(name, password, roles, null, null);
@@ -90,6 +92,14 @@ public class PKIPrincipalCore implements Principal, Serializable {
 
     public void setAuthToken(Object authToken) {
         this.authToken = authToken;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes != null ? attributes : Collections.emptyMap();
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 
     @Override

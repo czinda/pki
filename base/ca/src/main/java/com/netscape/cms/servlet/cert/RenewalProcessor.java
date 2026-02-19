@@ -50,7 +50,7 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.common.Profile;
 import com.netscape.cms.profile.input.SerialNumRenewInput;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMS;
@@ -301,9 +301,9 @@ public class RenewalProcessor extends CertProcessor {
                 Principal principal = request.getUserPrincipal();
                 if (
                     renewProfileId.equals("caManualRenewal")
-                    && principal instanceof PKIPrincipal
+                    && principal instanceof PKIPrincipalCore
                 ) {
-                    AuthToken latentToken = ((PKIPrincipal) principal).getAuthToken();
+                    AuthToken latentToken = (AuthToken) ((PKIPrincipalCore) principal).getAuthToken();
                     AuthzToken authzToken = authorize(
                         "DirAclAuthz", latentToken, "certServer.ca.certrequests", "execute");
                     if (authzToken != null) {

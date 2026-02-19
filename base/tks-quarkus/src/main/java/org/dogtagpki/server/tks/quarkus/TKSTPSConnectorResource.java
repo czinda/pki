@@ -43,9 +43,9 @@ import io.quarkus.security.identity.SecurityIdentity;
  * channel between TKS and TPS, including AES-128 shared
  * secret generation and lifecycle management.
  *
- * Shared secret operations require PKIPrincipal for user
- * validation. The SecurityIdentity is converted to PKIPrincipal
- * via TKSEngineQuarkus.toPKIPrincipal().
+ * Shared secret operations require PKIPrincipalCore for user
+ * validation. The SecurityIdentity is converted to PKIPrincipalCore
+ * via TKSEngineQuarkus.toPKIPrincipalCore().
  */
 @Path("v2/admin/tps-connectors")
 public class TKSTPSConnectorResource {
@@ -66,7 +66,7 @@ public class TKSTPSConnectorResource {
     }
 
     private Principal getPrincipal() {
-        return TKSEngineQuarkus.toPKIPrincipal(identity);
+        return TKSEngineQuarkus.toPKIPrincipalCore(identity);
     }
 
     @GET

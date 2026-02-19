@@ -11,7 +11,7 @@ import java.util.Enumeration;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import com.netscape.cmscore.apps.TomcatJSSInitializer;
 
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainHost;
@@ -148,9 +148,7 @@ public class SDSubsystemFindCLI extends CommandCLI {
 
         String instanceDir = CMS.getInstanceDir();
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        new TomcatJSSInitializer().initialize();
 
         String subsystem = parent.getParent().getParent().getName();
         String subsystemDir = instanceDir + File.separator + subsystem;

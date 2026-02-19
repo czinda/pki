@@ -81,6 +81,7 @@ SCHEMA_FILES = [
 ]
 
 DEFAULT_INSTANCE_NAME = 'pki-tomcat'
+DEFAULT_QUARKUS_INSTANCE_NAME = 'pki-quarkus'
 
 DEFAULT_TOMCAT_PORT = 8005
 DEFAULT_TOMCAT_HTTP_PORT = 8080
@@ -2656,5 +2657,9 @@ class PKIServerFactory(object):
             module = __import__('pki.server.instance', fromlist=['PKIInstance'])
             clazz = getattr(module, 'PKIInstance')
             return clazz(instance_name, instance_type=instance_type)
+
+        if instance_type.startswith('pki-quarkusd'):
+            from pki.server.quarkus import QuarkusPKIInstance
+            return QuarkusPKIInstance(instance_name, instance_type)
 
         raise Exception('Unsupported instance type: %s' % instance_type)

@@ -16,7 +16,6 @@ import org.dogtagpki.server.quarkus.QuarkusSocketListenerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.QuarkusInstanceConfig;
@@ -100,29 +99,20 @@ public class CAEngineQuarkus {
     }
 
     /**
-     * Convert Quarkus SecurityIdentity to PKIPrincipal for backward
-     * compatibility with processors that check instanceof PKIPrincipal.
+     * Convert Quarkus SecurityIdentity to PKIPrincipalCore for backward
+     * compatibility with processors that check instanceof PKIPrincipalCore.
      */
-    public static PKIPrincipal toPKIPrincipal(SecurityIdentity identity) {
+    public static PKIPrincipalCore toPKIPrincipalCore(SecurityIdentity identity) {
         PKIPrincipalCore core = identity.getAttribute("pki.principal");
         if (core != null) {
-            User user = (User) core.getUser();
-            AuthToken authToken = (AuthToken) core.getAuthToken();
-            List<String> roles = core.getRolesList();
-            if (user != null) {
-                return new PKIPrincipal(user, core.getPassword(), roles, authToken);
-            }
-            User minimalUser = new User();
-            minimalUser.setUserID(core.getName());
-            minimalUser.setFullName(core.getName());
-            return new PKIPrincipal(minimalUser, core.getPassword(), roles, authToken);
+            return core;
         }
         // Fallback: create minimal principal from SecurityIdentity
         String name = identity.getPrincipal().getName();
         User user = new User();
         user.setUserID(name);
         user.setFullName(name);
-        return new PKIPrincipal(user, null, List.of(), null);
+        return new PKIPrincipalCore(name, null, List.of(), user, null);
     }
 
     /**

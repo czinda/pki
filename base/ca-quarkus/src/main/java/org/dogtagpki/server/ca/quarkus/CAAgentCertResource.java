@@ -55,7 +55,7 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.JSONSerializer;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cms.servlet.cert.CertRequestInfoFactory;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cmscore.apps.CMS;
@@ -272,7 +272,7 @@ public class CAAgentCertResource {
 
         try {
             // Use the principal from SecurityIdentity for role checks
-            PKIPrincipal principal = CAEngineQuarkus.toPKIPrincipal(identity);
+            PKIPrincipalCore principal = CAEngineQuarkus.toPKIPrincipalCore(identity);
             String subjectDN = principal.hasRole("Certificate Manager Agents") ? null : principal.getName();
 
             CertRecord targetRecord = processor.getCertificateRecord(id);

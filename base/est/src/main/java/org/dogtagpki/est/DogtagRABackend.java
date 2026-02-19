@@ -44,7 +44,8 @@ import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * EST backend that acts as RA for a Dogtag CA subsystem
@@ -328,8 +329,8 @@ public class DogtagRABackend extends ESTBackend {
                     }
 
                     ProfileAttribute nameAttr = input.getAttribute("ra_client_name");
-                    if (nameAttr != null && authzData.principal instanceof PKIPrincipal pkiPrincipal) {
-                        nameAttr.setValue(pkiPrincipal.getUser().getFullName());
+                    if (nameAttr != null && authzData.principal instanceof PKIPrincipalCore pkiPrincipal) {
+                        nameAttr.setValue(((User) pkiPrincipal.getUser()).getFullName());
                     }
 
                     ProfileAttribute certAttr = input.getAttribute("ra_client_certificate");

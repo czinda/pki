@@ -59,7 +59,7 @@ import com.netscape.certsrv.logging.event.SymKeyGenerationEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
@@ -597,10 +597,10 @@ public class KeyRequestProcessor {
     }
 
     private AuthToken getAuthToken(Principal principal) {
-        if (principal instanceof PKIPrincipal pkiprincipal) {
-            return pkiprincipal.getAuthToken();
+        if (principal instanceof PKIPrincipalCore pkiprincipal) {
+            return (AuthToken) pkiprincipal.getAuthToken();
         }
-        throw new PKIException("Unable to access realm: principal not instance of PKIPrincipal");
+        throw new PKIException("Unable to access realm: principal not instance of PKIPrincipalCore");
     }
 
     private KeyRequestInfoCollection listRequests(String baseurl, String filter, int start, int pageSize, int maxTime) throws EBaseException {

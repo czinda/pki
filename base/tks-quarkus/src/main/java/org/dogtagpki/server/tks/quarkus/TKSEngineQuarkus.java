@@ -16,7 +16,6 @@ import org.dogtagpki.server.tks.TKSEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.QuarkusInstanceConfig;
@@ -101,32 +100,20 @@ public class TKSEngineQuarkus {
     }
 
     /**
-     * Convert a Quarkus SecurityIdentity to a PKIPrincipal for use
-     * with TKS processors that require Tomcat-specific principal types.
+     * Convert a Quarkus SecurityIdentity to a PKIPrincipalCore for use
+     * with TKS processors that require PKI principal types.
      *
      * The TPSConnectorProcessor uses Principal for user validation
      * in shared secret operations. This method bridges the Quarkus
-     * security model to the expected PKIPrincipal.
+     * security model to the expected PKIPrincipalCore.
      *
      * @param identity the Quarkus SecurityIdentity
-     * @return a PKIPrincipal wrapping the identity information
+     * @return a PKIPrincipalCore wrapping the identity information
      */
-    public static PKIPrincipal toPKIPrincipal(SecurityIdentity identity) {
+    public static PKIPrincipalCore toPKIPrincipalCore(SecurityIdentity identity) {
         PKIPrincipalCore core = identity.getAttribute("pki.principal");
         if (core != null) {
-            User user = (User) core.getUser();
-            AuthToken authToken = (AuthToken) core.getAuthToken();
-            List<String> roles = core.getRolesList();
-
-            if (user != null) {
-                return new PKIPrincipal(user, core.getPassword(), roles, authToken);
-            }
-
-            // Create a minimal User for the principal name
-            User minimalUser = new User();
-            minimalUser.setUserID(core.getName());
-            minimalUser.setFullName(core.getName());
-            return new PKIPrincipal(minimalUser, core.getPassword(), roles, authToken);
+            return core;
         }
 
         // Fallback: create from basic principal
@@ -134,6 +121,6 @@ public class TKSEngineQuarkus {
         User user = new User();
         user.setUserID(name);
         user.setFullName(name);
-        return new PKIPrincipal(user, null, List.of(), null);
+        return new PKIPrincipalCore(name, null, List.of(), user, null);
     }
 }

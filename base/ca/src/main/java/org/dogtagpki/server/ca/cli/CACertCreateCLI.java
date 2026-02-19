@@ -22,7 +22,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ca.CAConfig;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.cert.CRMFUtil;
@@ -206,9 +206,7 @@ public class CACertCreateCLI extends CommandCLI {
         String certPath = cmd.getOptionValue("cert");
 
         // initialize JSS in pki-server CLI
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        new TomcatJSSInitializer().initialize();
 
         String instanceDir = CMS.getInstanceDir();
 

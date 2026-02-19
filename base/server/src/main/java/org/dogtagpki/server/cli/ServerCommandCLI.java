@@ -10,7 +10,7 @@ import java.io.File;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +49,7 @@ public abstract class ServerCommandCLI extends CommandCLI {
     }
 
     protected void initializeTomcatJSS() throws Exception {
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        new TomcatJSSInitializer().initialize();
     }
 
     protected EngineConfig getEngineConfig(String subsystem) throws Exception {

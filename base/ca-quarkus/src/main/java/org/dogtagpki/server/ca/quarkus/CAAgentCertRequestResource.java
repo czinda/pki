@@ -46,7 +46,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.certsrv.util.JSONSerializer;
 import com.netscape.cms.profile.common.Profile;
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cms.servlet.cert.CertRequestInfoFactory;
 import com.netscape.cms.servlet.cert.CertReviewResponseFactory;

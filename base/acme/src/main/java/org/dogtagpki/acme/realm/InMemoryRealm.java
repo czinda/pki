@@ -5,10 +5,20 @@
 //
 package org.dogtagpki.acme.realm;
 
-import com.netscape.cms.realm.PKIInMemoryRealm;
+import com.netscape.cms.realm.PKIPrincipalCore;
+import com.netscape.cms.realm.PKIRealmCore;
 
 /**
  * @author Endi S. Dewata
  */
-public class InMemoryRealm extends PKIInMemoryRealm {
+public class InMemoryRealm extends PKIRealmCore {
+
+    @Override
+    public PKIPrincipalCore authenticate(String username, String password) {
+        return null;
+    }
+
+    @Override
+    public void init() throws Exception {
+    }
 }

@@ -57,7 +57,7 @@ public class TPSProfileMappingResource {
     }
 
     private Principal getPrincipal() {
-        return TPSEngineQuarkus.toPKIPrincipal(identity);
+        return TPSEngineQuarkus.toPKIPrincipalCore(identity);
     }
 
     @GET
