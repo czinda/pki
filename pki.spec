@@ -1642,6 +1642,10 @@ install -pm 644 base/server/share/lib/systemd/system/pki-quarkusd.target \
 # with quarkus
 %endif
 
+# Create systemd target wants directories for Tomcat
+install -dm 755 %{buildroot}%{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
+install -dm 755 %{buildroot}%{_sysconfdir}/systemd/system/pki-tomcatd-nuxwdog.target.wants
+
 # install PKI console, Javadoc, and native binaries
 ./build.sh \
     %{?_verbose:-v} \
@@ -2179,6 +2183,12 @@ fi
 %{_datadir}/pki/scripts/operations
 %{_bindir}/pkidaemon
 %{_bindir}/pki-server-nuxwdog
+%dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
+%attr(644,-,-) %{_unitdir}/pki-tomcatd@.service
+%attr(644,-,-) %{_unitdir}/pki-tomcatd.target
+%dir %{_sysconfdir}/systemd/system/pki-tomcatd-nuxwdog.target.wants
+%attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog@.service
+%attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog.target
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
