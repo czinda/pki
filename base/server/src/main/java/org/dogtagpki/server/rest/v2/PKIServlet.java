@@ -28,18 +28,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.catalina.realm.GenericPrincipal;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.MimeType;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.WebAction;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -253,10 +251,8 @@ public abstract class PKIServlet extends HttpServlet {
 
         AuthToken authToken = null;
 
-        if (principal instanceof PKIPrincipal pr)
-            authToken = pr.getAuthToken();
-        else if (principal instanceof GenericPrincipal pr)
-            authToken = new ExternalAuthToken(pr);
+        if (principal instanceof PKIPrincipalCore core)
+            authToken = (AuthToken) core.getAuthToken();
 
         // If missing auth token but AuthSubsystem enabled reject request.
         if (authToken == null && getEngine().getAuthSubsystem() != null) {
@@ -274,7 +270,7 @@ public abstract class PKIServlet extends HttpServlet {
         if(authToken != null)
             context.put(SessionContext.AUTH_TOKEN, authToken);
         context.put(SessionContext.USER_ID, principal.getName());
-        if (principal instanceof PKIPrincipal pr)
-            context.put(SessionContext.USER, pr.getUser());
+        if (principal instanceof PKIPrincipalCore core && core.getUser() != null)
+            context.put(SessionContext.USER, core.getUser());
     }
 }

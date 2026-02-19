@@ -11,7 +11,7 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
@@ -59,9 +59,7 @@ public class CACRLRecordCertFindCLI extends CommandCLI {
 
         String instanceDir = CMS.getInstanceDir();
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        new TomcatJSSInitializer().initialize();
 
         String subsystem = parent.getParent().getParent().getParent().getName();
         String confDir = instanceDir + File.separator + subsystem + File.separator + "conf";

@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ProfileEntryConfig;
 import org.dogtagpki.server.ca.ProfileSubsystemConfig;
@@ -69,9 +69,7 @@ public class CAProfileImportCLI extends CommandCLI {
 
         String instanceDir = CMS.getInstanceDir();
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        new TomcatJSSInitializer().initialize();
 
         String subsystemName = parent.getParent().getName();
         String configFile = instanceDir + File.separator + subsystemName + File.separator +

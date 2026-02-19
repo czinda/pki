@@ -66,9 +66,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.cms.realm.RealmCommon;
-import com.netscape.cms.realm.RealmConfig;
-import com.netscape.cms.tomcat.ProxyRealm;
+import com.netscape.cms.realm.PKIRealmCore;
+import com.netscape.cms.realm.RealmCoreConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import java.util.Arrays;
@@ -105,7 +104,7 @@ public class ACMEEngine extends CMSEngine {
 
     private ACMEScheduler scheduler;
 
-    private RealmCommon realm;
+    private PKIRealmCore realm;
 
     private boolean noncesPersistent;
     private Map<String, ACMENonce> nonces = new ConcurrentHashMap<>();
@@ -440,30 +439,28 @@ public class ACMEEngine extends CMSEngine {
     public void initRealm(String filename) throws Exception {
 
         File realmConfigFile = new File(filename);
-        RealmConfig realmConfig = null;
+        RealmCoreConfig realmConfig = null;
         if (realmConfigFile.exists()) {
             logger.info("Loading ACME realm config from " + realmConfigFile);
             Properties props = new Properties();
             try (FileReader reader = new FileReader(realmConfigFile)) {
                 props.load(reader);
             }
-            realmConfig = RealmConfig.fromProperties(props);
+            realmConfig = RealmCoreConfig.fromProperties(props);
 
         } else {
             logger.info("Loading default ACME realm config");
-            realmConfig = new RealmConfig();
+            realmConfig = new RealmCoreConfig();
         }
 
         logger.info("Initializing ACME realm");
 
         String className = realmConfig.getClassName();
-        Class<RealmCommon> realmClass = (Class<RealmCommon>) Class.forName(className);
+        Class<PKIRealmCore> realmClass = (Class<PKIRealmCore>) Class.forName(className);
 
         realm = realmClass.getDeclaredConstructor().newInstance();
         realm.setConfig(realmConfig);
-        realm.start();
-
-        ProxyRealm.registerRealm(id, realm);
+        realm.init();
     }
 
     public void start() throws Exception {

@@ -392,12 +392,12 @@ class PKIDeployer:
             # It is not needed since PKI server will use JSS-based SSL connector
             server_config.remove_listener('org.apache.catalina.core.AprLifecycleListener')
 
-        listener = server_config.get_listener('com.netscape.cms.tomcat.PKIListener')
+        listener = server_config.get_listener('org.dogtagpki.jss.tomcat.JSSListener')
         if listener is None:
-            logger.info('Adding PKIListener')
-            server_config.create_listener('com.netscape.cms.tomcat.PKIListener')
+            logger.info('Adding JSSListener')
+            server_config.create_listener('org.dogtagpki.jss.tomcat.JSSListener')
         else:
-            logger.info('Reusing PKIListener')
+            logger.info('Reusing JSSListener')
 
         server_config.save()
 

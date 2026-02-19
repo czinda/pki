@@ -44,7 +44,7 @@ class NuxwdogEnableCLI(pki.cli.CLI):
 
     def __init__(self):
         self.nuxwdog_listener_class = (
-            'com.netscape.cms.tomcat.PKIListener'
+            'org.dogtagpki.jss.tomcat.JSSListener'
         )
         self.nuxwdog_pwstore_class = (
             'com.netscape.cms.tomcat.NuxwdogPasswordStore'
@@ -224,7 +224,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
 
     def __init__(self):
         self.nuxwdog_listener_class = (
-            'com.netscape.cms.tomcat.PKIListener'
+            'org.dogtagpki.jss.tomcat.JSSListener'
         )
         self.plain_pwstore_class = (
             'org.dogtagpki.jss.tomcat.PlainPasswordFile'

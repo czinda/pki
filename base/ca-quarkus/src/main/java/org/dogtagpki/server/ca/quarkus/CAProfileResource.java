@@ -113,7 +113,7 @@ public class CAProfileResource {
             @PathParam("profileId") String profileId,
             @QueryParam("action") String action) throws Exception {
 
-        getProfileBase().modifyProfileState(CAEngineQuarkus.toPKIPrincipal(identity), profileId, action);
+        getProfileBase().modifyProfileState(CAEngineQuarkus.toPKIPrincipalCore(identity), profileId, action);
         return Response.noContent().build();
     }
 

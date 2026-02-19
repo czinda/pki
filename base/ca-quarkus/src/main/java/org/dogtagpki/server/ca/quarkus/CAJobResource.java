@@ -5,24 +5,24 @@
 //
 package org.dogtagpki.server.ca.quarkus;
 
+import java.security.Principal;
+
 import jakarta.inject.Inject;
-import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
-import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.rest.base.JobBase;
+import org.dogtagpki.job.JobCollection;
+import org.dogtagpki.job.JobInfo;
+import org.dogtagpki.server.rest.base.JobServletBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.netscape.certsrv.jobs.JobCollection;
-import com.netscape.certsrv.jobs.JobData;
 
 /**
  * JAX-RS resource for CA job operations.
@@ -36,14 +36,19 @@ public class CAJobResource {
     @Inject
     CAEngineQuarkus engineQuarkus;
 
+    @Context
+    SecurityContext securityContext;
+
+    private JobServletBase createBase() {
+        return new JobServletBase(engineQuarkus.getEngine());
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response findJobs(
-            @QueryParam("start") @DefaultValue("0") int start,
-            @QueryParam("size") @DefaultValue("20") int size) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        JobBase jobBase = new JobBase(engine);
-        JobCollection jobs = jobBase.findJobs(start, size);
+    public Response getJobs() throws Exception {
+        logger.debug("CAJobResource.getJobs()");
+        Principal principal = securityContext.getUserPrincipal();
+        JobCollection jobs = createBase().findJobs(principal);
         return Response.ok(jobs.toJSON()).build();
     }
 
@@ -51,19 +56,18 @@ public class CAJobResource {
     @Path("{jobId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getJob(@PathParam("jobId") String jobId) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        JobBase jobBase = new JobBase(engine);
-        JobData job = jobBase.getJob(jobId);
+        logger.debug("CAJobResource.getJob(): jobId={}", jobId);
+        Principal principal = securityContext.getUserPrincipal();
+        JobInfo job = createBase().getJob(jobId, principal);
         return Response.ok(job.toJSON()).build();
     }
 
     @POST
-    @Path("{jobId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{jobId}/start")
     public Response startJob(@PathParam("jobId") String jobId) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        JobBase jobBase = new JobBase(engine);
-        jobBase.startJob(jobId);
+        logger.debug("CAJobResource.startJob(): jobId={}", jobId);
+        Principal principal = securityContext.getUserPrincipal();
+        createBase().startJob(jobId, principal);
         return Response.noContent().build();
     }
 }

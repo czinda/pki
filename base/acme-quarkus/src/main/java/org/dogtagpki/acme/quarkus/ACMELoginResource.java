@@ -90,7 +90,7 @@ public class ACMELoginResource {
                 logger.info("ACMELoginResource: PKI principal found for: " + username);
             }
 
-            List<String> roles = pkiPrincipal.getRoles();
+            List<String> roles = pkiPrincipal.getRolesList();
             if (roles != null) {
                 logger.info("ACMELoginResource: Roles:");
                 for (String role : roles) {

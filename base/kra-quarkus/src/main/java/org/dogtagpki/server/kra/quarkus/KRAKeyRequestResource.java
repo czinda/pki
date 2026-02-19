@@ -39,9 +39,9 @@ import io.quarkus.security.identity.SecurityIdentity;
  * JAX-RS resource for KRA key request operations.
  * Replaces KeyRequestServlet.
  *
- * Note: Key request operations require PKIPrincipal for realm-based
- * authorization. The SecurityIdentity is converted to PKIPrincipal
- * via KRAEngineQuarkus.toPKIPrincipal() to support the existing
+ * Note: Key request operations require PKIPrincipalCore for realm-based
+ * authorization. The SecurityIdentity is converted to PKIPrincipalCore
+ * via KRAEngineQuarkus.toPKIPrincipalCore() to support the existing
  * KeyRequestProcessor authorization model.
  */
 @Path("v2/agent/keyrequests")
@@ -65,7 +65,7 @@ public class KRAKeyRequestResource {
     }
 
     private Principal getPrincipal() {
-        return KRAEngineQuarkus.toPKIPrincipal(identity);
+        return KRAEngineQuarkus.toPKIPrincipalCore(identity);
     }
 
     private String getBaseUrl() {

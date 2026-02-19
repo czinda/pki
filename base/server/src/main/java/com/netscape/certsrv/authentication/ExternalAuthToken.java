@@ -25,12 +25,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 
-import org.apache.catalina.realm.GenericPrincipal;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.usrgrp.Certificates;
+import com.netscape.cms.realm.PKIPrincipalCore;
 
 
 /**
@@ -39,10 +39,17 @@ import com.netscape.certsrv.usrgrp.Certificates;
  */
 public class ExternalAuthToken extends AuthToken {
 
-    protected GenericPrincipal principal;
+    protected Principal principal;
+    protected String[] roles;
 
-    public ExternalAuthToken(GenericPrincipal principal) {
+    public ExternalAuthToken(Principal principal, String[] roles) {
         this.principal = principal;
+        this.roles = roles != null ? roles : new String[0];
+    }
+
+    public ExternalAuthToken(PKIPrincipalCore core) {
+        this.principal = core;
+        this.roles = core.getRoles();
     }
 
     public Principal getPrincipal() {
@@ -130,7 +137,7 @@ public class ExternalAuthToken extends AuthToken {
         if (k == null)
             return null;
         if (k.equals(AuthToken.GROUPS))
-            return principal.getRoles();
+            return roles;
         return null;
     }
 

@@ -5,23 +5,23 @@
 //
 package org.dogtagpki.server.ca.quarkus;
 
+import java.util.List;
+
 import jakarta.inject.Inject;
-import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.rest.base.FeatureBase;
+import org.dogtagpki.server.rest.base.FeatureServletBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netscape.certsrv.system.Feature;
-import com.netscape.certsrv.system.FeatureCollection;
 
 /**
  * JAX-RS resource for CA feature operations.
@@ -35,24 +35,25 @@ public class CAFeatureResource {
     @Inject
     CAEngineQuarkus engineQuarkus;
 
+    private FeatureServletBase createBase() {
+        return new FeatureServletBase(engineQuarkus.getEngine());
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response listFeatures(
-            @QueryParam("start") @DefaultValue("0") int start,
-            @QueryParam("size") @DefaultValue("20") int size) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        FeatureBase featureBase = new FeatureBase(engine);
-        FeatureCollection features = featureBase.listFeatures(start, size);
-        return Response.ok(features.toJSON()).build();
+    public Response listFeatures() throws Exception {
+        logger.debug("CAFeatureResource.listFeatures()");
+        List<Feature> features = createBase().listFeatures();
+        ObjectMapper mapper = new ObjectMapper();
+        return Response.ok(mapper.writeValueAsString(features)).build();
     }
 
     @GET
     @Path("{featureId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getFeature(@PathParam("featureId") String featureId) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        FeatureBase featureBase = new FeatureBase(engine);
-        Feature feature = featureBase.getFeature(featureId);
+        logger.debug("CAFeatureResource.getFeature(): featureId={}", featureId);
+        Feature feature = createBase().getFeature(featureId);
         return Response.ok(feature.toJSON()).build();
     }
 }

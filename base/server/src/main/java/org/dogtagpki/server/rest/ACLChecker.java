@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -131,10 +130,7 @@ public class ACLChecker {
         AuthToken authToken = null;
         String authzMgrName = null;
         if (principal != null) {
-            if (principal instanceof PKIPrincipal pkiPrincipal) {
-                authzMgrName = "DirAclAuthz";
-                authToken = pkiPrincipal.getAuthToken();
-            } else if (principal instanceof PKIPrincipalCore corePrincipal) {
+            if (principal instanceof PKIPrincipalCore corePrincipal) {
                 authzMgrName = "DirAclAuthz";
                 authToken = (AuthToken) corePrincipal.getAuthToken();
             } else {
@@ -291,9 +287,7 @@ public class ACLChecker {
 
         // Log role assumption
         String[] roles = null;
-        if (principal instanceof PKIPrincipal pkiPrincipal) {
-            roles = pkiPrincipal.getRoles();
-        } else if (principal instanceof PKIPrincipalCore corePrincipal) {
+        if (principal instanceof PKIPrincipalCore corePrincipal) {
             roles = corePrincipal.getRoles();
         }
         if (roles != null) {
@@ -308,9 +302,6 @@ public class ACLChecker {
      * Subclasses can override this for container-specific principal types.
      */
     protected AuthToken extractExternalAuthToken(Principal principal) {
-        if (principal instanceof org.apache.catalina.realm.GenericPrincipal genPrincipal) {
-            return new ExternalAuthToken(genPrincipal);
-        }
-        return null;
+        return new ExternalAuthToken(principal, new String[0]);
     }
 }

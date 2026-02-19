@@ -61,7 +61,7 @@ public class TPSProfileResource {
     }
 
     private Principal getPrincipal() {
-        return TPSEngineQuarkus.toPKIPrincipal(identity);
+        return TPSEngineQuarkus.toPKIPrincipalCore(identity);
     }
 
     private List<String> getAuthorizedProfiles() {

@@ -17,25 +17,42 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import java.lang.reflect.Method;
+
 import org.mozilla.jss.ssl.SSLSocketListener;
 
 /**
  * Tomcat-based implementation of SocketListenerRegistry.
  *
  * Delegates to TomcatJSS for SSL socket listener management.
+ * Uses reflection to avoid compile-time dependency on jss-tomcat.
  */
 public class TomcatSocketListenerRegistry implements SocketListenerRegistry {
 
+    private Object getTomcatJSS() throws Exception {
+        Class<?> clazz = Class.forName("org.dogtagpki.jss.tomcat.TomcatJSS");
+        return clazz.getMethod("getInstance").invoke(null);
+    }
+
     @Override
     public void addSocketListener(SSLSocketListener listener) {
-        TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        tomcatJss.addSocketListener(listener);
+        try {
+            Object tomcatJss = getTomcatJSS();
+            Method method = tomcatJss.getClass().getMethod("addSocketListener", SSLSocketListener.class);
+            method.invoke(tomcatJss, listener);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to add socket listener via TomcatJSS", e);
+        }
     }
 
     @Override
     public void removeSocketListener(SSLSocketListener listener) {
-        TomcatJSS tomcatJss = TomcatJSS.getInstance();
-        tomcatJss.removeSocketListener(listener);
+        try {
+            Object tomcatJss = getTomcatJSS();
+            Method method = tomcatJss.getClass().getMethod("removeSocketListener", SSLSocketListener.class);
+            method.invoke(tomcatJss, listener);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to remove socket listener via TomcatJSS", e);
+        }
     }
 }

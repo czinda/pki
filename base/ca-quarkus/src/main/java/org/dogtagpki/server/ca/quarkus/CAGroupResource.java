@@ -5,21 +5,27 @@
 //
 package org.dogtagpki.server.ca.quarkus;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.util.Locale;
+
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
-import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.rest.base.GroupBase;
+import org.dogtagpki.server.rest.base.GroupServletBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,45 +47,61 @@ public class CAGroupResource {
     @Inject
     CAEngineQuarkus engineQuarkus;
 
+    @Context
+    UriInfo uriInfo;
+
+    private GroupServletBase createBase() {
+        return new GroupServletBase(engineQuarkus.getEngine());
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response findGroups(
             @QueryParam("filter") String filter,
             @QueryParam("start") @DefaultValue("0") int start,
             @QueryParam("size") @DefaultValue("20") int size) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        GroupBase groupBase = new GroupBase(engine);
-        GroupCollection groups = groupBase.findGroups(filter, start, size);
+        logger.debug("CAGroupResource.findGroups()");
+        GroupCollection groups = createBase().findGroups(filter, start, size);
         return Response.ok(groups.toJSON()).build();
-    }
-
-    @GET
-    @Path("{groupId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getGroup(@PathParam("groupId") String groupId) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        GroupBase groupBase = new GroupBase(engine);
-        GroupData group = groupBase.getGroup(groupId);
-        return Response.ok(group.toJSON()).build();
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addGroup(String requestData) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        GroupBase groupBase = new GroupBase(engine);
+        logger.debug("CAGroupResource.addGroup()");
         GroupData groupData = JSONSerializer.fromJSON(requestData, GroupData.class);
-        GroupData newGroup = groupBase.addGroup(groupData);
-        return Response.status(Response.Status.CREATED).entity(newGroup.toJSON()).build();
+        GroupData group = createBase().addGroup(groupData, Locale.getDefault());
+        String encodedGroupID = URLEncoder.encode(group.getGroupID(), "UTF-8");
+        URI location = uriInfo.getAbsolutePathBuilder().path(encodedGroupID).build();
+        return Response.created(location).entity(group.toJSON()).build();
+    }
+
+    @GET
+    @Path("{groupId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getGroup(@PathParam("groupId") String groupId) throws Exception {
+        logger.debug("CAGroupResource.getGroup(): groupId={}", groupId);
+        GroupData group = createBase().getGroup(groupId, Locale.getDefault());
+        return Response.ok(group.toJSON()).build();
+    }
+
+    @PATCH
+    @Path("{groupId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response modifyGroup(@PathParam("groupId") String groupId, String requestData) throws Exception {
+        logger.debug("CAGroupResource.modifyGroup(): groupId={}", groupId);
+        GroupData groupData = JSONSerializer.fromJSON(requestData, GroupData.class);
+        GroupData group = createBase().modifyGroup(groupId, groupData, Locale.getDefault());
+        return Response.ok(group.toJSON()).build();
     }
 
     @DELETE
     @Path("{groupId}")
     public Response removeGroup(@PathParam("groupId") String groupId) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        GroupBase groupBase = new GroupBase(engine);
-        groupBase.removeGroup(groupId);
+        logger.debug("CAGroupResource.removeGroup(): groupId={}", groupId);
+        createBase().removeGroup(groupId, Locale.getDefault());
         return Response.noContent().build();
     }
 
@@ -91,9 +113,8 @@ public class CAGroupResource {
             @QueryParam("filter") String filter,
             @QueryParam("start") @DefaultValue("0") int start,
             @QueryParam("size") @DefaultValue("20") int size) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        GroupBase groupBase = new GroupBase(engine);
-        GroupMemberCollection members = groupBase.findGroupMembers(groupId, filter, start, size);
+        logger.debug("CAGroupResource.findGroupMembers(): groupId={}", groupId);
+        GroupMemberCollection members = createBase().findGroupMembers(groupId, filter, start, size, Locale.getDefault());
         return Response.ok(members.toJSON()).build();
     }
 
@@ -101,24 +122,29 @@ public class CAGroupResource {
     @Path("{groupId}/members")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addGroupMember(
-            @PathParam("groupId") String groupId,
-            String requestData) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        GroupBase groupBase = new GroupBase(engine);
+    public Response addGroupMember(@PathParam("groupId") String groupId, String requestData) throws Exception {
+        logger.debug("CAGroupResource.addGroupMember(): groupId={}", groupId);
         GroupMemberData memberData = JSONSerializer.fromJSON(requestData, GroupMemberData.class);
-        GroupMemberData newMember = groupBase.addGroupMember(groupId, memberData);
-        return Response.status(Response.Status.CREATED).entity(newMember.toJSON()).build();
+        GroupMemberData member = createBase().addGroupMember(groupId, memberData, Locale.getDefault());
+        String encodedMemberID = URLEncoder.encode(member.getID(), "UTF-8");
+        URI location = uriInfo.getAbsolutePathBuilder().path(encodedMemberID).build();
+        return Response.created(location).entity(member.toJSON()).build();
+    }
+
+    @GET
+    @Path("{groupId}/members/{memberId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getGroupMember(@PathParam("groupId") String groupId, @PathParam("memberId") String memberId) throws Exception {
+        logger.debug("CAGroupResource.getGroupMember(): groupId={}, memberId={}", groupId, memberId);
+        GroupMemberData member = createBase().getGroupMember(groupId, memberId, Locale.getDefault());
+        return Response.ok(member.toJSON()).build();
     }
 
     @DELETE
     @Path("{groupId}/members/{memberId}")
-    public Response removeGroupMember(
-            @PathParam("groupId") String groupId,
-            @PathParam("memberId") String memberId) throws Exception {
-        CAEngine engine = engineQuarkus.getEngine();
-        GroupBase groupBase = new GroupBase(engine);
-        groupBase.removeGroupMember(groupId, memberId);
+    public Response removeGroupMember(@PathParam("groupId") String groupId, @PathParam("memberId") String memberId) throws Exception {
+        logger.debug("CAGroupResource.removeGroupMember(): groupId={}, memberId={}", groupId, memberId);
+        createBase().removeGroupMember(groupId, memberId, Locale.getDefault());
         return Response.noContent().build();
     }
 }

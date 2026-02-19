@@ -15,8 +15,8 @@ import org.dogtagpki.server.cli.ServerCommandCLI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.cms.realm.RealmCommon;
-import com.netscape.cms.realm.RealmConfig;
+import com.netscape.cms.realm.PKIRealmCore;
+import com.netscape.cms.realm.RealmCoreConfig;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -45,7 +45,7 @@ public class ACMERealmInitCLI extends ServerCommandCLI {
         logger.info("ACME configuration directory: " + acmeConfDir);
 
         File realmConfigFile = new File(acmeConfDir + File.separator + "realm.conf");
-        RealmConfig realmConfig;
+        RealmCoreConfig realmConfig;
 
         if (realmConfigFile.exists()) {
             logger.info("Loading ACME realm config from " + realmConfigFile);
@@ -53,27 +53,25 @@ public class ACMERealmInitCLI extends ServerCommandCLI {
             try (FileReader reader = new FileReader(realmConfigFile)) {
                 realmProps.load(reader);
             }
-            realmConfig = RealmConfig.fromProperties(realmProps);
+            realmConfig = RealmCoreConfig.fromProperties(realmProps);
 
         } else {
             logger.info("Loading default ACME realm config");
-            realmConfig = new RealmConfig();
+            realmConfig = new RealmCoreConfig();
         }
 
         String className = realmConfig.getClassName();
-        Class<RealmCommon> realmClass = (Class<RealmCommon>) Class.forName(className);
+        Class<PKIRealmCore> realmClass = (Class<PKIRealmCore>) Class.forName(className);
 
-        RealmCommon realm = realmClass.getDeclaredConstructor().newInstance();
+        PKIRealmCore realm = realmClass.getDeclaredConstructor().newInstance();
         realm.setConfig(realmConfig);
 
         try {
-            realm.initInternal();
-
             logger.info("Initializing ACME realm");
-            realm.initRealm();
+            realm.init();
 
         } finally {
-            realm.stopInternal();
+            realm.stop();
         }
     }
 }

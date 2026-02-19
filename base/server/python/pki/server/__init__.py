@@ -81,6 +81,7 @@ SCHEMA_FILES = [
 ]
 
 DEFAULT_INSTANCE_NAME = 'pki-tomcat'
+DEFAULT_QUARKUS_INSTANCE_NAME = 'pki-quarkus'
 
 DEFAULT_TOMCAT_PORT = 8005
 DEFAULT_TOMCAT_HTTP_PORT = 8080
@@ -930,6 +931,11 @@ grant codeBase "file:%s" {
 
         catalina_properties = os.path.join(
             PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
+
+        if not os.path.exists(catalina_properties):
+            # fall back to system Tomcat catalina.properties
+            catalina_properties = os.path.join(Tomcat.CONF_DIR, 'catalina.properties')
+
         self.symlink(catalina_properties, self.catalina_properties, exist_ok=exist_ok)
 
     def create_context_xml(self, exist_ok=False):
@@ -1033,7 +1039,21 @@ grant codeBase "file:%s" {
                 # to /usr/share/pki/server/conf/Catalina/localhost/rewrite.config
 
                 link = os.path.join(host_dir, 'rewrite.config')
-                self.symlink(target, link, exist_ok=exist_ok)
+
+                if os.path.exists(target):
+                    # symlink to shared rewrite.config if available
+                    self.symlink(target, link, exist_ok=exist_ok)
+                elif not os.path.exists(link):
+                    # generate rewrite.config directly
+                    logger.info('Creating %s', link)
+                    with open(link, 'w') as f:
+                        f.write('# EST\n')
+                        f.write('RewriteRule ^/.well-known/est/(.*)$ /est/$1\n')
+                        f.write('\n')
+                        f.write('# REST APIs\n')
+                        f.write('RewriteRule ^/(pki|ca|tps|tks|ocsp|kra)/rest/(.*)$ /$1/v1/$2\n')
+                    self.chown(link)
+                    os.chmod(link, DEFAULT_FILE_MODE)
 
         server_config.save()
 
@@ -1229,8 +1249,23 @@ grant codeBase "file:%s" {
         else:
             logger.info('Deploying %s web application', webapp_id)
 
-            # read deployment descriptor
-            document = etree.parse(descriptor, parser)
+            if os.path.exists(descriptor):
+                # read deployment descriptor from template
+                document = etree.parse(descriptor, parser)
+            else:
+                # generate default context XML
+                logger.info('Descriptor %s not found, generating default', descriptor)
+                context = etree.Element('Context')
+                context.set('crossContext', 'true')
+
+                manager = etree.SubElement(context, 'Manager')
+                manager.set('secureRandomProvider', 'Mozilla-JSS')
+                manager.set('secureRandomAlgorithm', 'pkcs11prng')
+
+                resources = etree.SubElement(context, 'Resources')
+                resources.set('allowLinking', 'true')
+
+                document = etree.ElementTree(context)
 
             if doc_base:
                 # customize docBase
@@ -2672,5 +2707,9 @@ class PKIServerFactory(object):
             module = __import__('pki.server.instance', fromlist=['PKIInstance'])
             clazz = getattr(module, 'PKIInstance')
             return clazz(instance_name, instance_type=instance_type)
+
+        if instance_type.startswith('pki-quarkusd'):
+            from pki.server.quarkus import QuarkusPKIInstance
+            return QuarkusPKIInstance(instance_name, instance_type)
 
         raise Exception('Unsupported instance type: %s' % instance_type)

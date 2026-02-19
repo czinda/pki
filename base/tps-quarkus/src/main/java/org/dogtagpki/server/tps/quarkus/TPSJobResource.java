@@ -5,21 +5,24 @@
 //
 package org.dogtagpki.server.tps.quarkus;
 
+import java.security.Principal;
+
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
+import org.dogtagpki.job.JobCollection;
+import org.dogtagpki.job.JobInfo;
 import org.dogtagpki.server.rest.base.JobServletBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.netscape.certsrv.jobs.JobCollection;
-import com.netscape.certsrv.jobs.JobInfo;
 
 @Path("v2/jobs")
 public class TPSJobResource {
@@ -29,6 +32,9 @@ public class TPSJobResource {
     @Inject
     TPSEngineQuarkus engineQuarkus;
 
+    @Context
+    SecurityContext securityContext;
+
     private JobServletBase createBase() {
         return new JobServletBase(engineQuarkus.getEngine());
     }
@@ -37,7 +43,8 @@ public class TPSJobResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getJobs() throws Exception {
         logger.debug("TPSJobResource.getJobs()");
-        JobCollection jobs = createBase().getJobs();
+        Principal principal = securityContext.getUserPrincipal();
+        JobCollection jobs = createBase().findJobs(principal);
         return Response.ok(jobs.toJSON()).build();
     }
 
@@ -46,7 +53,8 @@ public class TPSJobResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getJob(@PathParam("jobId") String jobId) throws Exception {
         logger.debug("TPSJobResource.getJob(): jobId={}", jobId);
-        JobInfo job = createBase().getJob(jobId);
+        Principal principal = securityContext.getUserPrincipal();
+        JobInfo job = createBase().getJob(jobId, principal);
         return Response.ok(job.toJSON()).build();
     }
 
@@ -54,7 +62,8 @@ public class TPSJobResource {
     @Path("{jobId}/start")
     public Response startJob(@PathParam("jobId") String jobId) throws Exception {
         logger.debug("TPSJobResource.startJob(): jobId={}", jobId);
-        createBase().startJob(jobId);
+        Principal principal = securityContext.getUserPrincipal();
+        createBase().startJob(jobId, principal);
         return Response.noContent().build();
     }
 }

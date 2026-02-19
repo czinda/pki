@@ -181,16 +181,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             params=deployer.mdict,
             exist_ok=True)
 
-        # Copy /usr/share/pki/server/conf/ROOT.xml
-        # to /var/lib/pki/<instance>/conf/Catalina/localhost/ROOT.xml
+        # Deploy ROOT web application if descriptor template exists
+        root_xml = os.path.join(
+            shared_conf_path,
+            'Catalina',
+            'localhost',
+            'ROOT.xml')
 
-        instance.deploy_webapp(
-            'ROOT',
-            os.path.join(
-                shared_conf_path,
-                'Catalina',
-                'localhost',
-                'ROOT.xml'))
+        if os.path.exists(root_xml):
+            instance.deploy_webapp('ROOT', root_xml)
 
         # Deploy pki web application which includes themes,
         # admin templates, and JS libraries

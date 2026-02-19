@@ -7,7 +7,6 @@ package org.dogtagpki.server.kra.quarkus;
 
 import java.security.Principal;
 
-import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -32,9 +31,6 @@ public class KRAAccountResource {
 
     private static final Logger logger = LoggerFactory.getLogger(KRAAccountResource.class);
 
-    @Inject
-    KRAEngineQuarkus engineQuarkus;
-
     @Context
     SecurityContext securityContext;
 
@@ -44,8 +40,7 @@ public class KRAAccountResource {
     public Response login() throws Exception {
         logger.debug("KRAAccountResource.login()");
         Principal principal = securityContext.getUserPrincipal();
-        AccountServletBase base = new AccountServletBase(engineQuarkus.getEngine());
-        Account account = base.createAccount(principal);
+        Account account = AccountServletBase.createAccount(principal);
         return Response.ok(account.toJSON()).build();
     }
 
@@ -53,7 +48,6 @@ public class KRAAccountResource {
     @Path("logout")
     public Response logout() throws Exception {
         logger.debug("KRAAccountResource.logout()");
-        // Stateless - no session to invalidate
         return Response.noContent().build();
     }
 

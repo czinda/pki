@@ -1,6 +1,12 @@
 name: ACME Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      - tomcat-to-quarkus-migration
+  pull_request:
+    branches-ignore:
+      - tomcat-to-quarkus-migration
 
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}

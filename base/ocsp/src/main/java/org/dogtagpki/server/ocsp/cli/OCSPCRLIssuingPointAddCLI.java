@@ -16,7 +16,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.io.IOUtils;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ocsp.OCSPConfig;
 import org.dogtagpki.server.ocsp.OCSPEngineConfig;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -73,9 +73,7 @@ public class OCSPCRLIssuingPointAddCLI extends CommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        new TomcatJSSInitializer().initialize();
 
         String instanceDir = CMS.getInstanceDir();
         String subsystem = parent.getParent().getParent().getName();

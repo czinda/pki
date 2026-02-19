@@ -5,7 +5,9 @@
 //
 package org.dogtagpki.server.tks.quarkus;
 
+import java.net.URI;
 import java.net.URLEncoder;
+import java.util.Locale;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -69,9 +71,9 @@ public class TKSGroupResource {
     public Response addGroup(String requestData) throws Exception {
         logger.debug("TKSGroupResource.addGroup()");
         GroupData data = JSONSerializer.fromJSON(requestData, GroupData.class);
-        GroupData group = createBase().addGroup(data);
+        GroupData group = createBase().addGroup(data, Locale.getDefault());
         String encodedID = URLEncoder.encode(group.getGroupID(), "UTF-8");
-        java.net.URI location = uriInfo.getAbsolutePathBuilder().path(encodedID).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(encodedID).build();
         return Response.created(location).entity(group.toJSON()).build();
     }
 
@@ -80,7 +82,7 @@ public class TKSGroupResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getGroup(@PathParam("groupId") String groupId) throws Exception {
         logger.debug("TKSGroupResource.getGroup(): groupId={}", groupId);
-        GroupData group = createBase().getGroup(groupId);
+        GroupData group = createBase().getGroup(groupId, Locale.getDefault());
         return Response.ok(group.toJSON()).build();
     }
 
@@ -91,7 +93,7 @@ public class TKSGroupResource {
     public Response modifyGroup(@PathParam("groupId") String groupId, String requestData) throws Exception {
         logger.debug("TKSGroupResource.modifyGroup(): groupId={}", groupId);
         GroupData data = JSONSerializer.fromJSON(requestData, GroupData.class);
-        GroupData group = createBase().modifyGroup(groupId, data);
+        GroupData group = createBase().modifyGroup(groupId, data, Locale.getDefault());
         return Response.ok(group.toJSON()).build();
     }
 
@@ -99,7 +101,7 @@ public class TKSGroupResource {
     @Path("{groupId}")
     public Response removeGroup(@PathParam("groupId") String groupId) throws Exception {
         logger.debug("TKSGroupResource.removeGroup(): groupId={}", groupId);
-        createBase().removeGroup(groupId);
+        createBase().removeGroup(groupId, Locale.getDefault());
         return Response.noContent().build();
     }
 
@@ -112,7 +114,7 @@ public class TKSGroupResource {
             @QueryParam("start") @DefaultValue("0") int start,
             @QueryParam("size") @DefaultValue("20") int size) throws Exception {
         logger.debug("TKSGroupResource.findGroupMembers(): groupId={}", groupId);
-        GroupMemberCollection members = createBase().findGroupMembers(groupId, filter, start, size);
+        GroupMemberCollection members = createBase().findGroupMembers(groupId, filter, start, size, Locale.getDefault());
         return Response.ok(members.toJSON()).build();
     }
 
@@ -123,8 +125,10 @@ public class TKSGroupResource {
     public Response addGroupMember(@PathParam("groupId") String groupId, String requestData) throws Exception {
         logger.debug("TKSGroupResource.addGroupMember(): groupId={}", groupId);
         GroupMemberData data = JSONSerializer.fromJSON(requestData, GroupMemberData.class);
-        GroupMemberData member = createBase().addGroupMember(groupId, data);
-        return Response.ok(member.toJSON()).build();
+        GroupMemberData member = createBase().addGroupMember(groupId, data, Locale.getDefault());
+        String encodedMemberID = URLEncoder.encode(member.getID(), "UTF-8");
+        URI location = uriInfo.getAbsolutePathBuilder().path(encodedMemberID).build();
+        return Response.created(location).entity(member.toJSON()).build();
     }
 
     @GET
@@ -134,7 +138,7 @@ public class TKSGroupResource {
             @PathParam("groupId") String groupId,
             @PathParam("memberId") String memberId) throws Exception {
         logger.debug("TKSGroupResource.getGroupMember(): groupId={}, memberId={}", groupId, memberId);
-        GroupMemberData member = createBase().getGroupMember(groupId, memberId);
+        GroupMemberData member = createBase().getGroupMember(groupId, memberId, Locale.getDefault());
         return Response.ok(member.toJSON()).build();
     }
 
@@ -144,7 +148,7 @@ public class TKSGroupResource {
             @PathParam("groupId") String groupId,
             @PathParam("memberId") String memberId) throws Exception {
         logger.debug("TKSGroupResource.removeGroupMember(): groupId={}, memberId={}", groupId, memberId);
-        createBase().removeGroupMember(groupId, memberId);
+        createBase().removeGroupMember(groupId, memberId, Locale.getDefault());
         return Response.noContent().build();
     }
 }

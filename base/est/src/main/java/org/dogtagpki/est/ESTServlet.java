@@ -20,7 +20,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.catalina.Globals;
 import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.common.AppInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -203,7 +202,7 @@ public class ESTServlet extends org.dogtagpki.server.rest.v2.PKIServlet {
 
         // retreieve client certificate chain (if available)
         data.clientCertChain = (X509Certificate[])
-            servletRequest.getAttribute(Globals.CERTIFICATES_ATTR);
+            servletRequest.getAttribute("javax.servlet.request.X509Certificate");
 
         data.remoteAddr = servletRequest.getRemoteAddr();
 

@@ -404,17 +404,78 @@ VOLUME [ \
 CMD [ "/usr/share/pki/acme/bin/pki-acme-run" ]
 
 ################################################################################
-FROM pki-builder AS pki-quarkus-builder
+FROM pki-builder-deps AS pki-quarkus-builder
 
-# Build Quarkus modules (requires the standard build to have run first)
-# The -Pquarkus profile activates quarkus-common and all *-quarkus modules
+ARG BUILD_OPTS
+
+# Import JSS packages
+COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+
+# Import LDAP SDK packages
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+
+# Install build dependencies
+RUN dnf install -y /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
+
+# Import PKI sources
+COPY . /root/pki/
+
+# Prepare sources the same way the RPM %prep section does:
+# 1. Migrate source from javax to jakarta (needed for Fedora 43+ / Tomcat 10+)
+# 2. Install pki-local:jboss-jaxrs-api_2.0_spec into ~/.m2 so Maven can resolve it
+# 3. Disable tomcat-9.0 module (incompatible with Jakarta Servlet on Fedora 43+)
+#    and remove its dependency from base/server, matching pki.spec behavior
 RUN cd /root/pki \
-    && mvn install -Pquarkus \
-       -pl base/quarkus-common,base/est-quarkus,base/acme-quarkus,base/ocsp-quarkus,base/kra-quarkus,base/tks-quarkus,base/tps-quarkus,base/ca-quarkus \
-       -DskipTests
+    && /usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base \
+    && JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p') \
+    && cp /usr/share/java/jboss-jaxrs-2.0-api.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+    && /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+    && mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION \
+    && cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+    && rm -f jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+    && sed -i '/<module>tomcat-9.0<\/module>/d; /<module>console<\/module>/d' base/pom.xml \
+    && sed -i '/<dependency>/{N;N;N;N;/pki-tomcat-9.0/d}' base/server/pom.xml
+
+# Build all modules (including Quarkus) via Maven.
+# This stage runs in parallel with pki-builder since both inherit from
+# pki-builder-deps and BuildKit can schedule them concurrently.
+RUN cd /root/pki \
+    && mvn install -DskipTests -ntp
 
 ################################################################################
-FROM pki-runner AS pki-quarkus-runner
+FROM pki-base AS pki-quarkus-runner
+
+ARG COPR_REPO
+
+# Enable COPR repo if specified
+RUN if [ -n "$COPR_REPO" ]; then dnf copr enable -y $COPR_REPO; fi
+
+# Import JSS packages
+COPY --from=quay.io/dogtagpki/jss-dist:latest /root/RPMS /tmp/RPMS/
+
+# Import LDAP SDK packages
+COPY --from=quay.io/dogtagpki/ldapjdk-dist:latest /root/RPMS /tmp/RPMS/
+
+# Install minimal runtime dependencies for Quarkus
+RUN dnf install -y \
+    java-latest-openjdk-headless \
+    nss \
+    nss-tools \
+    openldap-clients \
+    curl \
+    /tmp/RPMS/* \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf \
+    && rm -rf /tmp/RPMS
+
+# Create pkiuser for Quarkus runtime
+RUN groupadd -r pkiuser \
+    && useradd -r -g pkiuser -d /home/pkiuser -s /sbin/nologin pkiuser \
+    && mkdir -p /home/pkiuser \
+    && chown -R pkiuser:pkiuser /home/pkiuser
 
 # Install Quarkus runner JARs from builder
 # Each *-quarkus module produces a quarkus-app/ directory with the uber-jar
@@ -469,6 +530,91 @@ LABEL name="pki-quarkus-est" \
       com.redhat.component="$COMPONENT"
 
 CMD [ "java", "-jar", "/usr/share/pki/quarkus/est/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-acme
+
+ARG SUMMARY="Dogtag PKI ACME Responder (Quarkus)"
+
+LABEL name="pki-quarkus-acme" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-acme" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/acme/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-ocsp
+
+ARG SUMMARY="Dogtag PKI OCSP Responder (Quarkus)"
+
+LABEL name="pki-quarkus-ocsp" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-ocsp" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/ocsp/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-kra
+
+ARG SUMMARY="Dogtag PKI Key Recovery Authority (Quarkus)"
+
+LABEL name="pki-quarkus-kra" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-kra" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/kra/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-tks
+
+ARG SUMMARY="Dogtag PKI Token Key Service (Quarkus)"
+
+LABEL name="pki-quarkus-tks" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-tks" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/tks/quarkus-run.jar" ]
+
+################################################################################
+FROM pki-quarkus-runner AS pki-quarkus-tps
+
+ARG SUMMARY="Dogtag PKI Token Processing System (Quarkus)"
+
+LABEL name="pki-quarkus-tps" \
+      summary="$SUMMARY" \
+      license="$LICENSE" \
+      version="$VERSION" \
+      architecture="$ARCH" \
+      maintainer="$MAINTAINER" \
+      vendor="$VENDOR" \
+      usage="podman run -p 8080:8080 -p 8443:8443 pki-quarkus-tps" \
+      com.redhat.component="$COMPONENT"
+
+CMD [ "java", "-jar", "/usr/share/pki/quarkus/tps/quarkus-run.jar" ]
 
 ################################################################################
 FROM pki-runner AS ipa-runner

@@ -23,7 +23,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.certsrv.user.UserResource;
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.QuarkusInstanceConfig;
@@ -100,7 +99,7 @@ public class TPSEngineQuarkus {
         logger.info("TPSEngineQuarkus: Stopping TPS engine");
 
         if (engine != null) {
-            engine.stop();
+            engine.shutdown();
             engine = null;
         }
 
@@ -108,30 +107,19 @@ public class TPSEngineQuarkus {
     }
 
     /**
-     * Convert a Quarkus SecurityIdentity to a PKIPrincipal.
+     * Convert a Quarkus SecurityIdentity to a PKIPrincipalCore.
      */
-    public static PKIPrincipal toPKIPrincipal(SecurityIdentity identity) {
+    public static PKIPrincipalCore toPKIPrincipalCore(SecurityIdentity identity) {
         PKIPrincipalCore core = identity.getAttribute("pki.principal");
         if (core != null) {
-            User user = (User) core.getUser();
-            AuthToken authToken = (AuthToken) core.getAuthToken();
-            List<String> roles = core.getRolesList();
-
-            if (user != null) {
-                return new PKIPrincipal(user, core.getPassword(), roles, authToken);
-            }
-
-            User minimalUser = new User();
-            minimalUser.setUserID(core.getName());
-            minimalUser.setFullName(core.getName());
-            return new PKIPrincipal(minimalUser, core.getPassword(), roles, authToken);
+            return core;
         }
 
         String name = identity.getPrincipal().getName();
         User user = new User();
         user.setUserID(name);
         user.setFullName(name);
-        return new PKIPrincipal(user, null, List.of(), null);
+        return new PKIPrincipalCore(name, null, List.of(), user, null);
     }
 
     /**

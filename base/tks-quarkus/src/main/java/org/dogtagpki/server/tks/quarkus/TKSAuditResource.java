@@ -6,10 +6,9 @@
 package org.dogtagpki.server.tks.quarkus;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
@@ -17,16 +16,18 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 import org.dogtagpki.server.rest.base.AuditServletBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.logging.AuditConfig;
-import com.netscape.certsrv.logging.AuditFile;
 import com.netscape.certsrv.logging.AuditFileCollection;
+import com.netscape.certsrv.util.JSONSerializer;
 
 /**
  * JAX-RS resource for TKS audit operations.
@@ -40,6 +41,9 @@ public class TKSAuditResource {
     @Inject
     TKSEngineQuarkus engineQuarkus;
 
+    @Context
+    SecurityContext securityContext;
+
     private AuditServletBase createBase() {
         return new AuditServletBase(engineQuarkus.getEngine());
     }
@@ -48,23 +52,27 @@ public class TKSAuditResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAuditConfig() throws Exception {
         logger.debug("TKSAuditResource.getAuditConfig()");
-        AuditConfig config = createBase().getAuditConfig();
+        AuditConfig config = createBase().createAuditConfig();
         return Response.ok(config.toJSON()).build();
     }
 
     @PATCH
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateAuditConfig(String requestData) throws Exception {
         logger.debug("TKSAuditResource.updateAuditConfig()");
-        AuditConfig config = createBase().updateAuditConfig(requestData);
-        return Response.ok(config.toJSON()).build();
+        AuditConfig auditConfig = JSONSerializer.fromJSON(requestData, AuditConfig.class);
+        String principalName = securityContext.getUserPrincipal().getName();
+        AuditConfig updated = createBase().updateAuditConfig(auditConfig, principalName);
+        return Response.ok(updated.toJSON()).build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response changeAuditStatus(@QueryParam("action") String action) throws Exception {
         logger.debug("TKSAuditResource.changeAuditStatus(): action={}", action);
-        AuditConfig config = createBase().changeAuditStatus(action);
+        String principalName = securityContext.getUserPrincipal().getName();
+        AuditConfig config = createBase().changeAuditStatus(action, principalName);
         return Response.ok(config.toJSON()).build();
     }
 
@@ -80,13 +88,11 @@ public class TKSAuditResource {
     @GET
     @Path("files/{filename}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response getAuditFile(@PathParam("filename") String filename) throws Exception {
-        logger.debug("TKSAuditResource.getAuditFile(): filename={}", filename);
-        AuditFile auditFile = createBase().getAuditFile(filename);
-        File file = new File(auditFile.getName());
-        InputStream is = new FileInputStream(file);
-        return Response.ok(is)
-                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+    public Response getAuditFile(@PathParam("filename") String fileName) throws Exception {
+        logger.debug("TKSAuditResource.getAuditFile(): filename={}", fileName);
+        File auditFile = createBase().getAuditFile(fileName);
+        return Response.ok(auditFile)
+                .header("Content-Disposition", "attachment; filename=\"" + fileName + "\"")
                 .build();
     }
 }
