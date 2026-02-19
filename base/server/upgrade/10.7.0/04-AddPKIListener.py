@@ -40,7 +40,7 @@ class AddPKIListener(pki.server.upgrade.PKIServerUpgradeScriptlet):
         server = document.getroot()
 
         # find existing PKIListener
-        class_name = 'com.netscape.cms.tomcat.PKIListener'
+        class_name = 'org.dogtagpki.jss.tomcat.JSSListener'
         pki_listener = server.find('Listener[@className=\'%s\']' % class_name)
 
         if pki_listener is None:
