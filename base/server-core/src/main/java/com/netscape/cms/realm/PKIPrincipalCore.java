@@ -72,6 +72,10 @@ public class PKIPrincipalCore implements Principal, Serializable {
         return roles.toArray(new String[0]);
     }
 
+    public boolean hasRole(String role) {
+        return roles.contains(role);
+    }
+
     public Object getUser() {
         return user;
     }

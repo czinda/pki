@@ -10,7 +10,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.catalina.realm.GenericPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cmscore.usrgrp.User;
 
 /**
  * Request authorizer that invokes an external process to calculate
@@ -81,8 +81,8 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
             if (data.clientCertChain != null && data.clientCertChain.length > 0) {
                 ensureCSRMatchesToBeCert(csr, data.clientCertChain[0], false);
             } else {
-                if(data.principal instanceof PKIPrincipal principal) {
-                    ensureCSRMatchesToBeCert(csr, principal.getUser());
+                if(data.principal instanceof PKIPrincipalCore principal) {
+                    ensureCSRMatchesToBeCert(csr, (User) principal.getUser());
                 }
             }
         }
@@ -290,8 +290,8 @@ public class ExternalProcessRequestAuthorizer extends ESTRequestAuthorizer {
 
             // principal.roles
             String[] roles = { };
-            if (data.principal instanceof GenericPrincipal) {
-                roles = ((GenericPrincipal) data.principal).getRoles();
+            if (data.principal instanceof PKIPrincipalCore) {
+                roles = ((PKIPrincipalCore) data.principal).getRoles();
             }
             generator.writeFieldName("roles");
 

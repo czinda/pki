@@ -1,7 +1,6 @@
 project(ca NONE)
 
 add_subdirectory(shared/conf)
-add_subdirectory(${APP_SERVER})
 
 # build pki-ca
 javac(pki-ca-classes
@@ -18,18 +17,12 @@ javac(pki-ca-classes
         ${JACKSON_ANNOTATIONS_JAR}
         ${JACKSON_CORE_JAR}
         ${JACKSON_DATABIND_JAR}
-        ${TOMCAT_CATALINA_JAR}
         ${JSS_JAR}
         ${LDAPJDK_JAR}
         ${SERVLET_JAR}
-        ${JSS_TOMCAT_JAR}
-        ${JSS_TOMCAT_10_1_JAR}
-        ${JSS_TOMCAT_9_0_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}
-        ${PKI_TOMCAT_JAR}
-        ${PKI_TOMCAT_IMPL_JAR}
         ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
@@ -78,7 +71,6 @@ add_custom_command(
     COMMAND ln -sf ../../../../../lib/slf4j-jdk14.jar webapp/lib/slf4j-jdk14.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar webapp/lib/pki-server.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-ca.jar webapp/lib/pki-ca.jar
-    COMMAND ln -sf ../../../../../server/common/lib/resteasy-servlet-initializer.jar webapp/lib/resteasy-servlet-initializer.jar
 )
 
 if(WITH_JAVA)

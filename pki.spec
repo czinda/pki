@@ -1454,12 +1454,6 @@ export JAVA_HOME=%{java_home}
 %if %{with maven}
 # build Java binaries and run unit tests with Maven
 
-# Tomcat modules removed - using Quarkus
-%pom_disable_module tomcat base
-%pom_disable_module tomcat-9.0 base
-%pom_disable_module tomcat-10.1 base
-%pom_disable_module server-webapp base
-
 %mvn_build %{!?with_test:-f} -j
 
 # create links to Maven-built JAR files for CMake

@@ -719,9 +719,6 @@ if (RESTEASY_VERSION)
     set(RESTEASY_JACKSON_PROVIDER_JAR "${CMAKE_SOURCE_DIR}/base/common/lib/resteasy-jackson2-provider-${RESTEASY_VERSION}.jar")
     set(RESTEASY_JACKSON_PROVIDER_LINK "resteasy-jackson2-provider-${RESTEASY_VERSION}.jar")
 
-    set(RESTEASY_SERVLET_INITIALIZER_JAR "${CMAKE_SOURCE_DIR}/base/server/lib/resteasy-servlet-initializer-${RESTEASY_VERSION}.jar")
-    set(RESTEASY_SERVLET_INITIALIZER_LINK "resteasy-servlet-initializer-${RESTEASY_VERSION}.jar")
-
 else()
     # use system JARs
 
@@ -742,15 +739,6 @@ else()
             /usr/share/java
     )
     set(RESTEASY_JACKSON_PROVIDER_LINK "../../../..${RESTEASY_JACKSON_PROVIDER_JAR}")
-
-    find_file(RESTEASY_SERVLET_INITIALIZER_JAR
-        NAMES
-            resteasy-servlet-initializer.jar
-        PATHS
-            /usr/share/java/resteasy
-            /usr/share/java
-    )
-    set(RESTEASY_SERVLET_INITIALIZER_LINK "../../../../../..${RESTEASY_SERVLET_INITIALIZER_JAR}")
 
 endif (RESTEASY_VERSION)
 

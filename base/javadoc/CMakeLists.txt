@@ -74,7 +74,7 @@ javadoc(pki-javadoc
         ${COMMONS_CLI_JAR} ${COMMONS_LANG3_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${LDAPJDK_JAR}
-        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
+        ${SERVLET_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${JAXRS_API_JAR}
         ${JACKSON_CORE_JAR}
@@ -84,9 +84,6 @@ javadoc(pki-javadoc
         ${JAKARTA_ANNOTATION_API_JAR}
         ${RESTEASY_JAXRS_JAR}
         ${JSS_JAR}
-        ${JSS_TOMCAT_JAR}
-        ${JSS_TOMCAT_9_0_JAR}
-        ${JSS_TOMCAT_10_1_JAR}
         ${PKI_COMMON_JAR}
         ${PKI_TOOLS_JAR}
         ${PKI_JAVADOC_CLASSPATH}

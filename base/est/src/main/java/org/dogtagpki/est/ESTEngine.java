@@ -2,18 +2,11 @@ package org.dogtagpki.est;
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.apache.catalina.Realm;
-import org.apache.catalina.realm.RealmBase;
-import org.apache.catalina.util.LifecycleBase;
-import org.apache.tomcat.util.IntrospectionUtils;
-
-import com.netscape.cms.realm.RealmCommon;
-import com.netscape.cms.realm.RealmConfig;
-import com.netscape.cms.tomcat.ProxyRealm;
+import com.netscape.cms.realm.PKIRealmCore;
+import com.netscape.cms.realm.RealmCoreConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -29,7 +22,7 @@ public class ESTEngine extends CMSEngine{
 
     private static ESTEngine INSTANCE;
 
-    private Realm realm;
+    private PKIRealmCore realm;
 
     private ESTBackend backend;
     private ESTRequestAuthorizer requestAuthorizer;
@@ -80,11 +73,7 @@ public class ESTEngine extends CMSEngine{
         }
 
         if (realm != null) {
-            if (realm instanceof RealmCommon) {
-                ((RealmCommon) realm).stop();
-            } else if (realm instanceof LifecycleBase) {
-                ((LifecycleBase) realm).stop();
-            }
+            realm.stop();
         }
         logger.info("EST engine stopped");
     }
@@ -158,7 +147,7 @@ public class ESTEngine extends CMSEngine{
     }
 
     private void initRealm(String filename) throws Throwable {
-        RealmConfig realmConfig = null;
+        RealmCoreConfig realmConfig = null;
         File realmConfigFile = new File(filename);
 
         if (realmConfigFile.exists()) {
@@ -167,11 +156,11 @@ public class ESTEngine extends CMSEngine{
             try (FileReader reader = new FileReader(realmConfigFile)) {
                 props.load(reader);
             }
-            realmConfig = RealmConfig.fromProperties(props);
+            realmConfig = RealmCoreConfig.fromProperties(props);
 
         } else {
             logger.info("Loading default realm config");
-            realmConfig = new RealmConfig();
+            realmConfig = new RealmCoreConfig();
         }
 
         logger.info("Initializing EST realm");
@@ -179,34 +168,13 @@ public class ESTEngine extends CMSEngine{
         if (className == null) {
             throw new RuntimeException("File " + filename + " misses 'class' property");
         }
-        Class<Realm> realmClass = (Class<Realm>) Class.forName(className);
+        Class<PKIRealmCore> realmClass = (Class<PKIRealmCore>) Class.forName(className);
         realm = realmClass.getDeclaredConstructor().newInstance();
 
-        // registerRealm() does some required setup for RealmBase instances.
-        // So we have to invoke registerRealm() /before/ start().
-        ProxyRealm.registerRealm(id, realm);
-
         // configure realm
-        if (realm instanceof RealmCommon) {
-            ((RealmCommon) realm).setConfig(realmConfig);
-        } else if (realm instanceof RealmBase) {
-            // RealmBase subclasses are configured by setting properties
-            // via introspection.
-            for (Map.Entry<String, String> entry : realmConfig.getParameters().entrySet()) {
-                boolean result =
-                    IntrospectionUtils.setProperty(realm, entry.getKey(), entry.getValue());
-                if (!result) {
-                    throw new RuntimeException(
-                        "Failed to set Realm property '" + entry.getKey() + "'.");
-                }
-            }
-        }
+        realm.setConfig(realmConfig);
 
         // start realm
-        if (realm instanceof RealmCommon) {
-            ((RealmCommon) realm).start();
-        } else if (realm instanceof LifecycleBase) {
-            ((LifecycleBase) realm).start();
-        }
+        realm.init();
     }
 }

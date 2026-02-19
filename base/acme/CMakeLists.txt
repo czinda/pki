@@ -4,7 +4,7 @@ javac(pki-acme-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
-        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${SERVLET_JAR}
         ${JAXB_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG3_JAR}
@@ -17,8 +17,6 @@ javac(pki-acme-classes
         ${JSS_JAR}
         ${LDAPJDK_JAR}
         ${PKI_COMMON_JAR}
-        ${PKI_TOMCAT_JAR}
-        ${PKI_TOMCAT_IMPL_JAR}
         ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
@@ -125,14 +123,6 @@ install(
         openshift/
     DESTINATION
         ${DATA_INSTALL_DIR}/acme/openshift
-)
-
-# install deployment descriptor
-install(
-    DIRECTORY
-        ${APP_SERVER}/conf/
-    DESTINATION
-        ${DATA_INSTALL_DIR}/acme/conf
 )
 
 # install web application files

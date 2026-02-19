@@ -14,13 +14,9 @@ javac(pki-est-classes
         ${JACKSON_ANNOTATIONS_JAR}
         ${JACKSON_CORE_JAR}
         ${JACKSON_DATABIND_JAR}
-        ${TOMCAT_CATALINA_JAR}
-        ${TOMCAT_UTIL_JAR}
         ${JSS_JAR}
         ${PKI_CMSUTIL_JAR}
         ${PKI_COMMON_JAR}
-        ${PKI_TOMCAT_JAR}
-        ${PKI_TOMCAT_IMPL_JAR}
         ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
@@ -74,14 +70,6 @@ if(WITH_JAVA)
             ${JAVA_JAR_INSTALL_DIR}/pki
     )
 endif(WITH_JAVA)
-
-# install deployment descriptor
-install(
-    DIRECTORY
-        ${APP_SERVER}/conf/
-    DESTINATION
-        ${DATA_INSTALL_DIR}/est/conf/
-)
 
 # install web application files
 install(
