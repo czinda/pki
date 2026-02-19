@@ -754,84 +754,6 @@ else()
 
 endif (RESTEASY_VERSION)
 
-find_file(JASPIC_API_JAR
-    NAMES
-        jaspic-api.jar
-        tomcat9-jaspic-api.jar
-    PATHS
-        /usr/share/java/tomcat
-        /usr/share/java
-)
-
-find_file(TOMCAT_API_JAR
-    NAMES
-        tomcat-api.jar
-        tomcat9-api.jar
-    PATHS
-        /usr/share/java/tomcat
-        /usr/share/java
-)
-
-find_file(TOMCAT_CATALINA_JAR
-    NAMES
-        catalina.jar
-        tomcat9-catalina.jar
-    PATHS
-        /usr/share/java/tomcat
-        /usr/share/java
-)
-
-find_file(TOMCAT_COYOTE_JAR
-    NAMES
-        tomcat-coyote.jar
-        tomcat9-coyote.jar
-    PATHS
-        /usr/share/java/tomcat
-        /usr/share/java
-)
-
-find_file(TOMCAT_UTIL_JAR
-    NAMES
-        tomcat-util.jar
-        tomcat9-util.jar
-    PATHS
-        /usr/share/java/tomcat
-        /usr/share/java
-)
-
-find_file(TOMCAT_UTIL_SCAN_JAR
-    NAMES
-        tomcat-util-scan.jar
-        tomcat9-util-scan.jar
-    PATHS
-        /usr/share/java/tomcat
-        /usr/share/java
-)
-
-find_file(JSS_TOMCAT_JAR
-    NAMES
-        jss-tomcat.jar
-    PATHS
-        /usr/share/java/jss
-        /usr/share/java
-)
-
-find_file(JSS_TOMCAT_9_0_JAR
-    NAMES
-        jss-tomcat-9.0.jar
-    PATHS
-        /usr/share/java/jss
-        /usr/share/java
-)
-
-find_file(JSS_TOMCAT_10_1_JAR
-    NAMES
-       jss-tomcat-10.1.jar
-    PATHS
-       /usr/share/java/jss
-       /usr/share/java
-)  
-
 find_file(FONTAWESOME_WEBFONT
     NAMES
         fontawesome-webfont.woff
@@ -845,11 +767,8 @@ add_subdirectory(tools)
 
 if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WITH_ACME OR WITH_EST)
 
-    add_subdirectory(tomcat)
-    add_subdirectory(${APP_SERVER})
     add_subdirectory(server-core)
     add_subdirectory(server)
-    add_subdirectory(server-webapp)
 
     list(APPEND PKI_JAVADOC_SOURCEPATH
         ${CMAKE_SOURCE_DIR}/base/server-core/src/main/java
@@ -859,8 +778,6 @@ if(WITH_SERVER OR WITH_CA OR WITH_KRA OR WITH_OCSP OR WITH_TKS OR WITH_TPS OR WI
         com.netscape.cms)
 
     list(APPEND PKI_JAVADOC_CLASSPATH
-        ${PKI_TOMCAT_JAR}
-        ${PKI_TOMCAT_IMPL_JAR}
         ${PKI_SERVER_CORE_JAR}
         ${PKI_SERVER_JAR})
 

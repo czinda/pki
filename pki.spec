@@ -116,15 +116,6 @@ ExcludeArch: i686
 
 %endif
 
-###############################################################################
-# Tomcat
-################################################################################
-
-# Use Tomcat 9 before Fedora 43 and RHEL 10, otherwise use Tomcat 10.
-
-%global           fedora_tomcat9_cutoff 43
-%global           rhel_tomcat9_cutoff 10
-
 ################################################################################
 # PKI
 ################################################################################
@@ -233,13 +224,6 @@ BuildRequires:    javapackages-tools
 BuildRequires:    xmlstarlet
 %endif
 
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-BuildRequires:    tomcat-lib >= 9.0
-%else
-BuildRequires:    tomcat-lib >= 1:10.1.36
-BuildRequires:    tomcat-jakartaee-migration
-%endif
-
 BuildRequires:    %{vendor_id}-jss >= 5.10
 
 BuildRequires:    mvn(xml-apis:xml-apis)
@@ -277,28 +261,10 @@ BuildRequires:    mvn(org.jboss.logging:jboss-logging)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
-BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
-
-%endif
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 9.0.62
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 9.0.62
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
-
-%else
-
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.36
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.36
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.36
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %endif
 
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.10
-BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 
 # Python build dependencies
@@ -724,20 +690,6 @@ Requires:         python3-libselinux
 Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
-
-%if %{with runtime_deps}
-Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
-%else
-Provides:         bundled(resteasy-servlet-initializer)
-%endif
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-Requires:         tomcat >= 9.0
-%else
-Requires:         tomcat >= 1:10.1.36
-%endif
-
-Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
 
 Requires:         systemd
 Requires(post):   systemd-units
@@ -1248,12 +1200,6 @@ This package provides test suite for %{product_name}.
 
 %autosetup -n pki-%{full_version} -p 1
 
-%if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
-# Migrate the source first because we are starting with Tomcat 9 code,
-# so we can build against either Tomcat 9 or 10.1, based on the build platform.
-/usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base
-%endif
-
 %if %{without runtime_deps}
 
 if [ ! -d base/common/lib ]
@@ -1382,38 +1328,6 @@ then
     cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
         resteasy-jackson2-provider-$RESTEASY_VERSION.jar
 
-    # Migrate necessary files being copied around to jakarta 9.0 ee, for >= f43 and rhel10
-
-    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
-
-    echo "Doing the Tomcat 10 version..."
-
-    /usr/bin/javax2jakarta -profile=EE jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jakarta.xml.bind-api-$JAXB_API_VERSION.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
-
-    /usr/bin/javax2jakarta -profile=EE jackson-annotations-$JACKSON_VERSION.jar jackson-annotations-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-core-$JACKSON_VERSION.jar jackson-core-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-databind-$JACKSON_VERSION.jar jackson-databind-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-module-jaxb-annotations-$JACKSON_VERSION.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-base-$JACKSON_VERSION.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
-
-    /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
-
-    # Now migrate the required resteasy jars, in case we are using an existing resteasy version.
-
-    /usr/bin/javax2jakarta -profile=EE resteasy-client-$RESTEASY_VERSION.jar resteasy-client-$RESTEASY_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE resteasy-jackson2-provider-$RESTEASY_VERSION.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE resteasy-jaxrs-$RESTEASY_VERSION.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
-
-    # Add local artifact so we can compile against the migrated jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
-    # We could have used the maven install plugin but it's not available with standard rpms.
-
-    %endif
-
-    # Create the local artifact structure for either Tomcat 9 or Tomcat 10.
-    # Tomcat 9 doesn't get the file migrated.
     mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
 
     # Copy over the JAX-RS API so we can compile.
@@ -1422,27 +1336,6 @@ then
     popd
 fi
 
-if [ ! -d base/server/lib ]
-then
-    # Import server libraries from RPMs.
-
-    mkdir -p base/server/lib
-    pushd base/server/lib
-
-    RESTEASY_VERSION=$(rpm -q pki-resteasy-servlet-initializer | sed -n 's/^pki-resteasy-servlet-initializer-\([^-]*\)-.*$/\1.Final/p')
-    echo "RESTEASY_VERSION: $RESTEASY_VERSION"
-
-    cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
-        resteasy-servlet-initializer-$RESTEASY_VERSION.jar
-
-    # Migrate the resteasy servlet initializer, in case we are using an existing resteasy version.
-    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
-    /usr/bin/javax2jakarta -profile=EE resteasy-servlet-initializer-$RESTEASY_VERSION.jar resteasy-servlet-initializer-$RESTEASY_VERSION.jar
-    %endif
-
-    ls -l
-    popd
-fi
 %endif
 
 %if ! %{with base}
@@ -1451,15 +1344,8 @@ fi
 %endif
 
 %if ! %{with server}
-%pom_disable_module tomcat base
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%pom_disable_module tomcat-9.0 base
-%else
-%pom_disable_module tomcat-10.1 base
-%endif
-
+%pom_disable_module server-core base
 %pom_disable_module server base
-%pom_disable_module server-webapp base
 %endif
 
 %if ! %{with ca}
@@ -1516,15 +1402,6 @@ fi
 %mvn_file org.dogtagpki.pki:pki-tools             pki/pki-tools
 %mvn_file org.dogtagpki.pki:pki-server-core        pki/pki-server-core
 %mvn_file org.dogtagpki.pki:pki-server            pki/pki-server
-%mvn_file org.dogtagpki.pki:pki-server-webapp     pki/pki-server-webapp
-%mvn_file org.dogtagpki.pki:pki-tomcat            pki/pki-tomcat
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%mvn_file org.dogtagpki.pki:pki-tomcat-9.0        pki/pki-tomcat-9.0
-%else
-%mvn_file org.dogtagpki.pki:pki-tomcat-10.1       pki/pki-tomcat-10.1
-%endif
-
 %mvn_file org.dogtagpki.pki:pki-ca                pki/pki-ca
 %mvn_file org.dogtagpki.pki:pki-kra               pki/pki-kra
 %mvn_file org.dogtagpki.pki:pki-ocsp              pki/pki-ocsp
@@ -1542,16 +1419,6 @@ fi
 %mvn_package org.dogtagpki.pki:pki-tools          pki-tools
 %mvn_package org.dogtagpki.pki:pki-server-core    pki-server
 %mvn_package org.dogtagpki.pki:pki-server         pki-server
-%mvn_package org.dogtagpki.pki:pki-server-webapp  pki-server
-%mvn_package org.dogtagpki.pki:pki-tomcat         pki-server
-
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%mvn_package org.dogtagpki.pki:pki-tomcat-9.0     pki-server
-%else
-%mvn_package org.dogtagpki.pki:pki-tomcat-10.1    pki-server
-%endif
-
 %mvn_package org.dogtagpki.pki:pki-ca             pki-ca
 %mvn_package org.dogtagpki.pki:pki-kra            pki-kra
 %mvn_package org.dogtagpki.pki:pki-ocsp           pki-ocsp
@@ -1587,13 +1454,11 @@ export JAVA_HOME=%{java_home}
 %if %{with maven}
 # build Java binaries and run unit tests with Maven
 
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%pom_disable_module tomcat-10.1 base
-%pom_remove_dep :pki-tomcat-10.1 base/server
-%else
+# Tomcat modules removed - using Quarkus
+%pom_disable_module tomcat base
 %pom_disable_module tomcat-9.0 base
-%pom_remove_dep :pki-tomcat-9.0 base/server
-%endif
+%pom_disable_module tomcat-10.1 base
+%pom_disable_module server-webapp base
 
 %mvn_build %{!?with_test:-f} -j
 
@@ -1607,17 +1472,8 @@ ln -sf ../../base/tools/target/pki-tools.jar
 %endif
 
 %if %{with server}
-ln -sf ../../base/tomcat/target/pki-tomcat.jar
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-ln -sf ../../base/tomcat-9.0/target/pki-tomcat-9.0.jar
-%else
-ln -sf ../../base/tomcat-10.1/target/pki-tomcat-10.1.jar
-%endif
-
 ln -sf ../../base/server-core/target/pki-server-core.jar
 ln -sf ../../base/server/target/pki-server.jar
-ln -sf ../../base/server-webapp/target/pki-server-webapp.jar
 %endif
 
 %if %{with ca}
@@ -2316,7 +2172,6 @@ fi
 %license base/server/LICENSE
 %doc base/server/README
 %attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki
-%attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki/tomcat
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
@@ -2325,18 +2180,11 @@ fi
 %{python3_sitelib}/pkihealthcheck-*.egg-info/
 %config(noreplace) %{_sysconfdir}/pki/healthcheck.conf
 
-%{_datadir}/pki/etc/tomcat.conf
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
 %{_datadir}/pki/scripts/operations
 %{_bindir}/pkidaemon
 %{_bindir}/pki-server-nuxwdog
-%dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
-%attr(644,-,-) %{_unitdir}/pki-tomcatd@.service
-%attr(644,-,-) %{_unitdir}/pki-tomcatd.target
-%dir %{_sysconfdir}/systemd/system/pki-tomcatd-nuxwdog.target.wants
-%attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog@.service
-%attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog.target
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
 %{_mandir}/man5/pki_default.cfg.5.gz
@@ -2367,14 +2215,6 @@ fi
 %if %{without maven}
 %{_datadir}/java/pki/pki-server-core.jar
 %{_datadir}/java/pki/pki-server.jar
-%{_datadir}/java/pki/pki-server-webapp.jar
-%{_datadir}/java/pki/pki-tomcat.jar
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%{_datadir}/java/pki/pki-tomcat-9.0.jar
-%else
-%{_datadir}/java/pki/pki-tomcat-10.1.jar
-%endif
 
 #without maven
 %endif

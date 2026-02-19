@@ -17,12 +17,8 @@
     <modules>
         <module>common</module>
         <module>tools</module>
-        <module>tomcat</module>
-        <module>tomcat-9.0</module>
-        <module>tomcat-10.1</module>
         <module>server-core</module>
         <module>server</module>
-        <module>server-webapp</module>
         <module>ca</module>
         <module>kra</module>
         <module>ocsp</module>

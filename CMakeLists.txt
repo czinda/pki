@@ -43,8 +43,6 @@ string(REGEX REPLACE "^([0-9]+).*" "\\1" APPLICATION_VERSION_MAJOR ${VERSION})
 string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_MINOR ${VERSION})
 string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" APPLICATION_VERSION_PATCH ${VERSION})
 
-set(APP_SERVER "tomcat-9.0" CACHE STRING "Application server")
-
 option(WITH_JAVA "Build Java binaries." TRUE)
 
 option(WITH_SERVER "Build server package" ON)
