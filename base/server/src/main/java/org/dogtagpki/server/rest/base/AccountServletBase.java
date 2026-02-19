@@ -8,13 +8,12 @@ package org.dogtagpki.server.rest.base;
 import java.security.Principal;
 import java.util.Arrays;
 
-import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.Account;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.usrgrp.User;
 
 /**
@@ -31,20 +30,21 @@ public class AccountServletBase {
         logger.info("- ID: {}", name);
         account.setID(name);
 
-        if (principal instanceof PKIPrincipal pkiPrincipal) {
-            User user = pkiPrincipal.getUser();
+        if (principal instanceof PKIPrincipalCore corePrincipal) {
+            Object userObj = corePrincipal.getUser();
+            if (userObj instanceof User user) {
+                String fullName = user.getFullName();
+                logger.info("- Full Name: {}", fullName);
+                if (!StringUtils.isEmpty(fullName)) account.setFullName(fullName);
 
-            String fullName = user.getFullName();
-            logger.info("- Full Name: {}", fullName);
-            if (!StringUtils.isEmpty(fullName)) account.setFullName(fullName);
-
-            String email = user.getEmail();
-            logger.info("- Email: {}", email);
-            if (!StringUtils.isEmpty(email)) account.setEmail(email);
+                String email = user.getEmail();
+                logger.info("- Email: {}", email);
+                if (!StringUtils.isEmpty(email)) account.setEmail(email);
+            }
         }
 
-        if (principal instanceof GenericPrincipal genericPrincipal) {
-            String[] roles = genericPrincipal.getRoles();
+        if (principal instanceof PKIPrincipalCore corePrincipal) {
+            String[] roles = corePrincipal.getRoles();
             logger.info("Roles:");
             for (String role : roles) {
                 logger.info("- {}", role);

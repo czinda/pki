@@ -24,7 +24,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.server.ca.CAEngine;
-import org.dogtagpki.server.ca.rest.v1.ProfileService;
+import org.dogtagpki.server.ca.rest.base.ProfileBase;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -264,7 +264,7 @@ public class CACertRequestResource {
         while (inputIds.hasMoreElements()) {
             String id = inputIds.nextElement();
             try {
-                ProfileInput input = ProfileService.createProfileInput(profile, id, locale);
+                ProfileInput input = ProfileBase.createProfileInput(profile, id, locale);
                 for (ProfileAttribute attr : input.getAttributes()) {
                     attr.setValue("");
                 }

@@ -88,7 +88,7 @@ public class KeyRequestProcessor {
     private Auditor auditor;
     private KeyRecoveryAuthority kra;
 
-    private static final Map<String, SymmetricKey.Type> SYMKEY_TYPES;
+    public static final Map<String, SymmetricKey.Type> SYMKEY_TYPES;
     static {
         SYMKEY_TYPES = new HashMap<>();
         SYMKEY_TYPES.put(KeyRequestResource.DES_ALGORITHM, SymmetricKey.DES);

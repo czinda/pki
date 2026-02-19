@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.jobs.JobConfig;
@@ -130,8 +130,8 @@ public class JobServletBase {
 
     private boolean isAdmin(Principal principal) {
 
-        if (principal instanceof PKIPrincipal pkiPrincipal) {
-            List<String> roles = Arrays.asList(pkiPrincipal.getRoles());
+        if (principal instanceof PKIPrincipalCore corePrincipal) {
+            List<String> roles = Arrays.asList(corePrincipal.getRoles());
             return roles.contains("Administrators");
         }
 

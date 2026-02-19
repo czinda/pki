@@ -20,7 +20,6 @@ import org.dogtagpki.server.authentication.AuthToken;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.apps.CMS;
 
@@ -112,9 +111,7 @@ public class AuthMethodChecker {
             }
 
             AuthToken authToken = null;
-            if (principal instanceof PKIPrincipal pkPrincipal) {
-                authToken = pkPrincipal.getAuthToken();
-            } else if (principal instanceof PKIPrincipalCore corePrincipal) {
+            if (principal instanceof PKIPrincipalCore corePrincipal) {
                 authToken = (AuthToken) corePrincipal.getAuthToken();
             } else {
                 authToken = extractExternalAuthToken(principal);
@@ -157,9 +154,6 @@ public class AuthMethodChecker {
      * Subclasses can override this for container-specific principal types.
      */
     protected AuthToken extractExternalAuthToken(Principal principal) {
-        if (principal instanceof org.apache.catalina.realm.GenericPrincipal genPrincipal) {
-            return new ExternalAuthToken(genPrincipal);
-        }
-        return null;
+        return new ExternalAuthToken(principal, new String[0]);
     }
 }
