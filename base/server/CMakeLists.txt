@@ -121,6 +121,7 @@ add_custom_target(pki-server-lib ALL
 add_custom_command(
     TARGET pki-server-lib POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
+    COMMAND ln -sf ../../lib/jss.jar lib/jss.jar
     COMMAND ln -sf ../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat.jar lib/jss-tomcat.jar
     COMMAND ln -sf ../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat-9.0.jar lib/jss-tomcat-9.0.jar
     COMMAND ln -sf ../../lib/slf4j-api.jar lib/slf4j-api.jar
