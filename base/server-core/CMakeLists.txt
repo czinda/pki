@@ -35,6 +35,12 @@ jar(pki-server-core-jar
         ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.MF
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
+    INPUT_DIR
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources
+    FILES
+        audit-events.properties
+        LogMessages.properties
+        UserMessages.properties
     DEPENDS
         pki-server-core-classes
 )
