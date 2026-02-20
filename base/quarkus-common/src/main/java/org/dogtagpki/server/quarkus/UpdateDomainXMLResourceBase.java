@@ -78,18 +78,23 @@ public abstract class UpdateDomainXMLResourceBase {
             logger.warn("UpdateDomainXMLResourceBase: Unable to determine basedn: {}", e.getMessage());
         }
 
-        SecurityDomainProcessor processor = new SecurityDomainProcessor(Locale.getDefault());
-        processor.setCMSEngine(engine);
-        processor.init();
-
         String status;
-        if ("remove".equals(operation)) {
-            status = processor.removeHost(name, type, host, sport);
-        } else {
-            status = processor.addHost(
-                    name, type, host, sport, httpport,
-                    eecaport, adminsport, agentsport,
-                    domainmgr, clone);
+        try {
+            SecurityDomainProcessor processor = new SecurityDomainProcessor(Locale.getDefault());
+            processor.setCMSEngine(engine);
+            processor.init();
+
+            if ("remove".equals(operation)) {
+                status = processor.removeHost(name, type, host, sport);
+            } else {
+                status = processor.addHost(
+                        name, type, host, sport, httpport,
+                        eecaport, adminsport, agentsport,
+                        domainmgr, clone);
+            }
+        } catch (Exception e) {
+            logger.error("UpdateDomainXMLResourceBase: Failed to update domain: {}", e.getMessage(), e);
+            return errorResponse("Failed to update domain: " + e.getMessage());
         }
 
         logger.info("UpdateDomainXMLResourceBase: Status: {}", status);
