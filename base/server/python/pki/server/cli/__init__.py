@@ -565,7 +565,7 @@ class CreateCLI(pki.cli.CLI):
         self.parser.add_argument(
             'instance_name',
             nargs='?',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
 
     def print_help(self):
         print('Usage: pki-server create [OPTIONS] [<instance ID>]')
@@ -661,7 +661,7 @@ class RemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             'instance_name',
             nargs='?',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
 
     def print_help(self):
         print('Usage: pki-server remove [OPTIONS] [<instance ID>]')
@@ -731,7 +731,7 @@ class StatusCLI(pki.cli.CLI):
         self.parser.add_argument(
             'instance_name',
             nargs='?',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
 
     def print_help(self):
         print('Usage: pki-server status [OPTIONS] [<instance ID>]')
@@ -802,7 +802,7 @@ class StartCLI(pki.cli.CLI):
         self.parser.add_argument(
             'instance_name',
             nargs='?',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
 
     def print_help(self):
         print('Usage: pki-server start [OPTIONS] [<instance ID>]')
@@ -881,7 +881,7 @@ class StopCLI(pki.cli.CLI):
         self.parser.add_argument(
             'instance_name',
             nargs='?',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
 
     def print_help(self):
         print('Usage: pki-server stop [OPTIONS] [<instance ID>]')
@@ -960,7 +960,7 @@ class RestartCLI(pki.cli.CLI):
         self.parser.add_argument(
             'instance_name',
             nargs='?',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
 
     def print_help(self):
         print('Usage: pki-server restart [OPTIONS] [<instance ID>]')
@@ -1044,7 +1044,7 @@ class RunCLI(pki.cli.CLI):
         self.parser.add_argument(
             'instance_name',
             nargs='?',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
 
     def print_help(self):
         print('Usage: pki-server run [OPTIONS] [<instance ID>]')

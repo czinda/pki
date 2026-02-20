@@ -23,6 +23,7 @@ import getpass
 import logging
 
 import pki.cli
+import pki.server
 
 
 class NSSCLI(pki.cli.CLI):
@@ -47,7 +48,7 @@ class NSSCreateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--no-password',
             action='store_true')
@@ -140,7 +141,7 @@ class NSSRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--force',
             action='store_true')

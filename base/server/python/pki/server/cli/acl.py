@@ -8,6 +8,7 @@ import argparse
 import logging
 
 import pki.cli
+import pki.server
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,7 @@ class SubsystemACLFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -84,7 +85,7 @@ class SubsystemACLAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -130,7 +131,7 @@ class SubsystemACLDeleteCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')

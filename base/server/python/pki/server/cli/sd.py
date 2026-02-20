@@ -45,7 +45,7 @@ class SDCreateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--name')
         self.parser.add_argument(
             '-v',
@@ -132,7 +132,7 @@ class SDTypeAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -224,7 +224,7 @@ class SDSubsystemFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -297,7 +297,7 @@ class SDSubsystemAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--subsystem')
         self.parser.add_argument('--hostname')
         self.parser.add_argument('--unsecure-port')
@@ -418,7 +418,7 @@ class SDSubsystemRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -531,7 +531,7 @@ class SubsystemSDCreateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--name')
         self.parser.add_argument(
             '-v',
@@ -595,7 +595,7 @@ class SubsystemSDTypeAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -663,7 +663,7 @@ class SubsystemSDSubsystemFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -716,7 +716,7 @@ class SubsystemSDSubsystemAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--subsystem')
         self.parser.add_argument('--hostname')
         self.parser.add_argument('--unsecure-port')
@@ -778,7 +778,7 @@ class SubsystemSDSubsystemRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',

@@ -41,7 +41,7 @@ class UpgradeCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--status',
             action='store_true')

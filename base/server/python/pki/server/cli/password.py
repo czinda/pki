@@ -23,6 +23,7 @@ import getpass
 import logging
 
 import pki.cli
+import pki.server
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ class PasswordFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -126,7 +127,7 @@ class PasswordAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--password')
         self.parser.add_argument(
             '-v',
@@ -205,7 +206,7 @@ class PasswordRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -278,7 +279,7 @@ class PasswordSetCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--password')
         self.parser.add_argument('--password-file')
         self.parser.add_argument(
@@ -363,7 +364,7 @@ class PasswordUnsetCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',

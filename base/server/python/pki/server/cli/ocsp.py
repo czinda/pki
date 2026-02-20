@@ -79,7 +79,7 @@ class OCSPClonePrepareCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--pkcs12-file')
         self.parser.add_argument('--pkcs12-password')
         self.parser.add_argument('--pkcs12-password-file')
@@ -221,7 +221,7 @@ class OCSPCRLIssuingPointFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--size')
         self.parser.add_argument(
             '-v',
@@ -258,7 +258,7 @@ class OCSPCRLIssuingPointAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--cert-chain')
         self.parser.add_argument('--cert-format')
         self.parser.add_argument(

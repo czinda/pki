@@ -54,7 +54,7 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-D',
             '--bind-dn',
@@ -142,7 +142,7 @@ class DBUpgradeCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -303,7 +303,7 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -376,7 +376,7 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--hostname')
         self.parser.add_argument(
             '--port',
@@ -553,7 +553,7 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -646,7 +646,7 @@ class SubsystemDBCreateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -697,7 +697,7 @@ class SubsystemDBInitCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--skip-config',
             action='store_true')
@@ -741,7 +741,7 @@ class SubsystemDBEmptyCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--force',
             action='store_true')
@@ -786,7 +786,7 @@ class SubsystemDBRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--force',
             action='store_true')
@@ -833,7 +833,7 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -944,7 +944,7 @@ class SubsystemDBAccessGrantCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -998,7 +998,7 @@ class SubsystemDBAccessRevokeCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -1067,7 +1067,7 @@ class SubsystemDBIndexAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -1114,7 +1114,7 @@ class SubsystemDBIndexRebuildCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -1184,7 +1184,7 @@ class SubsystemDBReplicationEnableCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--url')
         self.parser.add_argument('--bind-dn')
         self.parser.add_argument('--bind-password')
@@ -1262,7 +1262,7 @@ class SubsystemDBReplicationAgreementAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--url')
         self.parser.add_argument('--bind-dn')
         self.parser.add_argument('--bind-password')
@@ -1324,7 +1324,7 @@ class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--url')
         self.parser.add_argument('--bind-dn')
         self.parser.add_argument('--bind-password')
@@ -1378,7 +1378,7 @@ class SubsystemDBVLVFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -1421,7 +1421,7 @@ class SubsystemDBVLVAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -1464,7 +1464,7 @@ class SubsystemDBVLVDeleteCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')
@@ -1507,7 +1507,7 @@ class SubsystemDBVLVReindexCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--as-current-user',
             action='store_true')

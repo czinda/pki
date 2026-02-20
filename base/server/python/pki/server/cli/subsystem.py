@@ -68,7 +68,7 @@ class SubsystemFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -139,7 +139,7 @@ class SubsystemShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -231,7 +231,7 @@ class SubsystemCreateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -298,7 +298,7 @@ class SubsystemDeployCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--wait',
             action='store_true')
@@ -394,7 +394,7 @@ class SubsystemUndeployCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--wait',
             action='store_true')
@@ -502,7 +502,7 @@ class SubsystemRedeployCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--wait',
             action='store_true')
@@ -595,7 +595,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--all',
             action='store_true')
@@ -703,7 +703,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--all',
             action='store_true')
@@ -830,7 +830,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--show-all',
             action='store_true')
@@ -939,7 +939,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--show-all',
             action='store_true')
@@ -1032,7 +1032,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--cert-file')
         self.parser.add_argument('--csr-file')
         self.parser.add_argument('--pkcs12-file')
@@ -1214,7 +1214,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--cert')
         self.parser.add_argument(
             '-v',
@@ -1372,7 +1372,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',

@@ -9,6 +9,7 @@ import logging
 import sys
 
 import pki.cli
+import pki.server
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class IdGeneratorShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -123,7 +124,7 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('-t', '--type')
         self.parser.add_argument('-r', '--range')
         self.parser.add_argument(

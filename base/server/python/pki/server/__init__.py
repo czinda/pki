@@ -80,8 +80,7 @@ SCHEMA_FILES = [
     '/usr/share/pki/server/database/ds/schema.ldif'
 ]
 
-DEFAULT_INSTANCE_NAME = 'pki-tomcat'
-DEFAULT_QUARKUS_INSTANCE_NAME = 'pki-quarkus'
+DEFAULT_INSTANCE_NAME = 'pki-quarkus'
 
 DEFAULT_TOMCAT_PORT = 8005
 DEFAULT_TOMCAT_HTTP_PORT = 8080

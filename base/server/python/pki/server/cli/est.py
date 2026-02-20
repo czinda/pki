@@ -12,7 +12,6 @@ import pki.server
 import pki.server.cli.subsystem
 
 DEFAULT_SUBSYSTEM_NAME = 'est'
-DEFAULT_INSTANCE_NAME = 'pki-tomcat'
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +40,7 @@ class ESTCreateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default=DEFAULT_INSTANCE_NAME)
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--force',
             action='store_true')
@@ -113,7 +112,7 @@ class ESTRemoveCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default=DEFAULT_INSTANCE_NAME)
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--force',
             action='store_true')

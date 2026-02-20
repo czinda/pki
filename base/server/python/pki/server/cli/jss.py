@@ -23,6 +23,7 @@ import logging
 import sys
 
 import pki.cli
+import pki.server
 
 
 class JSSCLI(pki.cli.CLI):
@@ -47,7 +48,7 @@ class JSSEnableCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -116,7 +117,7 @@ class JSSDisableCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',

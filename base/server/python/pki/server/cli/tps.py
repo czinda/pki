@@ -81,7 +81,7 @@ class TPSClonePrepareCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--pkcs12-file')
         self.parser.add_argument('--pkcs12-password')
         self.parser.add_argument('--pkcs12-password-file')
@@ -259,7 +259,7 @@ class TPSConnectorFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '--show-all',
             action='store_true')
@@ -332,7 +332,7 @@ class TPSConnectorAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--type')
         self.parser.add_argument('--url')
         self.parser.add_argument('--nickname')

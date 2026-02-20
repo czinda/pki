@@ -68,7 +68,7 @@ def main(argv):
         action='store',
         nargs=1, metavar='<instance>',
         help='FORMAT:  ${pki_instance_name}',
-        default='pki-tomcat')
+        default=pki.server.DEFAULT_INSTANCE_NAME)
 
     parser.optional.add_argument(
         '-u',
@@ -131,7 +131,7 @@ def main(argv):
         if args.pki_deployed_instance_name is None:
             interactive = True
             config.pki_deployed_instance_name = \
-                parser.read_text('Instance', default='pki-tomcat')
+                parser.read_text('Instance', default=pki.server.DEFAULT_INSTANCE_NAME)
         else:
             config.pki_deployed_instance_name = \
                 str(args.pki_deployed_instance_name).strip('[\']')

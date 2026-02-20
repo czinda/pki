@@ -76,7 +76,7 @@ class InstanceCertExportCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--pkcs12-file')
         self.parser.add_argument('--pkcs12-password')
         self.parser.add_argument('--pkcs12-password-file')
@@ -676,7 +676,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--cert-file')
         self.parser.add_argument(
             '--trust-args',
@@ -797,7 +797,7 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--nickname')
         self.parser.add_argument(
             '--token',

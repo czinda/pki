@@ -22,6 +22,7 @@ import argparse
 import logging
 
 import pki.cli
+import pki.server
 
 
 class ListenerCLI(pki.cli.CLI):
@@ -53,7 +54,7 @@ class ListenerFindCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',

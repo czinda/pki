@@ -24,6 +24,7 @@ import io
 import sys
 
 import pki.cli
+import pki.server
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class BannerShowCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument(
             '-v',
             '--verbose',
@@ -116,7 +117,7 @@ class BannerValidateCLI(pki.cli.CLI):
         self.parser.add_argument(
             '-i',
             '--instance',
-            default='pki-tomcat')
+            default=pki.server.DEFAULT_INSTANCE_NAME)
         self.parser.add_argument('--file')
         self.parser.add_argument(
             '--silent',
