@@ -88,7 +88,18 @@ public class CAGetInfoResource {
                            masterPort != null && !masterPort.isEmpty();
 
         if (isClone) {
-            Vector<String> ipNames = crlRepository.getIssuingPointsNames();
+            Vector<String> ipNames;
+            try {
+                ipNames = crlRepository.getIssuingPointsNames();
+            } catch (Exception e) {
+                logger.error("CAGetInfoResource: Error getting CRL issuing points", e);
+                result.put("Status", "1");
+                result.put("Error", "Error getting CRL issuing points: " + e.getMessage());
+                return Response.serverError()
+                        .entity(result.toString())
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
             for (int i = 0; i < ipNames.size(); i++) {
                 String ipName = ipNames.elementAt(i);
                 CRLIssuingPointRecord crlRecord = null;
