@@ -18,6 +18,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import com.netscape.certsrv.base.EBaseException;
 import org.dogtagpki.util.cert.CertUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,7 +145,7 @@ public abstract class GetConfigEntriesResourceBase {
         try {
             String csr = Files.readString(csrPath);
             return CertUtil.unwrapCSR(csr, true);
-        } catch (IOException e) {
+        } catch (IOException | EBaseException e) {
             logger.warn("GetConfigEntriesResourceBase: Cannot access CSR file {}", csrPath, e);
             return null;
         }
