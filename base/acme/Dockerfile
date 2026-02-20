@@ -86,7 +86,6 @@ RUN pki-server http-connector-add \
   --secure true \
   --sslEnabled true \
   --sslProtocol SSL \
-  --sslImpl org.dogtagpki.jss.tomcat.JSSImplementation \
   Secure
 
 # Configure SSL server certificate
@@ -99,13 +98,13 @@ RUN pki-server http-connector-cert-add \
 RUN pki-server acme-create
 
 # Use in-memory database by default
-RUN cp /usr/share/pki/acme/database/in-memory/database.conf /var/lib/pki/pki-tomcat/conf/acme
+RUN cp /usr/share/pki/acme/database/in-memory/database.conf /var/lib/pki/pki-quarkus/conf/acme
 
 # Use NSS issuer by default
-RUN cp /usr/share/pki/acme/issuer/nss/issuer.conf /var/lib/pki/pki-tomcat/conf/acme
+RUN cp /usr/share/pki/acme/issuer/nss/issuer.conf /var/lib/pki/pki-quarkus/conf/acme
 
 # Use in-memory realm by default
-RUN cp /usr/share/pki/acme/realm/in-memory/realm.conf /var/lib/pki/pki-tomcat/conf/acme
+RUN cp /usr/share/pki/acme/realm/in-memory/realm.conf /var/lib/pki/pki-quarkus/conf/acme
 
 # Remove PKI ACME web application logging.properties so the logs will appear on the console
 RUN rm -f /usr/share/pki/acme/webapps/acme/WEB-INF/classes/logging.properties
@@ -114,12 +113,12 @@ RUN rm -f /usr/share/pki/acme/webapps/acme/WEB-INF/classes/logging.properties
 RUN pki-server acme-deploy
 
 # Store default config files
-RUN mv /data/conf /var/lib/pki/pki-tomcat/conf.default
+RUN mv /data/conf /var/lib/pki/pki-quarkus/conf.default
 
 # Grant the root group the full access to PKI ACME files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/pki/pki-tomcat
-RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+RUN chgrp -Rf root /var/lib/pki/pki-quarkus
+RUN chmod -Rf g+rw /var/lib/pki/pki-quarkus
 
 VOLUME [ \
     "/certs", \

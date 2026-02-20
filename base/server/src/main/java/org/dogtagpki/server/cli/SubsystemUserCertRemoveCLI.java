@@ -47,7 +47,7 @@ public class SubsystemUserCertRemoveCLI extends ServerCommandCLI {
         String userID = cmdArgs[0];
         String certID = cmdArgs[1];
 
-        initializeTomcatJSS();
+        initializeJSS();
 
         String subsystem = parent.getParent().getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);

@@ -68,7 +68,7 @@ jobs:
               ca_signing
 
           docker exec ca pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       - name: Set up KRA DS container
@@ -207,7 +207,7 @@ jobs:
               ca_signing
 
           docker exec kra pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/kra_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/kra_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec kra pki -n kraadmin kra-user-show kraadmin
 
@@ -227,22 +227,22 @@ jobs:
       - name: Check PKI server systemd journal in CA container
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal in KRA container
         if: always()
         run: |
-          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec kra journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec kra find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

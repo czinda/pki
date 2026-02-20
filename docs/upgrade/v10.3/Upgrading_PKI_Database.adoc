@@ -33,7 +33,7 @@ objectClasses: ( authority-oid NAME 'authority' DESC 'Certificate Authority' SUP
 
 No restart is required.
 
-Alternatively, schema can also be changed locally on the DS. Edit /etc/dirsrv/slapd-pki-tomcat/schema/99user.ldif, replace the following attribute
+Alternatively, schema can also be changed locally on the DS. Edit /etc/dirsrv/slapd-pki-quarkus/schema/99user.ldif, replace the following attribute
 
 ----
 attributeTypes: ( authorityKeyNickname-oid NAME 'authorityKeyNickname' DESC 'A

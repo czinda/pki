@@ -48,7 +48,7 @@ public class SubsystemGroupMemberRemoveCLI extends ServerCommandCLI {
         String groupID = cmdArgs[0];
         String memberID = cmdArgs[1];
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

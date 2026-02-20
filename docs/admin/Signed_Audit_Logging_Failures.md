@@ -37,7 +37,7 @@ $ pki-server ca-config-set log.instance.SignedAudit.fileName /tmp/audit/ca_audit
 Restart the server:
 
 ```
-$ systemctl restart pki-tomcatd@pki-tomcat.service
+$ systemctl restart pki-quarkusd@pki-quarkus.service
 ```
 
 Create a big file to fill up the partition:
@@ -76,12 +76,12 @@ $ rm -f /tmp/audit/bigfile
 Then re-enable the CA subsystem with the following command:
 
 ```
-$ pki-server subsystem-enable -i pki-tomcat ca
+$ pki-server subsystem-enable -i pki-quarkus ca
 ```
 
 or by restarting the server:
 
 ```
-$ systemctl restart pki-tomcatd@pki-tomcat.service
+$ systemctl restart pki-quarkusd@pki-quarkus.service
 ```
 

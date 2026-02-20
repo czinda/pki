@@ -42,7 +42,7 @@ public class SubsystemUserRemoveCLI extends ServerCommandCLI {
 
         String userID = cmdArgs[0];
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

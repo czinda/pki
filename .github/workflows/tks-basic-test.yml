@@ -94,7 +94,7 @@ jobs:
       - name: Check PKI server base dir after installation
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+          docker exec pki ls -l /var/lib/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -102,13 +102,13 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
+          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-quarkus/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxrwx--- pkiuser pkiuser ca
           drwxrwx--- pkiuser pkiuser common
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-quarkus
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-quarkus
           drwxrwx--- pkiuser pkiuser temp
           drwxrwx--- pkiuser pkiuser tks
           drwxr-xr-x pkiuser pkiuser webapps
@@ -120,7 +120,7 @@ jobs:
       - name: Check PKI server conf dir after installation
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat \
+          docker exec pki ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -149,12 +149,12 @@ jobs:
       - name: Check server.xml
         if: always()
         run: |
-          docker exec pki cat /etc/pki/pki-tomcat/server.xml
+          docker exec pki cat /etc/pki/pki-quarkus/server.xml
 
       - name: Check PKI server conf/alias dir after installation
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat/alias \
+          docker exec pki ls -l /etc/pki/pki-quarkus/alias \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -173,7 +173,7 @@ jobs:
       - name: Check PKI server conf/Catalina/localhost dir after installation
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat/Catalina/localhost \
+          docker exec pki ls -l /etc/pki/pki-quarkus/Catalina/localhost \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -194,7 +194,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -218,7 +218,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -239,7 +239,7 @@ jobs:
       - name: Check TKS base dir
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat/tks \
+          docker exec pki ls -l /var/lib/pki/pki-quarkus/tks \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -247,10 +247,10 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/alias
-          lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-tomcat/conf/tks
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/lib/pki/pki-tomcat/logs/tks
-          lrwxrwxrwx pkiuser pkiuser registry -> /etc/sysconfig/pki/tomcat/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-quarkus/alias
+          lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-quarkus/conf/tks
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/lib/pki/pki-quarkus/logs/tks
+          lrwxrwxrwx pkiuser pkiuser registry -> /etc/sysconfig/pki/quarkus/pki-quarkus
           EOF
 
           diff expected output
@@ -258,7 +258,7 @@ jobs:
       - name: Check TKS conf dir
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat/conf/tks \
+          docker exec pki ls -l /var/lib/pki/pki-quarkus/conf/tks \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -291,7 +291,7 @@ jobs:
           docker exec pki pki-server cert-export subsystem \
               --cert-file subsystem.crt
           docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/subsystem.csr
           docker exec pki openssl x509 -text -noout -in subsystem.crt
 
       - name: Check SSL server cert
@@ -299,12 +299,12 @@ jobs:
           docker exec pki pki-server cert-export sslserver \
               --cert-file sslserver.crt
           docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/sslserver.csr
           docker exec pki openssl x509 -text -noout -in sslserver.crt
 
       - name: Check TKS admin cert
         run: |
-          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-quarkus/ca_admin.cert
 
       - name: Run PKI healthcheck
         run: |
@@ -329,7 +329,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin tks-user-show tksadmin
 
@@ -358,7 +358,7 @@ jobs:
       - name: Check PKI server base dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+          docker exec pki ls -l /var/lib/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -366,8 +366,8 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-quarkus
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-quarkus
           EOF
 
           diff expected output
@@ -375,7 +375,7 @@ jobs:
       - name: Check PKI server conf dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat \
+          docker exec pki ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -405,7 +405,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -429,7 +429,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -460,19 +460,19 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check PKI server access log
         if: always()
         run: |
-          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec pki find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check TKS debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/tks -name "debug.*" -exec cat {} \;

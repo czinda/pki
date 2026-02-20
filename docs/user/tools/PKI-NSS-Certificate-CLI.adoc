@@ -32,8 +32,8 @@ To display certificate info:
 $ pki nss-cert-show caadmin
   Nickname: caadmin
   Serial Number: 0x844a78e9c0c7567b80da5343fb049110
-  Subject DN: CN=PKI Administrator,E=caadmin@example.com,OU=pki-tomcat,O=EXAMPLE
-  Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=PKI Administrator,E=caadmin@example.com,OU=pki-quarkus,O=EXAMPLE
+  Issuer DN: CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE
   Not Valid Before: Wed Aug 02 18:18:40 CDT 2023
   Not Valid After: Tue Jul 22 18:18:40 CDT 2025
   Trust Flags: u,u,u
@@ -46,8 +46,8 @@ $ pki nss-cert-show caadmin --output-format json
 {
   "nickname" : "caadmin",
   "serialNumber" : "0x844a78e9c0c7567b80da5343fb049110",
-  "subjectDN" : "CN=PKI Administrator,E=caadmin@example.com,OU=pki-tomcat,O=EXAMPLE",
-  "issuerDN" : "CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE",
+  "subjectDN" : "CN=PKI Administrator,E=caadmin@example.com,OU=pki-quarkus,O=EXAMPLE",
+  "issuerDN" : "CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE",
   "notBefore" : 1691018320000,
   "notAfter" : 1753226320000,
   "trustFlags" : "u,u,u"
@@ -60,8 +60,8 @@ To display info of a certificate identified by its binary data:
 $ pki nss-cert-show --cert-file caadmin.crt
   Nickname: caadmin
   Serial Number: 0x844a78e9c0c7567b80da5343fb049110
-  Subject DN: CN=PKI Administrator,E=caadmin@example.com,OU=pki-tomcat,O=EXAMPLE
-  Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=PKI Administrator,E=caadmin@example.com,OU=pki-quarkus,O=EXAMPLE
+  Issuer DN: CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE
   Not Valid Before: Wed Aug 02 18:18:40 CDT 2023
   Not Valid After: Tue Jul 22 18:18:40 CDT 2025
   Trust Flags: u,u,u

@@ -20,7 +20,7 @@ logger = logging.getLogger()
 DOGTAG_CONFIG_FILE = "/etc/pki/healthcheck.conf"
 DOGTAG_CONFIG_SECTION = "dogtag"
 DOGTAG_DEFAULT_CONFIG = {
-    'instance_name': 'pki-tomcat',
+    'instance_name': 'pki-quarkus',
 }
 
 dogtag_config_parsed = False
@@ -58,7 +58,7 @@ def merge_dogtag_config(config):
     """
     Merge "dogtag" specific config values into the provided `config` object.
     If "dogtag" section is missing in config, appends the default instance
-    name "pki-tomcat"
+    name "pki-quarkus"
 
     :param config: config object containing prefilled values
     :return: None

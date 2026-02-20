@@ -10,52 +10,52 @@
 
 - name: STOPCA
   service:
-    name: pki-tomcatd@{{ topology }}-CA
+    name: pki-quarkusd@{{ topology }}-CA
     state: stopped
 
 - name: STARTCA
   service:
-    name: pki-tomcatd@{{ topology }}-CA
+    name: pki-quarkusd@{{ topology }}-CA
     state: started
 
 - name: STOPKRA
   service:
-    name: pki-tomcatd@{{ topology }}-KRA
+    name: pki-quarkusd@{{ topology }}-KRA
     state: stopped
 
 - name: STARTKRA
   service:
-    name: pki-tomcatd@{{ topology }}-KRA
+    name: pki-quarkusd@{{ topology }}-KRA
     state: started
 
 - name: STOPOCSP
   service:
-    name: pki-tomcatd@{{ topology }}-OCSP
+    name: pki-quarkusd@{{ topology }}-OCSP
     state: stopped
 
 - name: STARTOCSP
   service:
-    name: pki-tomcatd@{{ topology }}-OCSP
+    name: pki-quarkusd@{{ topology }}-OCSP
     state: started
 
 - name: STOPTKS
   service:
-    name: pki-tomcatd@{{ topology }}-TKS
+    name: pki-quarkusd@{{ topology }}-TKS
     state: stopped
 
 - name: STARTTKS
   service:
-    name: pki-tomcatd@{{ topology }}-TKS
+    name: pki-quarkusd@{{ topology }}-TKS
     state: started
 
 - name: STOPTPS
   service:
-    name: pki-tomcatd@{{ topology }}-TPS
+    name: pki-quarkusd@{{ topology }}-TPS
     state: stopped
 
 - name: STARTTPS
   service:
-    name: pki-tomcatd@{{ topology }}-TPS
+    name: pki-quarkusd@{{ topology }}-TPS
     state: started
 
 - name: INC_CONSTANTS

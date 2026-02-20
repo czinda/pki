@@ -41,7 +41,7 @@ public class SubsystemACLFindCLI extends ServerCommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.parent.getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

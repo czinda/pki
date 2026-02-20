@@ -80,7 +80,7 @@ jobs:
 
           # export CA admin cert and key
           docker exec ca cp \
-              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               $SHARED/ca_admin_cert.p12
 
           # import CA admin cert and key
@@ -274,7 +274,7 @@ jobs:
 
           # export KRA admin cert and key
           docker exec kra cp \
-              /root/.dogtag/pki-tomcat/kra_admin_cert.p12 \
+              /root/.dogtag/pki-quarkus/kra_admin_cert.p12 \
               $SHARED/kra_admin_cert.p12
 
           # import KRA admin cert and key
@@ -469,29 +469,29 @@ jobs:
       - name: Check CA systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA access log
         if: always()
         run: |
-          docker exec ca find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec ca find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA systemd journal
         if: always()
         run: |
-          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec kra journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check KRA access log
         if: always()
         run: |
-          docker exec kra find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec kra find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec kra find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;

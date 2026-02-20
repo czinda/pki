@@ -504,4 +504,4 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@localhost.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@localhost.service

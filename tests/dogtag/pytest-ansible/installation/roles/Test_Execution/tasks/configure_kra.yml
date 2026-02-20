@@ -49,7 +49,7 @@
 
 - name: Starting KRA Subsystem
   service:
-    name: pki-tomcatd@{{ topology }}-KRA.service
+    name: pki-quarkusd@{{ topology }}-KRA.service
     state: started
 
 - name: KRA Clone Preparation

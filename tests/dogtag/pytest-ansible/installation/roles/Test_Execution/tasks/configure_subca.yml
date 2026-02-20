@@ -5,7 +5,7 @@
   shell: pkispawn -s CA -f /tmp/test_dir/subca.cfg
 
 - name : Stopping SubCA Subsystem
-  shell: systemctl stop pki-tomcatd@{{ topology }}-CA.service
+  shell: systemctl stop pki-quarkusd@{{ topology }}-CA.service
 
 - name: Enable SignedAudit for Subsystem
   replace: dest=/etc/pki/{{ topology }}-CA/ca/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
@@ -19,5 +19,5 @@
 
 - name: Starting SubCA Subsystem
   service:
-    name: pki-tomcatd@{{ topology }}-CA.service
+    name: pki-quarkusd@{{ topology }}-CA.service
     state: started

@@ -121,9 +121,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

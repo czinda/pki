@@ -17,7 +17,7 @@ import com.netscape.cmscore.apps.SubsystemListener;
  * has been initialised.  To configure systemd notifcation, use drop-in
  * unit configuration, e.g. put into the file:
  *
- *   /etc/systemd/system/pki-tomcatd@pki-tomcat.service.d/notify.conf
+ *   /etc/systemd/system/pki-quarkusd@pki-quarkus.service.d/notify.conf
  *
  * the contents:
  *

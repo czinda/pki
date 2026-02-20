@@ -60,7 +60,7 @@ class SubsystemACLFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-acl-find [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -106,7 +106,7 @@ class SubsystemACLAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-acl-add [OPTIONS] <acl>' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -152,7 +152,7 @@ class SubsystemACLDeleteCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-acl-del [OPTIONS] <acl>' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')

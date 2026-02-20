@@ -67,7 +67,7 @@ class IdGeneratorShowCLI(pki.cli.CLI):
         print('Usage: pki-server %s-id-generator-show [OPTIONS]' %
               self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -148,7 +148,7 @@ class IdGeneratorUpdateCLI(pki.cli.CLI):
         print('  <object>                         Element to apply the generator (e.g. cert).')
         print('  -t, --type <generator type>      Type of generator to use (e.g. random).')
         print('  -r, --range <rangeTree>          Name for the new range tree if needed.')
-        print('  -i, --instance <instance ID>     Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>     Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                    Run in verbose mode.')
         print('      --debug                      Run in debug mode.')
         print('      --help                       Show help message.')

@@ -18,7 +18,7 @@ $ pki-server cert-show kra_transport
   Nickname: kra_transport
   Token: Internal Key Storage Token
   Serial Number: 0x7
-  Subject DN: CN=DRM Transport Certificate,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=DRM Transport Certificate,OU=pki-quarkus,O=EXAMPLE
   Issuer DN: CN=Certificate Authority,O=EXAMPLE
   Not Valid Before: Wed Apr 14 17:06:49 2021
   Not Valid After: Tue Apr 04 17:06:49 2023
@@ -40,7 +40,7 @@ A user without direct access to the server can display KRA transport certificate
 ----
 $ pki kra-cert-transport-show
   Serial Number: 0x7
-  Subject DN: CN=DRM Transport Certificate,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=DRM Transport Certificate,OU=pki-quarkus,O=EXAMPLE
   Issuer DN: CN=Certificate Authority,O=EXAMPLE
   Not Valid Before: Mon Dec 07 18:48:30 CST 2020
   Not Valid After: Sun Nov 27 18:48:30 CST 2022

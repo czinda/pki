@@ -47,7 +47,7 @@ csr_path = '/tmp/testCA.csr'
 
 
 def restart_instance(ansible_module, instance=constants.CA_INSTANCE_NAME):
-    command = 'systemctl restart pki-tomcatd@{}'.format(instance)
+    command = 'systemctl restart pki-quarkusd@{}'.format(instance)
     time.sleep(10)
     out = ansible_module.command(command)
     for res in out.values():

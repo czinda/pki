@@ -53,7 +53,7 @@ public class SubsystemDBUpgradeCLI extends ServerCommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

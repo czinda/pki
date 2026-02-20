@@ -61,7 +61,7 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           # restart PKI server
           docker exec ipa pki-server restart --wait
@@ -141,22 +141,22 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec ipa journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ipa journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check PKI server access log
         if: always()
         run: |
-          docker exec ipa find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec ipa find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ipa find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ipa find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec ipa find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec ipa find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Remove IPA server
         run: |
@@ -296,22 +296,22 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec ipa journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ipa journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check PKI server access log
         if: always()
         run: |
-          docker exec ipa find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec ipa find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ipa find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ipa find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec ipa find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec ipa find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Remove IPA server again
         run: |

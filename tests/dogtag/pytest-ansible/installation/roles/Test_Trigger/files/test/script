@@ -22,8 +22,8 @@ cat /var/lib/pki/$1-TKS/conf/password.conf | sed 's/^internal=//' > $tks_passwor
 cat /var/lib/pki/$1-TPS/conf/password.conf | sed 's/^internal=//' > $tps_password
 
 echo "Stopping TKS  & TPS instance"
-systemctl stop pki-tomcatd@$1-TKS.service
-systemctl stop pki-tomcatd@$1-TPS.service
+systemctl stop pki-quarkusd@$1-TKS.service
+systemctl stop pki-quarkusd@$1-TPS.service
 echo "Generating shared secret"
 /usr/bin/tkstool -D -d $tks_alias -n "TPS-`hostname`-25443 sharedSecret" -f $tks_password
 /usr/bin/tkstool -T -d $tks_alias -n $tks_shared_secret -f $tks_password -z $tks_noise > $tks_secret_output < $tks_input_file
@@ -53,7 +53,7 @@ third_session_KCV_key=$(echo ${third_session_KCV_tmp2%% })
 sed -i -e "/tps.0.nickname=/s/=.*/=$tks_shared_secret/g" $tks_conf
 sed -i -e "/tks.tksSharedSymKeyName=/s/=.*/=$tks_shared_secret/g" $tks_conf
 echo "Restart $1-TKS instance"
-systemctl restart pki-tomcatd@$1-TKS.service
+systemctl restart pki-quarkusd@$1-TKS.service
 echo "proceed\r\n" > $tps_input_file
 echo "$first_session_key\r\n" >> $tps_input_file
 echo "\r\n" >> $tps_input_file
@@ -76,4 +76,4 @@ grep "$tks_shared_secret" /tmp/sharedSecretList2.out
 sed -i -e "/tps.connector.tks1.tksSharedSymKeyName=/s/=.*/=$tks_shared_secret/g" $tps_conf
 sed -i -e "/conn.tks1.tksSharedSymKeyName=/s/=.*/=$tks_shared_secret/g" $tps_conf
 echo "Restart $1-TPS instance"
-systemctl restart pki-tomcatd@$1-TPS.service
+systemctl restart pki-quarkusd@$1-TPS.service

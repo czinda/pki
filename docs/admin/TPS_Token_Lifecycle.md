@@ -126,7 +126,7 @@ TERMINATED.UNFORMATTED   = Reuse this token.
 To customize the labels, copy the default token-states.properties into TPS configuration folder:
 
 ```
-$ cp /usr/share/pki/tps/conf/token-states.properties /var/lib/pki/pki-tomcat/tps/conf
+$ cp /usr/share/pki/tps/conf/token-states.properties /var/lib/pki/pki-quarkus/tps/conf
 ```
 Then edit the new file.
 There is no need to restart the server, but the TPS Web UI will need to be reloaded.
@@ -134,6 +134,6 @@ There is no need to restart the server, but the TPS Web UI will need to be reloa
 To remove the customized labels simply delete the customized file:
 
 ```
-$ rm /var/lib/pki/pki-tomcat/tps/conf/token-states.properties
+$ rm /var/lib/pki/pki-quarkus/tps/conf/token-states.properties
 ```
 Then reload the TPS Web UI.

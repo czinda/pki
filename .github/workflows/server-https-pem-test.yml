@@ -49,12 +49,12 @@ jobs:
               -nodes \
               -days 365 \
               -subj "/CN=$HOSTNAME" \
-              -keyout /var/lib/pki/pki-tomcat/conf/sslserver.key \
-              -out /var/lib/pki/pki-tomcat/conf/sslserver.crt
-          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.crt
-          docker exec pki chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.crt
-          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.key
-          docker exec pki chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.key
+              -keyout /var/lib/pki/pki-quarkus/conf/sslserver.key \
+              -out /var/lib/pki/pki-quarkus/conf/sslserver.crt
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-quarkus/conf/sslserver.crt
+          docker exec pki chmod 660 /var/lib/pki/pki-quarkus/conf/sslserver.crt
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-quarkus/conf/sslserver.key
+          docker exec pki chmod 660 /var/lib/pki/pki-quarkus/conf/sslserver.key
 
       - name: Create HTTPS connector with PEM files
         run: |
@@ -66,8 +66,8 @@ jobs:
               --sslProtocol SSL \
               Secure
           docker exec pki pki-server http-connector-cert-add \
-              --certFile /var/lib/pki/pki-tomcat/conf/sslserver.crt \
-              --keyFile /var/lib/pki/pki-tomcat/conf/sslserver.key
+              --certFile /var/lib/pki/pki-quarkus/conf/sslserver.crt \
+              --keyFile /var/lib/pki/pki-quarkus/conf/sslserver.key
 
       - name: Start PKI server
         run: |

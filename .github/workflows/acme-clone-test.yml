@@ -75,7 +75,7 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
       - name: Set up primary ACME DS container
         run: |
@@ -116,11 +116,11 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
       - name: Check primary ACME database config
         run: |
-          docker exec primaryacme cat /etc/pki/pki-tomcat/acme/database.conf | tee output
+          docker exec primaryacme cat /etc/pki/pki-quarkus/acme/database.conf | tee output
 
           cat > expected << EOF
           authType=BasicAuth
@@ -135,7 +135,7 @@ jobs:
 
       - name: Check primary ACME issuer config
         run: |
-          docker exec primaryacme cat /etc/pki/pki-tomcat/acme/issuer.conf | tee output
+          docker exec primaryacme cat /etc/pki/pki-quarkus/acme/issuer.conf | tee output
 
           cat > expected << EOF
           class=org.dogtagpki.acme.issuer.PKIIssuer
@@ -149,7 +149,7 @@ jobs:
 
       - name: Check primary ACME realm config
         run: |
-          docker exec primaryacme cat /etc/pki/pki-tomcat/acme/realm.conf | tee output
+          docker exec primaryacme cat /etc/pki/pki-quarkus/acme/realm.conf | tee output
 
           cat > expected << EOF
           authType=BasicAuth
@@ -166,8 +166,8 @@ jobs:
       - name: Check primary ACME system certs
         run: |
           docker exec primaryacme pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /etc/pki/pki-quarkus/alias \
+              -f /etc/pki/pki-quarkus/password.conf \
               nss-cert-find
 
       - name: Initialize primary ACME database
@@ -226,11 +226,11 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
       - name: Check secondary ACME database config
         run: |
-          docker exec secondaryacme cat /etc/pki/pki-tomcat/acme/database.conf | tee output
+          docker exec secondaryacme cat /etc/pki/pki-quarkus/acme/database.conf | tee output
 
           cat > expected << EOF
           authType=BasicAuth
@@ -245,7 +245,7 @@ jobs:
 
       - name: Check secondary ACME issuer config
         run: |
-          docker exec secondaryacme cat /etc/pki/pki-tomcat/acme/issuer.conf | tee output
+          docker exec secondaryacme cat /etc/pki/pki-quarkus/acme/issuer.conf | tee output
 
           cat > expected << EOF
           class=org.dogtagpki.acme.issuer.PKIIssuer
@@ -259,7 +259,7 @@ jobs:
 
       - name: Check secondary ACME realm config
         run: |
-          docker exec secondaryacme cat /etc/pki/pki-tomcat/acme/realm.conf | tee output
+          docker exec secondaryacme cat /etc/pki/pki-quarkus/acme/realm.conf | tee output
 
           cat > expected << EOF
           authType=BasicAuth
@@ -276,8 +276,8 @@ jobs:
       - name: Check secondary ACME system certs
         run: |
           docker exec secondaryacme pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /etc/pki/pki-quarkus/alias \
+              -f /etc/pki/pki-quarkus/password.conf \
               nss-cert-find
 
       - name: Set up ACME database and realm replication
@@ -540,17 +540,17 @@ jobs:
       - name: Check CA server systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA access log
         if: always()
         run: |
-          docker exec ca find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec ca find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check primary ACME DS server systemd journal
         if: always()
@@ -565,17 +565,17 @@ jobs:
       - name: Check primary ACME server systemd journal
         if: always()
         run: |
-          docker exec primaryacme journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec primaryacme journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check primary ACME access log
         if: always()
         run: |
-          docker exec primaryacme find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec primaryacme find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check primary ACME debug log
         if: always()
         run: |
-          docker exec primaryacme find /var/lib/pki/pki-tomcat/logs/acme -name "debug.*" -exec cat {} \;
+          docker exec primaryacme find /var/lib/pki/pki-quarkus/logs/acme -name "debug.*" -exec cat {} \;
 
       - name: Check secondary ACME DS server systemd journal
         if: always()
@@ -590,17 +590,17 @@ jobs:
       - name: Check secondary ACME server systemd journal
         if: always()
         run: |
-          docker exec secondaryacme journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec secondaryacme journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check secondary ACME access log
         if: always()
         run: |
-          docker exec secondaryacme find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec secondaryacme find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check secondary ACME debug log
         if: always()
         run: |
-          docker exec secondaryacme find /var/lib/pki/pki-tomcat/logs/acme -name "debug.*" -exec cat {} \;
+          docker exec secondaryacme find /var/lib/pki/pki-quarkus/logs/acme -name "debug.*" -exec cat {} \;
 
       - name: Check certbot log
         if: always()

@@ -69,7 +69,7 @@ public class SubsystemUserCertAddCLI extends ServerCommandCLI {
         String format = cmd.getOptionValue("format");
         boolean ignoreDuplicate = cmd.hasOption("ignore-duplicate");
 
-        initializeTomcatJSS();
+        initializeJSS();
 
         byte[] bytes;
         if (filename == null) {

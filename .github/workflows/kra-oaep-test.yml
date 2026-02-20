@@ -133,7 +133,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin kra-user-show kraadmin
 
@@ -159,15 +159,15 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 

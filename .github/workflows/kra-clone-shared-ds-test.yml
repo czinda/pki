@@ -76,7 +76,7 @@ jobs:
 
           # install admin cert
           docker exec primary cp \
-              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               ${SHARED}/ca_admin_cert.p12
           docker exec primary pki pkcs12-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
@@ -116,7 +116,7 @@ jobs:
       - name: Install KRA in secondary PKI container
         run: |
           # get CS.cfg from primary KRA before cloning
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.primary
+          docker cp primary:/var/lib/pki/pki-quarkus/conf/kra/CS.cfg CS.cfg.primary
 
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/kra-clone.cfg \
@@ -154,7 +154,7 @@ jobs:
       - name: Check CS.cfg in primary KRA after cloning
         run: |
           # get CS.cfg from primary KRA after cloning
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.primary.after
+          docker cp primary:/var/lib/pki/pki-quarkus/conf/kra/CS.cfg CS.cfg.primary.after
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -179,7 +179,7 @@ jobs:
       - name: Check CS.cfg in secondary KRA
         run: |
           # get CS.cfg from secondary KRA
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.secondary
+          docker cp secondary:/var/lib/pki/pki-quarkus/conf/kra/CS.cfg CS.cfg.secondary
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -251,32 +251,32 @@ jobs:
       - name: Check PKI server systemd journal in primary container
         if: always()
         run: |
-          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec primary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check primary CA debug log
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check primary KRA debug log
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal in secondary container
         if: always()
         run: |
-          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec secondary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check secondary CA debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check secondary KRA debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

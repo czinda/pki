@@ -77,7 +77,7 @@ public abstract class SubsystemIdGeneratorUpdateCLI extends ServerCommandCLI {
         }
         String generatorAtttirbute = cmdArgs[0];
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

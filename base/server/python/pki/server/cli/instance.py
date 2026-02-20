@@ -27,7 +27,6 @@ import sys
 import pki.cli
 import pki.nssdb
 import pki.server
-import pki.server.cli.nuxwdog
 import pki.util
 
 logger = logging.getLogger(__name__)
@@ -43,9 +42,6 @@ class InstanceCLI(pki.cli.CLI):
         self.add_module(InstanceShowCLI())
         self.add_module(InstanceStartCLI())
         self.add_module(InstanceStopCLI())
-        self.add_module(InstanceMigrateCLI())
-        self.add_module(InstanceNuxwdogEnableCLI())
-        self.add_module(InstanceNuxwdogDisableCLI())
         self.add_module(InstanceExternalCertAddCLI())
         self.add_module(InstanceExternalCertDeleteCLI())
 
@@ -109,7 +105,7 @@ class InstanceCertExportCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server instance-cert-export [OPTIONS] [nicknames...]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --pkcs12-file <path>           Output file to store the exported certificate '
               'and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
@@ -449,220 +445,6 @@ class InstanceStopCLI(pki.cli.CLI):
         self.print_message('%s instance stopped' % instance_name)
 
 
-class InstanceMigrateCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super().__init__('migrate', 'Migrate instance')
-
-    def create_parser(self, subparsers=None):
-
-        self.parser = argparse.ArgumentParser(
-            self.get_full_name(),
-            add_help=False)
-        self.parser.add_argument('--tomcat')
-        self.parser.add_argument(
-            '-v',
-            '--verbose',
-            action='store_true')
-        self.parser.add_argument(
-            '--debug',
-            action='store_true')
-        self.parser.add_argument(
-            '--help',
-            action='store_true')
-        self.parser.add_argument(
-            'instance_id',
-            nargs='?')
-
-    def print_help(self):
-        print('Usage: pki-server instance-migrate [OPTIONS] <instance ID>')
-        print()
-        print('      --tomcat <version>       Use the specified Tomcat version.')
-        print('  -v, --verbose                Run in verbose mode.')
-        print('      --debug                  Show debug messages.')
-        print('      --help                   Show help message.')
-        print()
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        if args.tomcat:
-            tomcat_version = pki.util.Version(args.tomcat)
-        else:
-            tomcat_version = pki.server.Tomcat.get_version()
-
-        instance_name = args.instance_id
-
-        if instance_name is None:
-            raise pki.cli.CLIException('Missing instance ID')
-
-        logger.info('Migrating to Tomcat %s', tomcat_version)
-
-        module = self.get_top_module().find_module('migrate')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-
-        if not instance.exists():
-            logger.error('Invalid instance %s.', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        module.migrate(  # pylint: disable=no-member,maybe-no-member
-            instance,
-            tomcat_version)
-
-        self.print_message('%s instance migrated' % instance_name)
-
-
-class InstanceNuxwdogEnableCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super().__init__('nuxwdog-enable', 'Instance enable nuxwdog')
-
-    def create_parser(self, subparsers=None):
-
-        self.parser = argparse.ArgumentParser(
-            self.get_full_name(),
-            add_help=False)
-        self.parser.add_argument(
-            '-v',
-            '--verbose',
-            action='store_true')
-        self.parser.add_argument(
-            '--debug',
-            action='store_true')
-        self.parser.add_argument(
-            '--help',
-            action='store_true')
-        self.parser.add_argument(
-            'instance_id',
-            nargs='?')
-
-    def print_help(self):
-        print('Usage: pki-server instance-nuxwdog-enable [OPTIONS] <instance ID>')
-        print()
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance_id
-
-        if instance_name is None:
-            raise pki.cli.CLIException('Missing instance ID')
-
-        module = self.get_top_module().find_module('nuxwdog-enable')
-        module = pki.server.cli.nuxwdog.NuxwdogEnableCLI()
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-
-        if not instance.exists():
-            logger.error('Invalid instance %s.', instance_name)
-            sys.exit(1)
-
-        instance.load()
-        module.enable_nuxwdog(  # pylint: disable=no-member,maybe-no-member
-            instance)
-
-        self.print_message('Nuxwdog enabled for instance %s.' % instance_name)
-
-
-class InstanceNuxwdogDisableCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super().__init__('nuxwdog-disable', 'Instance disable nuxwdog')
-
-    def create_parser(self, subparsers=None):
-
-        self.parser = argparse.ArgumentParser(
-            self.get_full_name(),
-            add_help=False)
-        self.parser.add_argument(
-            '-v',
-            '--verbose',
-            action='store_true')
-        self.parser.add_argument(
-            '--debug',
-            action='store_true')
-        self.parser.add_argument(
-            '--help',
-            action='store_true')
-        self.parser.add_argument(
-            'instance_id',
-            nargs='?')
-
-    def print_help(self):
-        print('Usage: pki-server instance-nuxwdog-disable [OPTIONS] <instance ID>')
-        print()
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance_id
-
-        if instance_name is None:
-            raise pki.cli.CLIException('Missing instance ID')
-
-        module = self.get_top_module().find_module('nuxwdog-disable')
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-
-        if not instance.exists():
-            logger.error('Invalid instance %s.', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        module.disable_nuxwdog(
-            instance)  # pylint: disable=no-member,maybe-no-member
-
-        self.print_message('Nuxwdog disabled for instance %s.' % instance_name)
-
-
 class InstanceExternalCertAddCLI(pki.cli.CLI):
 
     def __init__(self):
@@ -699,7 +481,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server instance-externalcert-add [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --cert-file <path>             Input file containing the external certificate'
               ' or certificate chain.')
         print('      --trust-args <trust-args>      Trust args (default \",,\").')
@@ -816,7 +598,7 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server instance-externalcert-del [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --nickname <nickname>          Nickname to be used.')
         print('      --token <token_name>           Token (default: internal).')
         print('  -v, --verbose                      Run in verbose mode.')

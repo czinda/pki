@@ -47,8 +47,7 @@ import com.netscape.cmscore.usrgrp.User;
  * Container-agnostic PKI authentication logic.
  *
  * This class extracts the authentication and role lookup logic from
- * PKIRealm (which extends Tomcat's RealmBase) so it can be reused
- * by both Tomcat and Quarkus security mechanisms.
+ * PKIRealm so it can be reused by Quarkus security mechanisms.
  *
  * NOTE: This class will be moved to pki-server-core once its
  * dependencies (CMSEngine, AuthSubsystem, etc.) are moved there.

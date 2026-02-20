@@ -41,12 +41,12 @@ import ConfigParser
 class NuxwdogOperations(object):
     def __init__(self, **kwargs):
         self.subsystem_type = kwargs.get('subsystem_type', 'CA')
-        self.subsystem_name = kwargs.get('subsystem_name', 'pki-tomcat')
+        self.subsystem_name = kwargs.get('subsystem_name', 'pki-quarkus')
         self.pki_user = kwargs.get('pki_user', 'pkiuser')
 
     def enable_nuxwdog(self, ansible_module):
 
-        ansible_module.shell("systemctl stop pki-tomcatd@%s" % self.subsystem_name)
+        ansible_module.shell("systemctl stop pki-quarkusd@%s" % self.subsystem_name)
         ansible_module.shell("pki-server instance-nuxwdog-enable %s" % self.subsystem_name)
         output = ansible_module.shell("cat /var/lib/pki/%s/conf/nuxwdog.conf | grep %s" % (self.subsystem_name, self.pki_user))
         for result in output.values():
@@ -57,12 +57,12 @@ class NuxwdogOperations(object):
         for result in output.values():
             [password.update({i.split("=")[0]: i.split("=")[1]}) for i in result['stdout'].split("\n")]
         if 'TPS' not in self.subsystem_type:
-            ansible_module.expect(command='systemctl start pki-tomcatd-nuxwdog@%s' % self.subsystem_name, responses={
+            ansible_module.expect(command='systemctl start pki-quarkusd-nuxwdog@%s' % self.subsystem_name, responses={
                 '\[%s\] Please provide the password for internal:' % self.subsystem_name: '%s' % password['internal'],
                 '\[%s\] Please provide the password for internaldb:' % self.subsystem_name: '%s' % password['internaldb'],
                 '\[%s\] Please provide the password for replicationdb:' % self.subsystem_name: '%s' % password['replicationdb']})
         else:
-            ansible_module.expect(command='systemctl start pki-tomcatd-nuxwdog@%s' % self.subsystem_name, responses={
+            ansible_module.expect(command='systemctl start pki-quarkusd-nuxwdog@%s' % self.subsystem_name, responses={
                 '\[%s\] Please provide the password for internal:' % self.subsystem_name: '%s' % password['internal'],
                 '\[%s\] Please provide the password for internaldb:' % self.subsystem_name: '%s' % password['internaldb']})
 

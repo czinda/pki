@@ -251,7 +251,7 @@ All notification channels use the same JSON event format:
 {
   "specversion": "1.0",
   "type": "com.redhat.pki.certificate.issued",
-  "source": "/pki/ca/pki-tomcat",
+  "source": "/pki/ca/pki-quarkus",
   "id": "evt-20240115-001234",
   "time": "2024-01-15T10:30:00.000Z",
   "datacontenttype": "application/json",

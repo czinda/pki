@@ -14,7 +14,7 @@ Prior to installation, ensure that the xref:../others/installation-prerequisites
 [literal]
 ----
 [DEFAULT]
-pki_instance_name=pki-tomcat
+pki_instance_name=pki-quarkus
 pki_https_port=8443
 pki_http_port=8080
 pki_server_database_password=Secret.123
@@ -62,11 +62,11 @@ pki_subsystem_nickname=subsystem
 $ pkispawn -f kra.cfg -s KRA
 ....
 
-It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a KRA subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/.dogtag/pki-tomcat/kra/alias
+* admin NSS database: ~/.dogtag/pki-quarkus/kra/alias
 
 == Verifying system certificates
 
@@ -74,7 +74,7 @@ It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and cre
 +
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -87,7 +87,7 @@ kra_audit_signing                                            ,,P
 +
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

@@ -204,7 +204,7 @@ def main(argv):
             interactive = True
             parser.indent = 2
 
-            print("Tomcat:")
+            print("Server:")
             instance_name = parser.read_text(
                 'Instance', 'DEFAULT', 'pki_instance_name')
             existing_data = parser.read_existing_deployment_data(instance_name)
@@ -217,16 +217,6 @@ def main(argv):
             set_port(parser,
                      'pki_https_port',
                      'Secure HTTP port',
-                     existing_data)
-
-            set_port(parser,
-                     'pki_ajp_port',
-                     'AJP port',
-                     existing_data)
-
-            set_port(parser,
-                     'pki_tomcat_server_port',
-                     'Management port',
                      existing_data)
 
             print()
@@ -644,7 +634,7 @@ def main(argv):
     if config.str2bool(deployer.mdict['pki_registry_enable']):
 
         # Store user config and installation manifest into
-        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        # /etc/sysconfig/pki/quarkus/<instance>/<subsystem>
         deployer.store_config()
         deployer.store_manifest()
 
@@ -693,7 +683,7 @@ def validate_user_deployment_cfg(user_deployment_cfg):
             continue
         if line not in [
                 '[DEFAULT]',
-                '[Tomcat]',
+                '[Quarkus]',
                 '[CA]',
                 '[KRA]',
                 '[OCSP]',

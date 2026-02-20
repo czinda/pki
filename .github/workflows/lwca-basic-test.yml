@@ -69,7 +69,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
@@ -101,8 +101,8 @@ jobs:
       - name: Check certs and keys in NSS database
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-find | tee output
 
           # there should be 5 certs
@@ -111,8 +111,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find | tee output
 
           # there should be 5 keys
@@ -191,8 +191,8 @@ jobs:
       - name: Check certs and keys in NSS database
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-find | tee output
 
           # there should be 25 certs now
@@ -201,8 +201,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find | tee output
 
           # there should be 25 keys now
@@ -289,8 +289,8 @@ jobs:
       - name: Check certs and keys in NSS database
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-find | tee output
 
           # there should be 5 certs now
@@ -299,8 +299,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find | tee output
 
           # there should be 5 keys now
@@ -311,7 +311,7 @@ jobs:
       - name: Check CA debug logs
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Remove CA
         run: docker exec pki pkidestroy -s CA -v

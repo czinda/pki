@@ -2,12 +2,12 @@
 #
 # Each PKI subsystem runs as an independent Quarkus process.
 # Instance name format: <instance>-<subsystem>
-# Example: pki-tomcat-ca, pki-tomcat-kra, pki-tomcat-ocsp
+# Example: pki-quarkus-ca, pki-quarkus-kra, pki-quarkus-ocsp
 #
 # Usage:
-#   systemctl start pki-quarkusd@pki-tomcat-ca
-#   systemctl stop pki-quarkusd@pki-tomcat-ca
-#   systemctl status pki-quarkusd@pki-tomcat-ca
+#   systemctl start pki-quarkusd@pki-quarkus-ca
+#   systemctl stop pki-quarkusd@pki-quarkus-ca
+#   systemctl status pki-quarkusd@pki-quarkus-ca
 
 [Unit]
 Description=Dogtag PKI Quarkus Subsystem (%i)
@@ -21,7 +21,7 @@ User=pkiuser
 Group=pkiuser
 
 # Parse instance name and subsystem type from %i
-# Format: <instance>-<subsystem> (e.g., pki-tomcat-ca)
+# Format: <instance>-<subsystem> (e.g., pki-quarkus-ca)
 Environment=PKI_INSTANCE_DIR=/var/lib/pki
 Environment=PKI_SHARE_DIR=/usr/share/pki
 

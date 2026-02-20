@@ -28,7 +28,7 @@ import pki.server
 
 UPGRADE_DIR = pki.SHARE_DIR + '/server/upgrade'
 
-INSTANCE_TRACKER = '%s/tomcat.conf'
+INSTANCE_TRACKER = '%s/quarkus.conf'
 
 logger = logging.getLogger(__name__)
 

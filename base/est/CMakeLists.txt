@@ -4,7 +4,6 @@ javac(pki-est-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
-        ${SERVLET_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR}
         ${COMMONS_IO_JAR}

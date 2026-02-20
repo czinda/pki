@@ -43,7 +43,7 @@ root user.
 
    Make sure it contains pki_client_database_purge=False
    so root can authenticate as CA admin certificate directly
-   with the certificate in ~/.dogtag/pki-tomcat/ca/alias.
+   with the certificate in ~/.dogtag/pki-quarkus/ca/alias.
 
    Also, make sure the CA admin certificate is imported
    during KRA installation so root can authenticate as
@@ -54,7 +54,7 @@ root user.
 
 2. As root, export the CA admin client certificate:
 
-   pki -d ~/.dogtag/pki-tomcat/ca/alias -c <password> client-cert-show caadmin --client-cert kraagent.pem
+   pki -d ~/.dogtag/pki-quarkus/ca/alias -c <password> client-cert-show caadmin --client-cert kraagent.pem
 
 3. As root, execute the KRA test:
 

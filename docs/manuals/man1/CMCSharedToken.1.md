@@ -54,7 +54,7 @@ The following are supported options.
 
 ```
 $ CMCSharedToken -d . -p myNSSPassword \
-    -s "just another good day" -o cmcSharedTok2.b64 -n "subsystemCert cert-pki-tomcat"
+    -s "just another good day" -o cmcSharedTok2.b64 -n "subsystemCert cert-pki-quarkus"
 ```
 
 ## SEE ALSO

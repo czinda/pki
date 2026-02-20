@@ -21,7 +21,7 @@ Prior to installation, ensure that the xref:../others/installation-prerequisites
 
 == Installing a CA subsystem
 
-Prepare a deployment configuration, for example `ca-ecc.cfg`, to deploy CA subsystem. By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
+Prepare a deployment configuration, for example `ca-ecc.cfg`, to deploy CA subsystem. By default the subsystem is deployed into a Tomcat instance called `pki-quarkus`.
 
 A sample deployment configuration is available at xref:../../../base/server/examples/installation/ca-ecc.cfg[/usr/share/pki/server/examples/installation/ca-ecc.cfg].
 
@@ -33,10 +33,10 @@ $ pkispawn -f ca-ecc.cfg -s CA
 
 == CA system certificates 
 
-After installation the CA system certificates and keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`):
+After installation the CA system certificates and keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-quarkus/conf/alias`):
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -66,7 +66,7 @@ Note that the `pki-server cert-export` command takes a certificate ID instead of
 
 == Admin certificate 
 
-After installation, the admin certificate and key are stored in `~/.dogtag/pki-tomcat/ca_admin_cert.p12`. The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
+After installation, the admin certificate and key are stored in `~/.dogtag/pki-quarkus/ca_admin_cert.p12`. The PKCS #12 password is specified in the `pki_client_pkcs12_password` parameter.
 
 To use the admin certificate, do the following.
 
@@ -89,7 +89,7 @@ $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 [literal]
 ....
 $ pki pkcs12-import \
-    --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+    --pkcs12 ~/.dogtag/pki-quarkus/ca_admin_cert.p12 \
     --pkcs12-password Secret.123
 ....
 

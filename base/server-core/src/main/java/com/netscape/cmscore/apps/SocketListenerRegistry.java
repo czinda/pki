@@ -20,9 +20,8 @@ package com.netscape.cmscore.apps;
 import org.mozilla.jss.ssl.SSLSocketListener;
 
 /**
- * Container-agnostic interface for registering SSL socket listeners.
+ * Interface for registering SSL socket listeners.
  *
- * In Tomcat deployments, this delegates to TomcatJSS.
  * In Quarkus deployments, this initializes JSS directly
  * or uses a Vert.x-based SSL handler.
  */

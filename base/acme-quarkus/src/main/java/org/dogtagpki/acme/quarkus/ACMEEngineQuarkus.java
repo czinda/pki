@@ -85,7 +85,7 @@ import io.quarkus.runtime.StartupEvent;
  * ACME Engine for Quarkus.
  *
  * Replicates ACMEEngine's lifecycle and business logic using CDI
- * instead of extending CMSEngine (which depends on Tomcat).
+ * instead of extending CMSEngine.
  * Uses @ApplicationScoped and @Observes StartupEvent/ShutdownEvent
  * for lifecycle management.
  *

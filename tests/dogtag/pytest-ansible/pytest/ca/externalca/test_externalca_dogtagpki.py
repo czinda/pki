@@ -288,7 +288,7 @@ def test_bug_1911472_revoke_with_allowExtCASignedAgentCerts(ansible_module):
     ansible_module.lineinfile(dest="/var/lib/pki/{}/ca/conf/CS.cfg".format(constants.CA_INSTANCE_NAME),
                               line="ca.allowExtCASignedAgentCerts=true", state="present")
 
-    ansible_module.shell('systemctl restart pki-tomcatd@{}'.format(constants.CA_INSTANCE_NAME))
+    ansible_module.shell('systemctl restart pki-quarkusd@{}'.format(constants.CA_INSTANCE_NAME))
     time.sleep(10)
 
     revoke_cert = ansible_module.pki(cli='ca-cert-revoke', nssdb=nssdb,

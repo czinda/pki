@@ -51,7 +51,7 @@ run_bug-1058366-verification(){
 	temp_file="$ca_server_xml_file.temp"
 	log_file="/tmp/log_messages"
         rlLog "https://bugzilla.redhat.com/show_bug.cgi?id=1058366"
-	rlRun "systemctl stop pki-tomcatd@pki-ca-bug.service"
+	rlRun "systemctl stop pki-quarkusd@pki-ca-bug.service"
 	rlRun "sleep 10"
 	search_string1="clientAuth=\"want\""
 	search_string2="clientauth=\"want\""
@@ -74,17 +74,17 @@ run_bug-1058366-verification(){
 	rlRun "sleep 10"
         cat $ca_server_xml_file | grep $replace_string3
         if [ $? -eq 0 ] ; then
-		rlRun "systemctl start pki-tomcatd@pki-ca-bug.service"
+		rlRun "systemctl start pki-quarkusd@pki-ca-bug.service"
 		rlRun "sleep 10"
 		rlRun "journalctl > $log_file"
 		rlRun "sleep 10"
 		rlAssertNotGrep "NullPointerException" "$log_file"
-		rlRun "systemctl stop pki-tomcatd@pki-ca-bug.service"
+		rlRun "systemctl stop pki-quarkusd@pki-ca-bug.service"
 		rlRun "sleep 10"
 		rlRun "sed 's/$replace_string3/$search_string3/g' $ca_server_xml_file > $temp_file"
 	        rlRun "sleep 10"
         	cp $temp_file $ca_server_xml_file
-		rlRun "systemctl start pki-tomcatd@pki-ca-bug.service"
+		rlRun "systemctl start pki-quarkusd@pki-ca-bug.service"
                 rlRun "sleep 10"
 	fi
      rlPhaseEnd

@@ -146,7 +146,7 @@ jobs:
           # there should be 6 certs
           echo "6" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -155,7 +155,7 @@ jobs:
         run: |
           echo "CT,C,C" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               root-ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -165,7 +165,7 @@ jobs:
         run: |
           echo "CT,C,C" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -175,7 +175,7 @@ jobs:
         run: |
           echo ",," > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               ca_ocsp_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -185,7 +185,7 @@ jobs:
         run: |
           echo ",,P" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               ca_audit_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -195,7 +195,7 @@ jobs:
         run: |
           echo ",," > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               subsystem | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -205,7 +205,7 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -215,8 +215,8 @@ jobs:
         run: |
           echo "4" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -226,8 +226,8 @@ jobs:
         run: |
           echo "CTu,Cu,Cu" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_signing | tee output
@@ -238,8 +238,8 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_ocsp_signing | tee output
@@ -250,8 +250,8 @@ jobs:
         run: |
           echo "u,u,Pu" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_audit_signing | tee output
@@ -262,8 +262,8 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec primary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:subsystem | tee output
@@ -329,7 +329,7 @@ jobs:
       - name: Install secondary sub-CA
         run: |
           # get CS.cfg from primary sub-CA before cloning
-          docker cp primary-subca:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary
+          docker cp primary-subca:/var/lib/pki/pki-quarkus/conf/ca/CS.cfg CS.cfg.primary
 
           docker exec secondary-subca pkispawn \
               -f /usr/share/pki/server/examples/installation/ca-clone.cfg \
@@ -352,7 +352,7 @@ jobs:
       - name: Check CS.cfg in primary sub-CA after cloning
         run: |
           # get CS.cfg from primary sub-CA after cloning
-          docker cp primary-subca:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after
+          docker cp primary-subca:/var/lib/pki/pki-quarkus/conf/ca/CS.cfg CS.cfg.primary.after
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -379,7 +379,7 @@ jobs:
       - name: Check CS.cfg in secondary sub-CA
         run: |
           # get CS.cfg from secondary sub-CA
-          docker cp secondary-subca:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary
+          docker cp secondary-subca:/var/lib/pki/pki-quarkus/conf/ca/CS.cfg CS.cfg.secondary
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -428,7 +428,7 @@ jobs:
           # TODO: fix pkispawn to import the missing certs
           echo "4" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -437,7 +437,7 @@ jobs:
         run: |
           echo "CT,C,C" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               root-ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -447,7 +447,7 @@ jobs:
         run: |
           echo "CT,C,C" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -460,7 +460,7 @@ jobs:
       #  run: |
       #    echo ",," > expected
       #    docker exec secondary-subca pki \
-      #        -d /var/lib/pki/pki-tomcat/conf/alias \
+      #        -d /var/lib/pki/pki-quarkus/conf/alias \
       #        nss-cert-show \
       #        ca_ocsp_signing | tee output
       #    sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -470,7 +470,7 @@ jobs:
         run: |
           echo ",,P" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               ca_audit_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -483,7 +483,7 @@ jobs:
       #  run: |
       #    echo ",," > expected
       #    docker exec secondary-subca pki \
-      #        -d /var/lib/pki/pki-tomcat/conf/alias \
+      #        -d /var/lib/pki/pki-quarkus/conf/alias \
       #        nss-cert-show \
       #        subsystem | tee output
       #    sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -493,7 +493,7 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -503,8 +503,8 @@ jobs:
         run: |
           echo "4" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -514,8 +514,8 @@ jobs:
         run: |
           echo "CTu,Cu,Cu" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_signing | tee output
@@ -526,8 +526,8 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_ocsp_signing | tee output
@@ -538,8 +538,8 @@ jobs:
         run: |
           echo "u,u,Pu" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:ca_audit_signing | tee output
@@ -550,8 +550,8 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec secondary-subca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:subsystem | tee output

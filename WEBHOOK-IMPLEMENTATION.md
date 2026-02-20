@@ -98,7 +98,7 @@ The webhook system provides event-driven notifications for certificate lifecycle
 {
   "event": "certificate.issued",
   "timestamp": "2024-01-15T10:30:00Z",
-  "instanceId": "pki-tomcat",
+  "instanceId": "pki-quarkus",
   "certificate": {
     "serialNumber": "12345",
     "serialNumberHex": "0x3039",
@@ -439,7 +439,7 @@ curl -X POST https://your-webhook-endpoint.com/webhook \
   -d '{
     "event": "test",
     "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
-    "instanceId": "pki-tomcat"
+    "instanceId": "pki-quarkus"
   }'
 ```
 

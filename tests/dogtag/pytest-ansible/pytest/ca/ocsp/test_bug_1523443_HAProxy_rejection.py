@@ -80,7 +80,7 @@ def test_bug_1523443_HAProxy_rejection(ansible_module):
     """
     temp_dir = tempfile.mkdtemp(suffix="_test", prefix='profile_', dir="/tmp/")
     ca_cs_cfg = os.path.join(temp_dir, '/CS.cfg')
-    ansible_module.command('systemctl stop pki-tomcatd@%s.service' % constants.CA_INSTANCE_NAME)
+    ansible_module.command('systemctl stop pki-quarkusd@%s.service' % constants.CA_INSTANCE_NAME)
     ansible_module.fetch(src='/var/lib/pki/%s/ca/conf/CS.cfg' % constants.CA_INSTANCE_NAME,
                          dest=ca_cs_cfg, flat=True)
     if os.path.isfile(ca_cs_cfg):
@@ -93,7 +93,7 @@ def test_bug_1523443_HAProxy_rejection(ansible_module):
 
     ansible_module.copy(src='/tmp/CS.cfg',
                         dest="/var/lib/pki/%s/ca/conf/CS.cfg" % constants.CA_INSTANCE_NAME)
-    ansible_module.command('systemctl start pki-tomcatd@%s.service' % constants.CA_INSTANCE_NAME)
+    ansible_module.command('systemctl start pki-quarkusd@%s.service' % constants.CA_INSTANCE_NAME)
 
     cert_find_output = ansible_module.command("pki -d %s -c %s -p %s ca-cert-find --name 'CA Signing'" %
                                               (constants.NSSDB, constants.CLIENT_DATABASE_PASSWORD,

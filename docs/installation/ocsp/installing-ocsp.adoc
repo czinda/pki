@@ -18,11 +18,11 @@ Prior to installation, ensure that the xref:../others/installation-prerequisites
 $ pkispawn -f ocsp.cfg -s OCSP
 ....
 
-It installs a OCSP subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a OCSP subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
+* admin NSS database: ~/.dogtag/pki-quarkus/ocsp/alias
 
 [NOTE]
 ====
@@ -35,7 +35,7 @@ Verify that the server NSS database contains the following certificates:
 
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -97,7 +97,7 @@ User "ocspadmin"
 [literal]
 ....
 $ OCSPClient \
- -d /var/lib/pki/pki-tomcat/conf/alias \
+ -d /var/lib/pki/pki-quarkus/conf/alias \
  -h pki.example.com \
  -p 8080 \
  -t /ocsp/ee/ocsp \

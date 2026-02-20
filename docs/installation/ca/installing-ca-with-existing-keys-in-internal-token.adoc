@@ -23,11 +23,11 @@ Execute the following command:
 $ pkispawn -f ca-existing-certs-step1.cfg -s CA
 ....
 
-It installs a CA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a CA subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
+* admin NSS database: ~/.dogtag/pki-quarkus/ca/alias
 
 Since there are no CSR path parameters specified, it does not generate CA system and admin keys.
 
@@ -37,7 +37,7 @@ Since there are no CSR path parameters specified, it does not generate CA system
 +
 [literal]
 ....
-$ pki -d /var/lib/pki/pki-tomcat/conf/alias -c Secret.123 pkcs12-export \
+$ pki -d /var/lib/pki/pki-quarkus/conf/alias -c Secret.123 pkcs12-export \
   --pkcs12 ca-certs.p12 \
   --password Secret.123
 $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 sslserver
@@ -48,7 +48,7 @@ $ pki pkcs12-cert-del --pkcs12-file ca-certs.p12 --pkcs12-password Secret.123 su
 +
 [literal]
 ....
-cp /etc/pki/pki-tomcat/certs/* /root 
+cp /etc/pki/pki-quarkus/certs/* /root 
 ....
 
 == Finishing a CA subsystem installation 
@@ -93,7 +93,7 @@ $ pkispawn -f ca-existing-certs-step2.cfg -s CA
 Verify that the server NSS database contains the following certificates:
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -119,7 +119,7 @@ $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 [literal]
 ....
 $ pki -c Secret.123 pkcs12-import \
-    --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+    --pkcs12 ~/.dogtag/pki-quarkus/ca_admin_cert.p12 \
     --pkcs12-password Secret.123
 ....
 

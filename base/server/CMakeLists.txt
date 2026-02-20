@@ -68,7 +68,7 @@ if(RUN_TESTS)
             src/test/java/*.java
         CLASSPATH
             ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
-            ${LDAPJDK_JAR} ${SERVLET_JAR}
+            ${LDAPJDK_JAR}
             ${JSS_JAR}
             ${HAMCREST_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
             ${JACKSON_ANNOTATIONS_JAR}
@@ -91,7 +91,7 @@ if(RUN_TESTS)
         CLASSPATH
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
-            ${LDAPJDK_JAR} ${SERVLET_JAR}
+            ${LDAPJDK_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${JSS_JAR}
             ${JACKSON_ANNOTATIONS_JAR}
@@ -123,8 +123,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
     COMMAND ln -sf ../../lib/commons-lang3.jar lib/commons-lang3.jar
     COMMAND ln -sf ../../lib/jss.jar lib/jss.jar
-    COMMAND ln -sf ../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat.jar lib/jss-tomcat.jar
-    COMMAND ln -sf ../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat-9.0.jar lib/jss-tomcat-9.0.jar
     COMMAND ln -sf ../../lib/slf4j-api.jar lib/slf4j-api.jar
     COMMAND ln -sf ../../lib/slf4j-jdk14.jar lib/slf4j-jdk14.jar
 )
@@ -157,8 +155,6 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/jboss-jaxrs-api_2.0_spec.jar common/lib/jboss-jaxrs-api_2.0_spec.jar
     COMMAND ln -sf ../../../lib/jboss-logging.jar common/lib/jboss-logging.jar
     COMMAND ln -sf ../../../lib/jss.jar common/lib/jss.jar
-    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat.jar common/lib/jss-tomcat.jar
-    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat-9.0.jar common/lib/jss-tomcat-9.0.jar
     COMMAND ln -sf ../../../lib/ldapjdk.jar common/lib/ldapjdk.jar
     COMMAND ln -sf ../../../lib/pki-common.jar common/lib/pki-common.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server-core.jar common/lib/pki-server-core.jar

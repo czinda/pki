@@ -296,7 +296,7 @@ run_rhcs_ca_installer_tests()
 #                  rlRun "pkispawn -s CA -f $TmpDir/tmpconfigfile12.in > $TmpDir/same_ports.out 2>&1" 1 "Should fail" 
 #                                                                     
 #                  Installing CA into /var/lib/pki/pki-subca.  
-#                    Storing deployment configuration into /etc/sysconfig/pki/tomcat/pki-subca/ca/deployment.cfg.  
+#                    Storing deployment configuration into /etc/sysconfig/pki/quarkus/pki-subca/ca/deployment.cfg.  
 #                    Traceback (most recent call last):  
 #                    File "/usr/lib64/python2.7/logging/__init__.py", line 851, in emit  
 #                    msg = self.format(record)  
@@ -416,11 +416,11 @@ run_rhcs_ca_installer_tests()
                  rlAssertGrep "$exp_message2" "$TmpDir/skip_install.out"
                  exp_message3_1="To check the status of the subsystem:"
                  rlAssertGrep "$exp_message3_1" "$TmpDir/skip_install.out"
-                 exp_message3_2="systemctl status pki-tomcatd@$(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME).service"
+                 exp_message3_2="systemctl status pki-quarkusd@$(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME).service"
                  rlAssertGrep "$exp_message3_2" "$TmpDir/skip_install.out"
                  exp_message4_1="To restart the subsystem:"
                  rlAssertGrep "$exp_message4_1" "$TmpDir/skip_install.out"
-                 exp_message4_2=" systemctl restart pki-tomcatd@$(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME).service"
+                 exp_message4_2=" systemctl restart pki-quarkusd@$(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME).service"
                  rlAssertGrep "$exp_message4_2" "$TmpDir/skip_install.out"
                  exp_message5="The URL for the subsystem is:"
                  rlAssertGrep "$exp_message5" "$TmpDir/skip_install.out"
@@ -434,7 +434,7 @@ run_rhcs_ca_installer_tests()
                  rlLog "Copying config file into temp file"
                  rlRun "cp $INSTANCECFG $TmpDir/tmpconfigfile22.in"
                  rlRun "pkispawn -s CA -f $TmpDir/tmpconfigfile22.in > $TmpDir/install_1.out"
-                 exp_messg1="systemctl status pki-tomcatd@$(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME).service"
+                 exp_messg1="systemctl status pki-quarkusd@$(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME).service"
                  rlAssertGrep "$exp_messg1" "$TmpDir/install_1.out"
                  rlRun "pkispawn -s CA -f $TmpDir/tmpconfigfile22.in > $TmpDir/install_2.out 2>&1" 1 "Should Fail"
                  exp_messg2="pkispawn    : ERROR    ....... PKI subsystem 'CA' for instance '$(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)' already exists!"
@@ -551,7 +551,7 @@ run_rhcs_ca_installer_tests()
                 echo "spawn -noecho pkispawn" >> $expfile
                 echo "expect \"Subsystem \(CA/KRA/OCSP/TKS/TPS\) \[CA\]: \"" >> $expfile
                 echo "send -- \"\r\"" >> $expfile
-                echo "expect \"Instance \[pki-tomcat\]: \"" >> $expfile
+                echo "expect \"Instance \[pki-quarkus\]: \"" >> $expfile
                 echo "send -- \"$(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)\r\"" >> $expfile
                 echo "expect \"HTTP port \[8080\]: \"" >> $expfile
                 echo "send -- \"$(eval echo \$${prefix}_UNSECURE_PORT)\r\"" >> $expfile
@@ -573,7 +573,7 @@ run_rhcs_ca_installer_tests()
                 else
                         echo "send -- \"Y\r\"" >> $expfile
                 fi
-                echo "expect \"Export certificate to \[/root/.dogtag/pki-tomcat/ca_admin.cert\]: \"" >> $expfile
+                echo "expect \"Export certificate to \[/root/.dogtag/pki-quarkus/ca_admin.cert\]: \"" >> $expfile
                 echo "send -- \"/root/.dogtag/$(eval echo \$${prefix}_TOMCAT_INSTANCE_NAME)/ca_admin.cert\r\"" >> $expfile
                 echo "expect \"Hostname \[`hostname`\]: \"" >> $expfile
                 echo "send -- \"$LDAP_HOSTNAME\r\"" >> $expfile
@@ -585,7 +585,7 @@ run_rhcs_ca_installer_tests()
                 echo "send -- \"$LDAP_ROOTDN\r\"" >> $expfile
                 echo "expect \"Password: \"" >> $expfile
                 echo "send -- \"$LDAP_ROOTDNPWD\r\"" >> $expfile
-                echo "expect \"Base DN \[o=pki-tomcat-CA\]: \"" >> $expfile
+                echo "expect \"Base DN \[o=pki-quarkus-CA\]: \"" >> $expfile
                 echo "send -- \"$(eval echo \$${prefix}_DB_SUFFIX)\r\"" >> $expfile
                 echo "expect \"Name \[`hostname -d` Security Domain\]: \"" >> $expfile
                 echo "send -- \"\r\"" >> $expfile

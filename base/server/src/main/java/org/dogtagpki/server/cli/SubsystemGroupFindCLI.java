@@ -52,7 +52,7 @@ public class SubsystemGroupFindCLI extends ServerCommandCLI {
 
         String memberID = cmd.getOptionValue("member");
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

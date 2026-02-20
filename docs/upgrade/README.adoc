@@ -7,7 +7,7 @@ This page describes the process to upgrade PKI server.
 First, stop PKI server with the following command:
 
 ----
-$ systemctl stop pki-tomcatd@<instance>.service
+$ systemctl stop pki-quarkusd@<instance>.service
 ----
 
 = Upgrading PKI Packages =
@@ -41,7 +41,7 @@ Currently the upgrade process has to be done manually:
 Finally, the server can be restarted with the following command:
 
 ----
-$ systemctl start pki-tomcatd@<instance>.service
+$ systemctl start pki-quarkusd@<instance>.service
 ----
 
 = See Also =

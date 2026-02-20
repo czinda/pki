@@ -15,9 +15,9 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 /**
  * Quarkus-based implementation of SocketListenerRegistry.
  *
- * In Quarkus deployments, SSL/TLS is handled by Vert.x rather
- * than TomcatJSS. This implementation manages socket listeners
- * directly without TomcatJSS.
+ * In Quarkus deployments, SSL/TLS is handled by Vert.x.
+ * This implementation manages socket listeners directly
+ * using JSS initialization.
  */
 public class QuarkusSocketListenerRegistry implements SocketListenerRegistry {
 

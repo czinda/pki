@@ -60,7 +60,7 @@ def test_pki_server_subsystem_cert_update_help(ansible_module):
         if result['rc'] == 0:
             assert "Usage: pki-server subsystem-cert-update [OPTIONS] <subsystem ID> <cert ID>" \
                    in result['stdout']
-            assert "-i, --instance <instance ID>    Instance ID (default: pki-tomcat)." in \
+            assert "-i, --instance <instance ID>    Instance ID (default: pki-quarkus)." in \
                    result['stdout']
             assert "-v, --verbose                   Run in verbose mode." in \
                    result['stdout']
@@ -157,9 +157,9 @@ def test_pki_server_subsystem_cert_update_with_CA_instance(ansible_module):
         for result in cert_update.values():
             if result['rc'] == 0:
                 assert 'Updated "subsystem" subsystem certificate' in result['stdout']
-                ansible_module.command('systemctl restart pki-tomcatd@{}'.format(
+                ansible_module.command('systemctl restart pki-quarkusd@{}'.format(
                     constants.CA_INSTANCE_NAME))
-                is_active = ansible_module.command('systemctl is-active pki-tomcatd@{}'.format(
+                is_active = ansible_module.command('systemctl is-active pki-quarkusd@{}'.format(
                     constants.CA_INSTANCE_NAME))
                 for res in is_active.values():
                     if res['rc'] == 0:

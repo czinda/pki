@@ -83,7 +83,7 @@ class SubsystemFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server subsystem-find [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -157,7 +157,7 @@ class SubsystemShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server subsystem-show [OPTIONS] <subsystem ID>')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -209,7 +209,7 @@ class SubsystemCreateCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-create [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -326,7 +326,7 @@ class SubsystemDeployCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-deploy [OPTIONS] [name]' % self.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --wait                         Wait until started.')
         print('      --max-wait <seconds>           Maximum wait time (default: 60).')
         print('      --timeout <seconds>            Connection timeout.')
@@ -366,18 +366,13 @@ class SubsystemDeployCLI(pki.cli.CLI):
 
         instance.load()
 
-        descriptor = os.path.join(pki.server.PKIServer.SHARE_DIR,
-                                  '%s/conf/Catalina/localhost/%s.xml' % (name, name))
-        doc_base = os.path.join(pki.server.PKIServer.SHARE_DIR,
-                                '%s/webapps/%s' % (name, name))
+        subsystem = instance.get_subsystem(name)
+        if subsystem is None:
+            raise Exception('Subsystem not found: %s' % name)
 
-        instance.deploy_webapp(
-            name,
-            descriptor,
-            doc_base,
-            wait=wait,
-            max_wait=max_wait,
-            timeout=timeout)
+        subsystem.enable()
+
+        logger.info('Subsystem %s deployed', name)
 
 
 class SubsystemUndeployCLI(pki.cli.CLI):
@@ -422,7 +417,7 @@ class SubsystemUndeployCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-undeploy [OPTIONS] [name]' % self.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --wait                         Wait until stopped.')
         print('      --max-wait <seconds>           Maximum wait time (default: 60).')
         print('      --timeout <seconds>            Connection timeout.')
@@ -462,11 +457,13 @@ class SubsystemUndeployCLI(pki.cli.CLI):
 
         instance.load()
 
-        instance.undeploy_webapp(
-            name,
-            wait=wait,
-            max_wait=max_wait,
-            timeout=timeout)
+        subsystem = instance.get_subsystem(name)
+        if subsystem is None:
+            raise Exception('Subsystem not found: %s' % name)
+
+        subsystem.disable()
+
+        logger.info('Subsystem %s undeployed', name)
 
 
 class SubsystemRedeployCLI(pki.cli.CLI):
@@ -477,7 +474,7 @@ class SubsystemRedeployCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-redeploy [OPTIONS] [name]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --wait                         Wait until started.
               --max-wait <seconds>           Maximum wait time (default: 60).
               --timeout <seconds>            Connection timeout.
@@ -562,24 +559,14 @@ class SubsystemRedeployCLI(pki.cli.CLI):
 
         instance.load()
 
-        descriptor = os.path.join(pki.server.PKIServer.SHARE_DIR,
-                                  '%s/conf/Catalina/localhost/%s.xml' % (name, name))
-        doc_base = os.path.join(pki.server.PKIServer.SHARE_DIR,
-                                '%s/webapps/%s' % (name, name))
+        subsystem = instance.get_subsystem(name)
+        if subsystem is None:
+            raise Exception('Subsystem not found: %s' % name)
 
-        instance.undeploy_webapp(
-            name,
-            wait=True,
-            max_wait=max_wait,
-            timeout=timeout)
+        subsystem.disable()
+        subsystem.enable()
 
-        instance.deploy_webapp(
-            name,
-            descriptor,
-            doc_base,
-            wait=wait,
-            max_wait=max_wait,
-            timeout=timeout)
+        logger.info('Subsystem %s redeployed', name)
 
 
 class SubsystemEnableCLI(pki.cli.CLI):
@@ -619,7 +606,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server subsystem-enable [OPTIONS] [<subsystem ID>]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('      --all                       Enable all subsystems.')
         print('      --silent                    Run in silent mode.')
         print('  -v, --verbose                   Run in verbose mode.')
@@ -724,7 +711,7 @@ class SubsystemDisableCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server subsystem-disable [OPTIONS] [<subsystem ID>]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('      --all                       Disable all subsystems.')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -851,7 +838,7 @@ class SubsystemCertFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server subsystem-cert-find [OPTIONS] <subsystem ID>')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('      --show-all                  Show all attributes.')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -963,7 +950,7 @@ class SubsystemCertShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server subsystem-cert-show [OPTIONS] <subsystem ID> <cert ID>')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('      --show-all                  Show all attributes.')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -1070,7 +1057,7 @@ class SubsystemCertExportCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server subsystem-cert-export [OPTIONS] <subsystem ID> [cert ID]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --cert-file <path>             Output file to store the exported certificate '
               'in PEM format.')
         print('      --csr-file <path>              Output file to store the exported CSR in PEM '
@@ -1236,7 +1223,7 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server subsystem-cert-update [OPTIONS] <subsystem ID> <cert ID>')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('      --cert <certificate>        New certificate to be added')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -1393,7 +1380,7 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server subsystem-cert-validate [OPTIONS] <subsystem ID> [cert ID]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')

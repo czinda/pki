@@ -149,7 +149,7 @@ public class SubsystemUserAddCLI extends ServerCommandCLI {
             cert = new X509CertImpl(certBytes);
         }
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

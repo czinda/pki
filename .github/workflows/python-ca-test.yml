@@ -69,7 +69,7 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           # restart PKI server
           docker exec pki pki-server restart --wait
@@ -83,7 +83,7 @@ jobs:
 
           # export admin cert
           docker exec pki openssl pkcs12 \
-             -in /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+             -in /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
              -passin pass:Secret.123 \
              -out admin.crt \
              -clcerts \
@@ -91,7 +91,7 @@ jobs:
 
           # export admin key
           docker exec pki openssl pkcs12 \
-             -in /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+             -in /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
              -passin pass:Secret.123 \
              -out admin.key \
              -nodes \
@@ -110,7 +110,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -1 \
@@ -135,7 +135,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -1 \
@@ -160,7 +160,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -2 \
@@ -186,7 +186,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -2 \
@@ -212,7 +212,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -1 \
@@ -238,7 +238,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -1 \
@@ -267,7 +267,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -4 \
@@ -297,7 +297,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -3 \
@@ -326,7 +326,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -2 \
@@ -352,7 +352,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -1 \
@@ -381,7 +381,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -4 \
@@ -411,7 +411,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec pki find /var/log/pki/pki-tomcat \
+          docker exec pki find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -3 \
@@ -440,14 +440,14 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check PKI server access log
         if: always()
         run: |
-          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec pki find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

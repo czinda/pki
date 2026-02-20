@@ -105,7 +105,7 @@ def test_pki_server_instance_cert_export_command_with_help(ansible_module):
         if result['rc'] == 0:
             assert "Usage: pki-server instance-cert-export [OPTIONS] [nicknames...]" in result[
                 'stdout']
-            assert "-i, --instance <instance ID>       Instance ID (default: pki-tomcat)." in \
+            assert "-i, --instance <instance ID>       Instance ID (default: pki-quarkus)." in \
                    result['stdout']
             assert "--pkcs12-file <path>           Output file to store the exported certificate " \
                    "and key in PKCS #12 format." in result['stdout']
@@ -372,7 +372,7 @@ def test_pki_server_instance_cert_export_command_with_invalid_password(ansible_m
             assert "ERROR: option --pkcs12-password requires argument" in result['stdout']
             assert "Usage: pki-server instance-cert-export [OPTIONS] [nicknames...]" in \
                    result['stdout']
-            assert "-i, --instance <instance ID>       Instance ID (default: pki-tomcat)." in \
+            assert "-i, --instance <instance ID>       Instance ID (default: pki-quarkus)." in \
                    result['stdout']
             assert "--pkcs12-file <path>           Output file to store the exported " \
                    "certificate and key in PKCS #12 format." in result['stdout']

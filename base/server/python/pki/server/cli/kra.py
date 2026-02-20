@@ -101,7 +101,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server kra-clone-prepare [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --pkcs12-file <path>           PKCS #12 file to store certificates and keys.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')

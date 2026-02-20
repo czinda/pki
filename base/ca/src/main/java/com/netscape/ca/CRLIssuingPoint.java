@@ -361,7 +361,7 @@ public class CRLIssuingPoint {
      * # with future update date:
      * curl \
      *     --cert-type P12 \
-     *     --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+     *     --cert /root/.dogtag/pki-quarkus/ca_admin_cert.p12:Secret.123 \
      *     -sk \
      *     -d "crlIssuingPoint=MasterCRL&waitForUpdate=true&clearCRLCache=true&customFutureThisUpdateDateValue=2020:9:22:13:0:0&xml=true" \
      *     https://$HOSTNAME:8443/ca/agent/ca/updateCRL \
@@ -370,7 +370,7 @@ public class CRLIssuingPoint {
      * # Cancel any outstanding future thisUpdate value already established, if necessary to recover
      * curl \
      *     --cert-type P12 \
-     *     --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 \
+     *     --cert /root/.dogtag/pki-quarkus/ca_admin_cert.p12:Secret.123 \
      *     -sk \
      *     -d "crlIssuingPoint=MasterCRL&waitForUpdate=true&clearCRLCache=true&cancelCurCustomFutureThisUpdateValue=true&xml=true" \
      *     https://$HOSTNAME:8443/ca/agent/ca/updateCRL \

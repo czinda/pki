@@ -30,8 +30,8 @@ import io.quarkus.security.identity.SecurityIdentity;
  *
  * KRA extends CMSEngine and needs the full PKI infrastructure
  * (LDAP, auth, authz, key storage, etc.). This wrapper manages
- * the real KRAEngine lifecycle via CDI events and replaces
- * Tomcat-specific components with Quarkus equivalents.
+ * the real KRAEngine lifecycle via CDI events and uses Quarkus
+ * lifecycle management.
  */
 @ApplicationScoped
 public class KRAEngineQuarkus {
@@ -72,14 +72,14 @@ public class KRAEngineQuarkus {
         logger.info("KRAEngineQuarkus: Starting KRA engine");
 
         // Configure instance directory for Quarkus
-        // (replaces Tomcat's catalina.base with pki.instance.dir)
+        // (sets pki.instance.dir for instance discovery)
         CMS.setInstanceConfig(new QuarkusInstanceConfig());
 
         // Create the real KRA engine
         engine = new KRAEngine();
 
-        // Replace TomcatSocketListenerRegistry with Quarkus version
-        // to avoid TomcatJSS dependency at runtime
+        // Set Quarkus socket listener registry
+        // (uses direct JSS initialization)
         engine.setSocketListenerRegistry(new QuarkusSocketListenerRegistry());
 
         // Start the engine (loads CS.cfg, initializes all subsystems)

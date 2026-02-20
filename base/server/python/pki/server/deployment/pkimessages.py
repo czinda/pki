@@ -112,12 +112,11 @@ REMINDER:
 PKISPAWN_EPILOG = """
 REMINDER:
 
-    If two or more Tomcat PKI 'instances' are specified via
+    If two or more PKI 'instances' are specified via
     separate configuration files, remember that the following parameters
     MUST differ between PKI 'instances':
 
-        Tomcat:  'pki_instance_name', 'pki_http_port', 'pki_https_port',
-                 'pki_ajp_port', and 'pki_tomcat_server_port'
+        'pki_instance_name', 'pki_http_port', 'pki_https_port'
 
     Finally, if an optional '-p <prefix>' is defined, this value WILL NOT
     be prepended in front of the mandatory '-f <configuration_file>'.
@@ -278,8 +277,8 @@ PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3 = \
 PKIHELPER_SELINUX_DISABLED = "Selinux is disabled.  Not checking port contexts"
 PKIHELPER_SET_MODE_1 = "Setting up ownerships, permissions, and ACLs on %s"
 PKIHELPER_SYSTEMD_COMMAND_1 = "executing '%s'"
-PKIHELPER_TOMCAT_INSTANCE_SUBSYSTEMS_2 = \
-    "instance '%s' contains '%d' Tomcat PKI subsystems"
+PKIHELPER_INSTANCE_SUBSYSTEMS_2 = \
+    "instance '%s' contains '%d' PKI subsystems"
 PKIHELPER_TOUCH_1 = "touch %s"
 PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE = "Failed to update TPS connector on TKS"
 PKIHELPER_UID_2 = "UID of '%s' is %s"
@@ -339,13 +338,13 @@ PKI_CONFIG_RESPONSE_STATUS = "status:"
 PKI_CONFIG_NOT_YET_IMPLEMENTED_1 = " %s NOT YET IMPLEMENTED"
 PKI_CHECK_STATUS_MESSAGE = '''
       To check the status of the subsystem:
-            systemctl status pki-tomcatd@%s.service'''
+            systemctl status pki-quarkusd@%s.service'''
 PKI_ACCESS_URL = '''\
       The URL for the subsystem is:
             https://%s:%s/%s'''
 PKI_INSTANCE_RESTART_MESSAGE = '''
       To restart the subsystem:
-            systemctl restart pki-tomcatd@%s.service'''
+            systemctl restart pki-quarkusd@%s.service'''
 
 
 PKI_SPAWN_INFORMATION_HEADER = '''

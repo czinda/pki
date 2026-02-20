@@ -106,7 +106,7 @@
   loop:
     - pki-server cert-export ca_signing --cert-file {{ shared_workspace }}/ca_signing.crt
     - pki client-cert-import ca_signing --ca-cert {{ shared_workspace }}/ca_signing.crt
-    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 --pkcs12-password Secret.123
+    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 --pkcs12-password Secret.123
 
 - name: Set up OCSP DS container
   community.docker.docker_container:
@@ -303,7 +303,7 @@
     command: "{{ item }}"
   loop:
     - pki client-cert-import ca_signing --ca-cert {{ shared_workspace }}/ca_signing.crt
-    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-tomcat/ocsp_admin_cert.p12 --pkcs12-password Secret.123
+    - pki pkcs12-import --pkcs12 /root/.dogtag/pki-quarkus/ocsp_admin_cert.p12 --pkcs12-password Secret.123
     - pki -n ocspadmin ocsp-user-show ocspadmin
 
 - name: Prepare CRL publishing subtree
@@ -402,7 +402,7 @@
   loop:
     - /usr/share/pki/tests/ca/bin/ca-agent-create.sh
     - /usr/share/pki/tests/ca/bin/ca-agent-cert-create.sh
-    - curl --cert-type P12 --cert /root/.dogtag/pki-tomcat/ca_admin_cert.p12:Secret.123 -sk -d "xml=true" https://{{ ca_hostname }}:8443/ca/agent/ca/updateCRL
+    - curl --cert-type P12 --cert /root/.dogtag/pki-quarkus/ca_admin_cert.p12:Secret.123 -sk -d "xml=true" https://{{ ca_hostname }}:8443/ca/agent/ca/updateCRL
     - sleep 10
     - pki nss-cert-show caagent
   register: user_agents

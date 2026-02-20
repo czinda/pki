@@ -58,7 +58,7 @@ def test_pki_server_subsystem_cert_export_help(ansible_module):
     for result in help_out.values():
         if result['rc'] == 0:
 
-            assert "-i, --instance <instance ID>       Instance ID (default: pki-tomcat)" in \
+            assert "-i, --instance <instance ID>       Instance ID (default: pki-quarkus)" in \
                    result['stdout']
             assert "--cert-file <path>             Output file to store the exported certificate " \
                    "in PEM format" in result['stdout']

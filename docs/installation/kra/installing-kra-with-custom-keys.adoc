@@ -15,7 +15,7 @@ Prior to installation, ensure that the xref:../others/installation-prerequisites
 [literal]
 ----
 [DEFAULT]
-pki_instance_name=pki-tomcat
+pki_instance_name=pki-quarkus
 pki_https_port=8443
 pki_http_port=8080
 pki_server_database_password=Secret.123
@@ -59,11 +59,11 @@ pki_external_step_two=False
 $ pkispawn -f kra-step1.cfg -s KRA
 ....
 
-It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a KRA subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/dogtag/pki-tomcat/kra/alias
+* admin NSS database: ~/dogtag/pki-quarkus/kra/alias
 
 Since there are no CSR path parameters specified, it does not generate KRA system and admin keys.
 
@@ -156,7 +156,7 @@ Verify that the server NSS database contains the following certificates:
 
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -183,7 +183,7 @@ $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 [literal]
 ....
 $ pki -c Secret.123 pkcs12-import \
-    --pkcs12 ~/.dogtag/pki-tomcat/kra_admin_cert.p12 \
+    --pkcs12 ~/.dogtag/pki-quarkus/kra_admin_cert.p12 \
     --pkcs12-password Secret.123
 ....
 

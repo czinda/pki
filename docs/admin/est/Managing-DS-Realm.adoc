@@ -58,7 +58,7 @@ Certificate:
         Serial Number:
             33:1c:9e:b7:9a:2d:cc:17:69:24:a2:81:4e:06:07:40
         Signature Algorithm: sha256WithRSAEncryption
-        Issuer: O=EXAMPLE, OU=pki-tomcat, CN=CA Signing Certificate
+        Issuer: O=EXAMPLE, OU=pki-quarkus, CN=CA Signing Certificate
         Validity
             Not Before: Jan 16 11:31:11 2025 GMT
             Not After : Apr 16 11:31:11 2025 GMT
@@ -73,7 +73,7 @@ $ ldapmodify -H ldap://ds.example.com:3389 \
 dn: uid=est-test-user,ou=people,dc=est,dc=pki,dc=example,dc=com
 changetype: modify
 add: description
-description: 2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE;CN=test.example.com
+description: 2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE;CN=test.example.com
 -
 add: userCertificate
 userCertificate::<certificate_base64>

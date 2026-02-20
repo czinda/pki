@@ -16,7 +16,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.io.IOUtils;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.cert.CertUtil;
 import org.slf4j.Logger;
@@ -91,7 +90,7 @@ public class CACertRequestImportCLI extends CommandCLI {
 
         String instanceDir = CMS.getInstanceDir();
 
-        new TomcatJSSInitializer().initialize();
+        // JSS initialization is handled by the Quarkus runtime.
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -137,7 +136,7 @@ public class CACertRequestImportCLI extends CommandCLI {
         cs.load();
 
         // If the bootstrap profile path is relative (e.g. caCert.profile),
-        // convert it to /var/lib/pki/pki-tomcat/ca/conf/<profile>.
+        // convert it to /var/lib/pki/pki-quarkus/ca/conf/<profile>.
         // If the bootstrap profile path is absolute, use it as is.
         String profile = cmd.getOptionValue("profile");
         Path profilePath = Paths.get(confDir).resolve(profile);

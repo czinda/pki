@@ -312,7 +312,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = self.instance
         subsystem_name = deployer.subsystem_type.lower()
 
-        logger.info('Undeploying /%s web application', subsystem_name)
+        logger.info('Disabling %s subsystem', subsystem_name)
 
         subsystem = instance.get_subsystem(subsystem_name)
         subsystem.disable(force=deployer.force)

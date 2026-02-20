@@ -449,10 +449,8 @@ class ConfigurationFile:
             #                   master is located on the same host)
             self.confirm_data_exists("pki_ds_ldap_port")
             self.confirm_data_exists("pki_ds_ldaps_port")
-            self.confirm_data_exists("pki_ajp_port")
             self.confirm_data_exists("pki_http_port")
             self.confirm_data_exists("pki_https_port")
-            self.confirm_data_exists("pki_tomcat_server_port")
 
             self.confirm_data_exists("pki_clone_replication_security")
 
@@ -517,21 +515,13 @@ class ConfigurationFile:
 
     def populate_selinux_ports(self, ports):
 
-        tomcat_port = self.mdict['pki_tomcat_server_port']
-        if tomcat_port != str(pki.server.DEFAULT_TOMCAT_PORT):
-            ports.append(tomcat_port)
-
         http_port = self.mdict['pki_http_port']
-        if http_port != str(pki.server.DEFAULT_TOMCAT_HTTP_PORT):
+        if http_port != str(pki.server.DEFAULT_HTTP_PORT):
             ports.append(http_port)
 
         https_port = self.mdict['pki_https_port']
-        if https_port != str(pki.server.DEFAULT_TOMCAT_HTTPS_PORT):
+        if https_port != str(pki.server.DEFAULT_HTTPS_PORT):
             ports.append(https_port)
-
-        ajp_port = self.mdict['pki_ajp_port']
-        if ajp_port != str(pki.server.DEFAULT_TOMCAT_AJP_PORT):
-            ports.append(ajp_port)
 
     def verify_selinux_ports(self, ports):
         # Determine which ports still need to be labelled, and if any are
@@ -743,38 +733,22 @@ class Systemd(object):
         self.deployer = deployer
         instance_name = deployer.mdict['pki_instance_name']
 
-        unit_file = 'pki-tomcatd@%s.service' % instance_name
+        unit_file = 'pki-quarkusd@%s.service' % instance_name
         systemd_link = os.path.join(
-            '/etc/systemd/system/pki-tomcatd.target.wants',
+            '/etc/systemd/system/pki-quarkusd.target.wants',
             unit_file)
-        override_dir = '/etc/systemd/system/pki-tomcatd@{}.service.d'.format(
+        override_dir = '/etc/systemd/system/pki-quarkusd@{}.service.d'.format(
             instance_name)
         self.base_override_dir = override_dir
-
-        nuxwdog_unit_file = 'pki-tomcatd-nuxwdog@%s.service' % instance_name
-        nuxwdog_systemd_link = os.path.join(
-            '/etc/systemd/system/pki-tomcatd-nuxwdog.target.wants',
-            nuxwdog_unit_file)
-        nuxwdog_override_dir = (
-            '/etc/systemd/system/pki-tomcatd-nuxwdog@{}.service.d'.format(
-                instance_name))
-        self.nuxwdog_override_dir = nuxwdog_override_dir
 
         # self.overrides will be a hash of ConfigParsers indexed by filename
         # once the overrides have been constructed, the caller should call
         # write_overrides()
         self.overrides = {}
 
-        if os.path.exists(nuxwdog_systemd_link):
-            self.is_nuxwdog_enabled = True
-            self.service_name = nuxwdog_unit_file
-            self.systemd_link = nuxwdog_systemd_link
-            self.override_dir = nuxwdog_override_dir
-        else:
-            self.is_nuxwdog_enabled = False
-            self.service_name = unit_file
-            self.systemd_link = systemd_link
-            self.override_dir = override_dir
+        self.service_name = unit_file
+        self.systemd_link = systemd_link
+        self.override_dir = override_dir
 
     def daemon_reload(self, critical_failure=True):
         """PKI Deployment execution management lifecycle function.

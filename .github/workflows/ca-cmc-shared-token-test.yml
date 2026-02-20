@@ -67,7 +67,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       # https://github.com/dogtagpki/pki/wiki/Creating-Issuance-Protection-Certificate
@@ -75,8 +75,8 @@ jobs:
         run: |
           # generate cert request
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-request \
               --subject "CN=CA Issuance Protection" \
               --csr ca_issuance_protection.csr
@@ -94,7 +94,7 @@ jobs:
 
           # convert CMC response (DER PKCS #7) into PEM PKCS #7 cert chain
           docker exec pki CMCResponse \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               -i ca_issuance_protection.cmc-response \
               -o ca_issuance_protection.p7b | tee output
 
@@ -109,16 +109,16 @@ jobs:
 
           # import cert chain
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               pkcs7-import \
               --pkcs7 ca_issuance_protection.p7b \
               ca_issuance_protection
 
           # check imported cert chain
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-find
 
           # configure issuance protection nickname
@@ -165,12 +165,12 @@ jobs:
           # enable caFullCMCSharedTokenCert profile
           docker exec pki sed -i \
               -e "s/^\(enable\)=.*/\1=true/" \
-              /var/lib/pki/pki-tomcat/ca/profiles/ca/caFullCMCSharedTokenCert.cfg
+              /var/lib/pki/pki-quarkus/ca/profiles/ca/caFullCMCSharedTokenCert.cfg
 
           # enable caFullCMCUserSignedCert profile
           docker exec pki sed -i \
               -e "s/^\(enable\)=.*/\1=true/" \
-              /var/lib/pki/pki-tomcat/ca/profiles/ca/caFullCMCUserSignedCert.cfg
+              /var/lib/pki/pki-quarkus/ca/profiles/ca/caFullCMCUserSignedCert.cfg
 
           # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait
@@ -180,7 +180,7 @@ jobs:
         run: |
           # generate shared token
           docker exec pki CMCSharedToken \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               -p Secret.123 \
               -n ca_issuance_protection \
               -s Secret.123 \
@@ -340,7 +340,7 @@ jobs:
         run: |
           docker exec pki grep \
               "\[AuditEvent=CMC_USER_SIGNED_REQUEST_SIG_VERIFY\]" \
-              /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit | tee output
+              /var/lib/pki/pki-quarkus/logs/ca/signedAudit/ca_audit | tee output
 
           # there should be 1 event from user cert enrollment
           echo "1" > expected
@@ -352,7 +352,7 @@ jobs:
         run: |
           docker exec pki grep \
               "\[AuditEvent=CERT_STATUS_CHANGE_REQUEST_PROCESSED\]" \
-              /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit | tee output
+              /var/lib/pki/pki-quarkus/logs/ca/signedAudit/ca_audit | tee output
 
           # there should be 1 event from user cert revocation
           echo "1" > expected
@@ -364,7 +364,7 @@ jobs:
         run: |
           docker exec pki grep \
               "\[AuditEvent=CMC_REQUEST_RECEIVED\]" \
-              /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit | tee output
+              /var/lib/pki/pki-quarkus/logs/ca/signedAudit/ca_audit | tee output
 
           # there should be 3 events from issuance protection cert enrollment,
           # user cert enrollment, user cert revocation
@@ -377,7 +377,7 @@ jobs:
         run: |
           docker exec pki grep \
               "\[AuditEvent=CMC_RESPONSE_SENT\]" \
-              /var/lib/pki/pki-tomcat/logs/ca/signedAudit/ca_audit | tee output
+              /var/lib/pki/pki-quarkus/logs/ca/signedAudit/ca_audit | tee output
 
           # there should be 3 events from issuance protection cert enrollment,
           # user cert enrollment, user cert revocation
@@ -401,9 +401,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

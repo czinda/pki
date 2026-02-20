@@ -13,13 +13,13 @@
 - name: Install TPS master
   shell: pkispawn -s TPS -f /tmp/test_dir/tps.cfg
 
-- name : Stopping pki-tomcat Instance
-  shell: systemctl stop pki-tomcatd@pki-tomcat.service
+- name : Stopping pki-quarkus Instance
+  shell: systemctl stop pki-quarkusd@pki-quarkus.service
   notify:
   - INC_CONSTANTS
 
 - name: Enable SignedAudit for ca and kra subsystem
-  replace: dest=/var/lib/pki/pki-tomcat/conf/{{ item }}/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
+  replace: dest=/var/lib/pki/pki-quarkus/conf/{{ item }}/CS.cfg regexp="log.instance.SignedAudit.logSigning=false" replace="log.instance.SignedAudit.logSigning=true"
   with_items:
     - ca
     - kra
@@ -28,7 +28,7 @@
     - tps
 
 
-- name: Starting pki-tomcat Instance
+- name: Starting pki-quarkus Instance
   service:
-    name: pki-tomcatd@pki-tomcat.service
+    name: pki-quarkusd@pki-quarkus.service
     state: started

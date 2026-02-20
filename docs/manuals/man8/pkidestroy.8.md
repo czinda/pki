@@ -27,7 +27,7 @@ Typically, as subsystems need to contact the CA to update the security domain, t
 **-i** *instance*  
     Specifies the name of the instance from which the subsystem should be removed.
     The instance is located at /var/log/pki/*instance*.
-    The default value is pki-tomcat.
+    The default value is pki-quarkus.
 
 **-u** *security_domain_username*   
     Specifies the username of the security domain of the subsystem.

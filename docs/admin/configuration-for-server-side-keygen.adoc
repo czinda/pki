@@ -32,9 +32,9 @@ After installing CA and KRA instances, in the case of stand-alone Tomcat web ser
 First, shut down CA
 
 [literal]
-Systemctl stop pki-tomcatd@<ca_instance_name>.service
+Systemctl stop pki-quarkusd@<ca_instance_name>.service
 e.g.
-# Systemctl stop pki-tomcatd@pki-ca.service
+# Systemctl stop pki-quarkusd@pki-ca.service
 
 Export KRA’s transport certificate into a file
 
@@ -65,9 +65,9 @@ e.g.
 Start CA
 
 [literal]
-systemctl start pki-tomcatd@<ca_instance_name>.service
+systemctl start pki-quarkusd@<ca_instance_name>.service
 e.g.
-# Systemctl start pki-tomcatd@pki-ca.service
+# Systemctl start pki-quarkusd@pki-ca.service
 
 == Profile Configuration
 

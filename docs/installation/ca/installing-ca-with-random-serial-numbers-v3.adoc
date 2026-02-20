@@ -40,27 +40,27 @@ $ pki ca-cert-find
 6 entries found
 ---------------
   Serial Number: 0x5daa529608aea948dcc35a584f6e64b0
-  Subject DN: CN=CA Audit Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=CA Audit Signing Certificate,OU=pki-quarkus,O=EXAMPLE
   ...
 
   Serial Number: 0x65f868071ebf5e2cdc18392239a53081
-  Subject DN: CN=Subsystem Certificate,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=Subsystem Certificate,OU=pki-quarkus,O=EXAMPLE
   ...
 
   Serial Number: 0xc51860ead8f26d178075a8cf4f7e4b07
-  Subject DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE
   ...
 
   Serial Number: 0xcb7a32c09fce096b6dd52db5feeca2fb
-  Subject DN: CN=pki.example.com,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=pki.example.com,OU=pki-quarkus,O=EXAMPLE
   ...
 
   Serial Number: 0xe6f644e5f52dad59bc1f118f73f26155
-  Subject DN: CN=CA OCSP Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=CA OCSP Signing Certificate,OU=pki-quarkus,O=EXAMPLE
   ...
 
   Serial Number: 0xf43eb9d05996aec15333108150491971
-  Subject DN: CN=PKI Administrator,E=caadmin@example.com,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=PKI Administrator,E=caadmin@example.com,OU=pki-quarkus,O=EXAMPLE
   ...
 ----------------------------
 Number of entries returned 6

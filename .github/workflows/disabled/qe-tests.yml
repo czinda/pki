@@ -106,11 +106,11 @@ jobs:
           docker exec pki1 ls -la /var/log/pki
           mkdir -p /tmp/artifacts/pki1/var/log
           docker cp pki1:/var/log/pki /tmp/artifacts/pki1/var/log
-          docker exec pki1 journalctl -u pki-tomcatd@topology-02-CA > /tmp/artifacts/pki1/var/log/pki/topology-02-CA/systemd.log
-          docker exec pki1 journalctl -u pki-tomcatd@topology-02-KRA > /tmp/artifacts/pki1/var/log/pki/topology-02-KRA/systemd.log
-          docker exec pki1 journalctl -u pki-tomcatd@topology-02-OCSP > /tmp/artifacts/pki1/var/log/pki/topology-02-OCSP/systemd.log
-          docker exec pki1 journalctl -u pki-tomcatd@topology-02-TKS > /tmp/artifacts/pki1/var/log/pki/topology-02-TKS/systemd.log
-          docker exec pki1 journalctl -u pki-tomcatd@topology-02-TPS > /tmp/artifacts/pki1/var/log/pki/topology-02-TPS/systemd.log
+          docker exec pki1 journalctl -u pki-quarkusd@topology-02-CA > /tmp/artifacts/pki1/var/log/pki/topology-02-CA/systemd.log
+          docker exec pki1 journalctl -u pki-quarkusd@topology-02-KRA > /tmp/artifacts/pki1/var/log/pki/topology-02-KRA/systemd.log
+          docker exec pki1 journalctl -u pki-quarkusd@topology-02-OCSP > /tmp/artifacts/pki1/var/log/pki/topology-02-OCSP/systemd.log
+          docker exec pki1 journalctl -u pki-quarkusd@topology-02-TKS > /tmp/artifacts/pki1/var/log/pki/topology-02-TKS/systemd.log
+          docker exec pki1 journalctl -u pki-quarkusd@topology-02-TPS > /tmp/artifacts/pki1/var/log/pki/topology-02-TPS/systemd.log
         continue-on-error: true
 
       - name: Upload artifacts

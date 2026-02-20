@@ -93,7 +93,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
@@ -125,8 +125,8 @@ jobs:
       - name: Check certs and keys in internal token
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-find | tee output
 
           # there should be 5 certs
@@ -135,8 +135,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find | tee output
 
           # there should be 1 key
@@ -147,8 +147,8 @@ jobs:
       - name: Check certs and keys in HSM
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
 
@@ -158,8 +158,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-key-find | tee output
 
@@ -233,8 +233,8 @@ jobs:
       - name: Check certs and keys in internal token
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-find | tee output
 
           # there should still be 5 certs
@@ -243,8 +243,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find | tee output
 
           # there should still be 1 key
@@ -255,8 +255,8 @@ jobs:
       - name: Check certs and keys in HSM
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
 
@@ -266,8 +266,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-key-find | tee output
 
@@ -350,8 +350,8 @@ jobs:
       - name: Check certs and keys in internal token
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-find | tee output
 
           # there should be 5 certs
@@ -360,8 +360,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find | tee output
 
           # there should be 1 key
@@ -372,8 +372,8 @@ jobs:
       - name: Check certs and keys in HSM
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
 
@@ -383,8 +383,8 @@ jobs:
           diff expected actual
 
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-key-find | tee output
 
@@ -396,7 +396,7 @@ jobs:
       - name: Check CA debug logs
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

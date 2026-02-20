@@ -64,7 +64,7 @@ if TOPOLOGY != '01':
     CA_SUBJECT = 'CN=CA Signing Certificate,OU={},O={}'.format(constants.CA_INSTANCE_NAME,
                                                                constants.CA_SECURITY_DOMAIN_NAME)
 else:
-    CA_SUBJECT = 'CN=CA Signing Certificate,OU={},O={}'.format('pki-tomcat',
+    CA_SUBJECT = 'CN=CA Signing Certificate,OU={},O={}'.format('pki-quarkus',
                                                                constants.CA_SECURITY_DOMAIN_NAME)
 
 

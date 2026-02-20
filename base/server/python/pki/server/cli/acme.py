@@ -69,7 +69,7 @@ class ACMECreateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-create [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --force                        Force creation.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -144,7 +144,7 @@ class ACMERemoveCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-remove [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --remove-conf                  Remove config folder.')
         print('      --remove-logs                  Remove logs folder.')
         print('      --force                        Force removal.')
@@ -232,7 +232,7 @@ class ACMEDeployCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-deploy [OPTIONS] [name]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --wait                         Wait until started.')
         print('      --max-wait <seconds>           Maximum wait time (default: 60).')
         print('      --timeout <seconds>            Connection timeout.')
@@ -269,18 +269,13 @@ class ACMEDeployCLI(pki.cli.CLI):
 
         instance.load()
 
-        descriptor = os.path.join(pki.server.PKIServer.SHARE_DIR,
-                                  'acme/conf/Catalina/localhost/acme.xml')
-        doc_base = os.path.join(pki.server.PKIServer.SHARE_DIR,
-                                'acme/webapps/acme')
+        subsystem = instance.get_subsystem(name)
+        if subsystem is None:
+            raise Exception('Subsystem not found: %s' % name)
 
-        instance.deploy_webapp(
-            name,
-            descriptor,
-            doc_base,
-            wait=wait,
-            max_wait=max_wait,
-            timeout=timeout)
+        subsystem.enable()
+
+        logger.info('ACME subsystem deployed')
 
 
 class ACMEUndeployCLI(pki.cli.CLI):
@@ -324,7 +319,7 @@ class ACMEUndeployCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-undeploy [OPTIONS] [name]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --wait                         Wait until stopped.')
         print('      --max-wait <seconds>           Maximum wait time (default: 60).')
         print('      --timeout <seconds>            Connection timeout.')
@@ -361,11 +356,13 @@ class ACMEUndeployCLI(pki.cli.CLI):
 
         instance.load()
 
-        instance.undeploy_webapp(
-            name,
-            wait=wait,
-            max_wait=max_wait,
-            timeout=timeout)
+        subsystem = instance.get_subsystem(name)
+        if subsystem is None:
+            raise Exception('Subsystem not found: %s' % name)
+
+        subsystem.disable()
+
+        logger.info('ACME subsystem undeployed')
 
 
 class ACMEMetadataCLI(pki.cli.CLI):
@@ -405,7 +402,7 @@ class ACMEMetadataShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-metadata-show [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -492,7 +489,7 @@ class ACMEMetadataModifyCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-metadata-mod [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -587,7 +584,7 @@ class ACMEDatabaseInitCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server acme-database-init [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --ds-backend                   DS backend (default: userroot)
               --skip-reindex                 Skip database reindex.
           -v, --verbose                      Run in verbose mode.
@@ -692,7 +689,7 @@ class ACMEDatabaseShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-database-show [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -816,7 +813,7 @@ class ACMEDatabaseModifyCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-database-mod [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --type <type>                  Database type: {0}'
               .format(', '.join(pki.server.subsystem.ACME_DATABASE_TYPES.values())))
         print('      -D<name>=<value>               Set property value.')
@@ -1009,7 +1006,7 @@ class ACMEDatabaseIndexRebuildCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server acme-database-index-rebuild [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --ds-backend                   DS backend (default: userroot)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
@@ -1117,7 +1114,7 @@ class ACMEIssuerShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-issuer-show [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -1236,7 +1233,7 @@ class ACMEIssuerModifyCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-issuer-mod [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --type <type>                  Issuer type: {0}'
               .format(', '.join(pki.server.subsystem.ACME_ISSUER_TYPES.values())))
         print('      -D<name>=<value>               Set property value.')
@@ -1428,7 +1425,7 @@ class ACMERealmInitCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server acme-realm-init [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -1523,7 +1520,7 @@ class ACMERealmShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-realm-show [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -1657,7 +1654,7 @@ class ACMERealmModifyCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server acme-realm-mod [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --type <type>                  Realm type: {0}'
               .format(', '.join(pki.server.subsystem.ACME_REALM_TYPES.values())))
         print('      -D<name>=<value>               Set property value.')

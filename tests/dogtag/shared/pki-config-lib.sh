@@ -16,16 +16,16 @@ enable_big_int()
 	CURRENT_CONF_FILE=$CA_SERVER_ROOT/conf/CS.cfg
 	BACKUP_CONF_FILE=$CA_SERVER_ROOT/conf/CS.cfg.backupFile
 
-	# Stop the pki-tomcat service 
+	# Stop the pki-quarkus service 
 	# To-Do: To be modified in case separate Tomcat Services 
-	rlRun "/usr/bin/systemctl stop pki-tomcatd@pki-tomcat.service" 0 "Stop pki-tomcat service"
+	rlRun "/usr/bin/systemctl stop pki-quarkusd@pki-quarkus.service" 0 "Stop pki-quarkus service"
 
-	# Verify pki-tomcat service is stop
-	rlRun "/usr/bin/pkidaemon status tomcat pki-tomcat 1> $PKIDAEMON_STATUS" 3 "Verify pki-tomcat is stopped"
-	rlAssertGrep "Status for pki-tomcat: pki-tomcat is stopped" "$PKIDAEMON_STATUS"
+	# Verify pki-quarkus service is stop
+	rlRun "/usr/bin/pkidaemon status tomcat pki-quarkus 1> $PKIDAEMON_STATUS" 3 "Verify pki-quarkus is stopped"
+	rlAssertGrep "Status for pki-quarkus: pki-quarkus is stopped" "$PKIDAEMON_STATUS"
 	RETVAL=$?
 	if [ $RETVAL != 0 ]; then
-		rlLog "pki-tomcat instance could not be stopped"
+		rlLog "pki-quarkus instance could not be stopped"
         	return 1
 	fi
 	#Take the backup of current configuration file 
@@ -118,17 +118,17 @@ enable_big_int()
         	return 1
 	fi
 
-	#Start pki-tomcat service
-	rlRun "/usr/bin/systemctl start pki-tomcatd@pki-tomcat.service"
+	#Start pki-quarkus service
+	rlRun "/usr/bin/systemctl start pki-quarkusd@pki-quarkus.service"
 	RETVAL=$?
 	if [ $RETVAL != 0 ]; then
-		rlLog "Could not start pki-tomcat service"
+		rlLog "Could not start pki-quarkus service"
 	        return 1
 	fi
-	#Verify pki-tomcat service 
-	rlRun "/usr/bin/pkidaemon status tomcat pki-tomcat 1> $PKIDAEMON_STATUS"
+	#Verify pki-quarkus service 
+	rlRun "/usr/bin/pkidaemon status tomcat pki-quarkus 1> $PKIDAEMON_STATUS"
 	# Verify checks 
-	rlAssertGrep "Status for pki-tomcat: pki-tomcat is running" "$PKIDAEMON_STATUS"
+	rlAssertGrep "Status for pki-quarkus: pki-quarkus is running" "$PKIDAEMON_STATUS"
 
 	# Verify if all the subsystems have started.
 	rlAssertGrep "PKI Subsystem Type:  Root CA (Security Domain)" "$PKIDAEMON_STATUS" 

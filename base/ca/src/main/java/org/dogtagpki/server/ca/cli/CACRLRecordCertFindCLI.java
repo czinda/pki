@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
@@ -59,7 +58,7 @@ public class CACRLRecordCertFindCLI extends CommandCLI {
 
         String instanceDir = CMS.getInstanceDir();
 
-        new TomcatJSSInitializer().initialize();
+        // JSS initialization is handled by the Quarkus runtime.
 
         String subsystem = parent.getParent().getParent().getParent().getName();
         String confDir = instanceDir + File.separator + subsystem + File.separator + "conf";

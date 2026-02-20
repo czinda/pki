@@ -62,7 +62,7 @@ def test_pki_server_subsystem_enable_help(ansible_module):
         if result['rc'] == 0:
             assert "Usage: pki-server subsystem-enable [OPTIONS] <subsystem ID>" in \
                    result['stdout']
-            assert "-i, --instance <instance ID>    Instance ID (default: pki-tomcat)" in \
+            assert "-i, --instance <instance ID>    Instance ID (default: pki-quarkus)" in \
                    result['stdout']
             assert "-v, --verbose                   Run in verbose mode." in result['stdout']
             assert "--help                      Show help message." in result['stdout']

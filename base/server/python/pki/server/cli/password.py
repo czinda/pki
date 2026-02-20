@@ -72,7 +72,7 @@ class PasswordFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server password-find [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -146,7 +146,7 @@ class PasswordAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server password-add [OPTIONS] <password ID>')
         print()
-        print('  -i, --instance <instance ID>              Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>              Instance ID (default: pki-quarkus).')
         print('      --password <password>                 Password.')
         print('  -v, --verbose                             Run in verbose mode.')
         print('      --debug                               Run in debug mode.')
@@ -224,7 +224,7 @@ class PasswordRemoveCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server password-del [OPTIONS] <password ID>')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -299,7 +299,7 @@ class PasswordSetCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server password-set [OPTIONS] <password ID>')
         print()
-        print('  -i, --instance <instance ID>              Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>              Instance ID (default: pki-quarkus).')
         print('      --password <password>                 Password.')
         print('      --password-file <path>                Password file.')
         print('  -v, --verbose                             Run in verbose mode.')
@@ -382,7 +382,7 @@ class PasswordUnsetCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server password-unset [OPTIONS] <password ID>')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')

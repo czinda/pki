@@ -39,8 +39,6 @@ import time
 from time import strftime as date
 import urllib.parse
 
-from lxml import etree
-
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
@@ -252,8 +250,8 @@ class PKIDeployer:
         self.mdict.update(default_dict)
 
         web_server_dict = None
-        if self.main_config.has_section('Tomcat'):
-            web_server_dict = dict(self.main_config.items('Tomcat'))
+        if self.main_config.has_section('Quarkus'):
+            web_server_dict = dict(self.main_config.items('Quarkus'))
 
         if web_server_dict:
             web_server_dict[0] = None
@@ -378,179 +376,6 @@ class PKIDeployer:
         for s in sections:
             for k in sensitive_parameters:
                 self.user_config.remove_option(s, k)
-
-    def configure_server_xml(self):
-
-        server_config = self.instance.get_server_config()
-
-        logger.info('Configuring Tomcat admin port')
-        server_config.set_port(self.mdict['pki_tomcat_server_port'])
-
-        listener = server_config.get_listener('org.apache.catalina.core.AprLifecycleListener')
-        if listener is not None:
-            logger.info('Removing AprLifecycleListener')
-            # It is not needed since PKI server will use JSS-based SSL connector
-            server_config.remove_listener('org.apache.catalina.core.AprLifecycleListener')
-
-        listener = server_config.get_listener('org.dogtagpki.jss.tomcat.JSSListener')
-        if listener is None:
-            logger.info('Adding JSSListener')
-            server_config.create_listener('org.dogtagpki.jss.tomcat.JSSListener')
-        else:
-            logger.info('Reusing JSSListener')
-
-        server_config.save()
-
-    def configure_http_connectors(self):
-
-        server_config = self.instance.get_server_config()
-
-        # find current HTTP connector
-        connector = server_config.get_http_connector()
-        service = connector.getparent()
-
-        # get HTTP connector position
-        index = service.index(connector)
-
-        if config.str2bool(self.mdict['pki_http_enable']):
-
-            logger.info('Configuring HTTP connector')
-            connector.set('name', 'Unsecure')
-            connector.set('port', self.mdict['pki_http_port'])
-            connector.set('redirectPort', self.mdict['pki_https_port'])
-            connector.set('maxHttpHeaderSize', '8192')
-            connector.set('acceptCount', '100')
-            connector.set('maxThreads', '150')
-            connector.set('minSpareThreads', '25')
-            connector.set('enableLookups', 'false')
-            connector.set('connectionTimeout', '80000')
-            connector.set('disableUploadTimeout', 'true')
-
-            # add the HTTPS connector after this connector
-            index = index + 1
-
-        else:
-            logger.info('Removing HTTP connector')
-            service.remove(connector)
-
-        connector = server_config.get_https_connector()
-
-        if connector is None:
-            logger.info('Adding HTTPS connector')
-            connector = server_config.create_connector(name='Secure', index=index)
-        else:
-            logger.info('Updating HTTPS connector')
-            connector.set('name', 'Secure')
-
-        connector.set('port', self.mdict['pki_https_port'])
-        connector.set('protocol', 'org.dogtagpki.jss.tomcat.Http11NioProtocol')
-        connector.set('SSLEnabled', 'true')
-        connector.set('sslImplementationName', 'org.dogtagpki.jss.tomcat.JSSImplementation')
-        connector.set('scheme', 'https')
-        connector.set('secure', 'true')
-        connector.set('connectionTimeout', '80000')
-        connector.set('keepAliveTimeout', '300000')
-        connector.set('maxHttpHeaderSize', '8192')
-        connector.set('acceptCount', '100')
-        connector.set('maxThreads', '150')
-        connector.set('minSpareThreads', '25')
-        connector.set('enableLookups', 'false')
-        connector.set('disableUploadTimeout', 'true')
-        connector.set('enableOCSP', 'false')
-        connector.set(
-            'ocspResponderURL',
-            'http://%s:%s/ca/ocsp' %
-            (self.mdict['pki_hostname'], self.mdict['pki_http_port']))
-        connector.set('ocspResponderCertNickname', 'ocspSigningCert cert-pki-ca')
-        connector.set('ocspCacheSize', '1000')
-        connector.set('ocspMinCacheEntryDuration', '7200')
-        connector.set('ocspMaxCacheEntryDuration', '14400')
-        connector.set('ocspTimeout', '10')
-        connector.set('passwordFile', self.instance.password_conf)
-        connector.set('passwordClass', 'org.dogtagpki.jss.tomcat.PlainPasswordFile')
-        connector.set('certdbDir', self.instance.nssdb_dir)
-
-        sslhost = server_config.get_sslhost(connector)
-        if sslhost is None:
-            logger.info('Adding SSL host configuration')
-            sslhost = server_config.create_sslhost(connector)
-        else:
-            logger.info('Updating SSL host configuration')
-
-        sslhost.set('sslProtocol', 'SSL')
-        sslhost.set('certificateVerification', 'optional')
-
-        sslcert = server_config.get_sslcert(sslhost)
-        if sslcert is None:
-            logger.info('Adding SSL certificate configuration')
-            sslcert = server_config.create_sslcert(sslhost)
-        else:
-            logger.info('Updating SSL certificate configuration')
-
-        sslcert.set('certificateKeystoreType', 'pkcs11')
-        sslcert.set('certificateKeystoreProvider', 'Mozilla-JSS')
-        sslcert.set('certificateKeyAlias', 'sslserver')
-
-        server_config.save()
-
-    def enable_proxy(self):
-
-        server_config = self.instance.get_server_config()
-
-        logger.info('Adding AJP connector for IPv4')
-
-        connector = etree.Element('Connector')
-        connector.set('port', self.mdict['pki_ajp_port'])
-        connector.set('protocol', 'AJP/1.3')
-        connector.set('redirectPort', self.mdict['pki_https_port'])
-        connector.set('address', self.mdict['pki_ajp_host_ipv4'])
-        connector.set('secret', self.mdict['pki_ajp_secret'])
-
-        server_config.add_connector(connector)
-
-        logger.info('Adding AJP connector for IPv6')
-
-        connector = etree.Element('Connector')
-        connector.set('port', self.mdict['pki_ajp_port'])
-        connector.set('protocol', 'AJP/1.3')
-        connector.set('redirectPort', self.mdict['pki_https_port'])
-        connector.set('address', self.mdict['pki_ajp_host_ipv6'])
-        connector.set('secret', self.mdict['pki_ajp_secret'])
-
-        server_config.add_connector(connector)
-
-        server_config.save()
-
-    def enable_access_log(self):
-
-        server_config = self.instance.get_server_config()
-
-        valve_class = 'org.apache.catalina.valves.AccessLogValve'
-        valve = server_config.get_valve(valve_class)
-
-        if valve is None:
-            logger.info('Adding AccessLogValve')
-            valve = etree.Element('Valve')
-            valve.set('className', valve_class)
-            server_config.add_valve(valve)
-        else:
-            logger.info('Updating AccessLogValve')
-
-        valve.set('directory', 'logs')
-        valve.set('prefix', 'localhost_access_log')
-        valve.set('suffix', '.txt')
-        valve.set('pattern', 'common')
-
-        server_config.save()
-
-    def disable_access_log(self):
-
-        server_config = self.instance.get_server_config()
-
-        logger.info('Removing AccessLogValve')
-        server_config.remove_valve('org.apache.catalina.valves.AccessLogValve')
-
-        server_config.save()
 
     def update_rsa_pss_algorithm(self, cert_id, alg_type):
 
@@ -5342,7 +5167,7 @@ class PKIDeployer:
         subsystem = self.instance.get_subsystem(self.subsystem_type.lower())
 
         # Store user's deployment.cfg into
-        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/deployment.cfg
+        # /etc/sysconfig/pki/quarkus/<instance>/<subsystem>/deployment.cfg
 
         deployment_cfg = os.path.join(subsystem.registry_dir, 'deployment.cfg')
         logger.info('Creating %s', deployment_cfg)
@@ -5406,7 +5231,7 @@ class PKIDeployer:
         subsystem = self.instance.get_subsystem(self.subsystem_type.lower())
 
         # Store installation manifest into
-        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/manifest
+        # /etc/sysconfig/pki/quarkus/<instance>/<subsystem>/manifest
 
         manifest_file = os.path.join(subsystem.registry_dir, 'manifest')
         logger.info('Creating %s', manifest_file)

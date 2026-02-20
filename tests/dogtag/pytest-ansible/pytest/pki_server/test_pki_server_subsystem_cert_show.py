@@ -62,7 +62,7 @@ def test_pki_server_subsystem_cert_show_help(ansible_module):
             assert "Usage: pki-server subsystem-cert-show [OPTIONS] " \
                    "<subsystem ID> <cert ID>" in result['stdout']
             assert "-i, --instance <instance ID>    Instance ID " \
-                   "(default: pki-tomcat)." in result['stdout']
+                   "(default: pki-quarkus)." in result['stdout']
             assert "--show-all                  Show all attributes." in result['stdout']
             assert "-v, --verbose                   Run in verbose mode." in result['stdout']
             assert "--help                      Show help message." in result['stdout']

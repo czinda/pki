@@ -64,7 +64,7 @@ jobs:
           # which will not violate the CAValidityConstraint.
           docker exec root sed -i \
               -e "s/\(policyset.caCertSet.2.default.params.range\)=.*/\1=7300/" \
-              /var/lib/pki/pki-tomcat/ca/profiles/ca/caCMCcaCert.cfg
+              /var/lib/pki/pki-quarkus/ca/profiles/ca/caCMCcaCert.cfg
 
           # restart CA subsystem
           docker exec root pki-server ca-redeploy --wait
@@ -79,7 +79,7 @@ jobs:
               ca_signing
 
           docker exec root pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec root pki -n caadmin ca-user-show caadmin
 
@@ -180,7 +180,7 @@ jobs:
 
       - name: Check subordinate CA admin cert
         run: |
-          docker exec subordinate openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+          docker exec subordinate openssl x509 -text -noout -in /root/.dogtag/pki-quarkus/ca_admin.cert
 
       - name: Run PKI healthcheck
         run: docker exec subordinate pki-healthcheck --failures-only
@@ -197,7 +197,7 @@ jobs:
               ca_signing
 
           docker exec subordinate pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
           docker exec subordinate pki -n caadmin ca-user-show caadmin

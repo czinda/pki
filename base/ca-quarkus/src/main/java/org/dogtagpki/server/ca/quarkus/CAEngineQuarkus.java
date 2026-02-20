@@ -31,8 +31,8 @@ import io.quarkus.security.identity.SecurityIdentity;
  * The CA is the most complex subsystem in Dogtag PKI, with certificate
  * issuance, revocation, CRL generation, sub-CA management, profile
  * subsystem, and security domain management. This wrapper manages the
- * real CAEngine lifecycle via CDI events and replaces Tomcat-specific
- * components with Quarkus equivalents.
+ * real CAEngine lifecycle via CDI events and uses Quarkus
+ * lifecycle management.
  */
 @ApplicationScoped
 public class CAEngineQuarkus {
@@ -78,7 +78,7 @@ public class CAEngineQuarkus {
         // Create the real CA engine
         engine = new CAEngine();
 
-        // Replace TomcatSocketListenerRegistry with Quarkus version
+        // Set Quarkus socket listener registry
         engine.setSocketListenerRegistry(new QuarkusSocketListenerRegistry());
 
         // Start the engine (loads CS.cfg, initializes all subsystems)

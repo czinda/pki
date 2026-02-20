@@ -65,7 +65,7 @@ jobs:
         run: |
           # all keys should be "mldsa"
           echo Secret.123 > password.txt
-          docker exec pki certutil -K -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt | tee output
+          docker exec pki certutil -K -d /var/lib/pki/pki-quarkus/conf/alias -f ${SHARED}/password.txt | tee output
           echo "mldsa" > expected
 
           grep ca_signing output | sed -n 's/<.*>\s\(\S\+\)\s.*/\1/p' > actual
@@ -86,7 +86,7 @@ jobs:
       - name: Check CA signing cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_signing | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -f ${SHARED}/password.txt -n ca_signing | tee output
 
           # signing algorithm should be "ML-DSA-44"
           echo "ML-DSA-44" > expected
@@ -110,7 +110,7 @@ jobs:
       - name: Check CA OCSP signing cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_ocsp_signing | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -f ${SHARED}/password.txt -n ca_ocsp_signing | tee output
 
           # signing algorithm should be "ML-DSA-44"
           echo "ML-DSA-44" > expected
@@ -134,7 +134,7 @@ jobs:
       - name: Check CA audit signing cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n ca_audit_signing | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -f ${SHARED}/password.txt -n ca_audit_signing | tee output
 
           # signing algorithm should be "ML-DSA-44"
           echo "ML-DSA-44" > expected
@@ -158,7 +158,7 @@ jobs:
       - name: Check subsystem cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n subsystem | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -f ${SHARED}/password.txt -n subsystem | tee output
 
           # signing algorithm should be "ML-DSA-44"
           echo "ML-DSA-44" > expected
@@ -183,7 +183,7 @@ jobs:
       - name: Check SSL server cert
         run: |
           # inspect cert with certutil
-          docker exec pki certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -f ${SHARED}/password.txt -n sslserver | tee output
+          docker exec pki certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -f ${SHARED}/password.txt -n sslserver | tee output
 
           # signing algorithm should be "ML-DSA-44"
           echo "ML-DSA-44" > expected
@@ -224,7 +224,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
@@ -239,7 +239,7 @@ jobs:
           diff expected actual
 
           # inspect cert with openssl
-          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert | tee output
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-quarkus/ca_admin.cert | tee output
 
           # signing algorithm should be "ML-DSA-44"
           echo "ML-DSA-44" > expected
@@ -312,7 +312,7 @@ jobs:
 
       - name: Check audit get signed
         run: |
-          docker exec pki cat /var/log/pki/pki-tomcat/ca/signedAudit/ca_audit | grep AuditEvent=AUDIT_LOG_SIGNING | tee output
+          docker exec pki cat /var/log/pki/pki-quarkus/ca/signedAudit/ca_audit | grep AuditEvent=AUDIT_LOG_SIGNING | tee output
           grep -q . output
 
       - name: Remove CA
@@ -331,9 +331,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

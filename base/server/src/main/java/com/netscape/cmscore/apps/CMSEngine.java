@@ -157,7 +157,7 @@ public class CMSEngine {
 
     protected PKIClientSocketListener clientSocketListener;
     protected PKIServerSocketListener serverSocketListener;
-    protected SocketListenerRegistry socketListenerRegistry = new TomcatSocketListenerRegistry();
+    protected SocketListenerRegistry socketListenerRegistry;
 
     protected JssSubsystem jssSubsystem;
     protected DBSubsystem dbSubsystem;
@@ -1513,9 +1513,9 @@ public class CMSEngine {
             cmds[0] = "/usr/bin/systemctl";
             cmds[1] = cmd;
             if (NuxwdogUtil.startedByNuxwdog()) {
-                cmds[2] = "pki-tomcatd-nuxwdog@" + instanceId + ".service";
+                cmds[2] = "pki-quarkusd@" + instanceId + ".service";
             } else {
-                cmds[2] = "pki-tomcatd@" + instanceId + ".service";
+                cmds[2] = "pki-quarkusd@" + instanceId + ".service";
             }
 
             Process process = Runtime.getRuntime().exec(cmds);
@@ -1807,7 +1807,7 @@ public class CMSEngine {
 
         BufferedReader bf = null;
         try {
-            // PID file is be created by wrapper script (e.g. /usr/sbin/tomcat6)
+            // PID file is created by the wrapper script
             // The default is for dogtag 9 systems which did not have this paramater
             String dir = mConfig.getString("pidDir", "/var/run");
             String name = dir+File.separator+instanceId+".pid";

@@ -21,19 +21,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Container-agnostic interface for resolving PKI instance configuration.
+ * Interface for resolving PKI instance configuration.
  *
- * This abstraction decouples the PKI engine from Tomcat's catalina.base
+ * This abstraction decouples the PKI engine from any specific
  * system property, allowing the same business logic to run under
- * different application containers (Tomcat, Quarkus, etc.).
+ * Quarkus lifecycle management.
  */
 public interface InstanceConfig {
 
     /**
      * Returns the absolute path to the PKI instance directory.
      *
-     * For Tomcat deployments this corresponds to catalina.base.
-     * For Quarkus deployments this is read from pki.instance.dir.
+     * This is read from the pki.instance.dir system property.
      */
     String getInstanceDir();
 

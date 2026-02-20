@@ -89,7 +89,7 @@ jobs:
           # generate SSL server key in keystore.p12
           docker exec pki keytool \
               -genkeypair \
-              -keystore /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              -keystore /var/lib/pki/pki-quarkus/conf/keystore.p12 \
               -storetype pkcs12 \
               -storepass Secret.123 \
               -alias sslserver \
@@ -99,18 +99,18 @@ jobs:
 
           # check keys in keystore.p12
           docker exec pki pki pkcs12-key-find \
-              --pkcs12-file /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              --pkcs12-file /var/lib/pki/pki-quarkus/conf/keystore.p12 \
               --pkcs12-password Secret.123
 
           # check certs in keystore.p12
           docker exec pki pki pkcs12-cert-find \
-              --pkcs12-file /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              --pkcs12-file /var/lib/pki/pki-quarkus/conf/keystore.p12 \
               --pkcs12-password Secret.123
 
           # create SSL server cert request
           docker exec pki keytool \
               -certreq \
-              -keystore /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              -keystore /var/lib/pki/pki-quarkus/conf/keystore.p12 \
               -storetype pkcs12 \
               -storepass Secret.123 \
               -alias sslserver \
@@ -142,7 +142,7 @@ jobs:
           # import SSL server cert chain into keystore.p12
           docker exec pki keytool \
               -importcert \
-              -keystore /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              -keystore /var/lib/pki/pki-quarkus/conf/keystore.p12 \
               -storetype pkcs12 \
               -storepass Secret.123 \
               -alias sslserver \
@@ -150,8 +150,8 @@ jobs:
               -noprompt
 
           # configure keystore.p12 owner and permissions
-          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/keystore.p12
-          docker exec pki chmod 660 /var/lib/pki/pki-tomcat/conf/keystore.p12
+          docker exec pki chown pkiuser:pkiuser /var/lib/pki/pki-quarkus/conf/keystore.p12
+          docker exec pki chmod 660 /var/lib/pki/pki-quarkus/conf/keystore.p12
 
       - name: "Create HTTPS connector with PKCS #12 file"
         run: |
@@ -165,7 +165,7 @@ jobs:
           docker exec pki pki-server http-connector-cert-add \
               --keyAlias sslserver \
               --keystoreType pkcs12 \
-              --keystoreFile /var/lib/pki/pki-tomcat/conf/keystore.p12 \
+              --keystoreFile /var/lib/pki/pki-quarkus/conf/keystore.p12 \
               --keystorePassword Secret.123
 
       - name: Deploy webapps

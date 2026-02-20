@@ -125,7 +125,7 @@ the **-f** option.
 
 The interactive option is most useful for those users getting familiar with Certificate Server.
 The parameters collected are written to the installation file of the subsystem,
-which can be found at /etc/sysconfig/pki/tomcat/*instance_name*/*subsystem*/deployment.cfg.
+which can be found at /etc/sysconfig/pki/quarkus/*instance_name*/*subsystem*/deployment.cfg.
 
 The following parameters are queried interactively during the installation process.
 
@@ -139,7 +139,7 @@ The following parameters are queried interactively during the installation proce
 ### Instance Specific Parameters
 
 **Instance name:**  
-    The name of the tomcat instance in which the subsystem is to be installed. The default value is pki-tomcat.
+    The name of the tomcat instance in which the subsystem is to be installed. The default value is pki-quarkus.
 
 **Note:**
 Only one subsystem of a given type (CA, KRA, OCSP, TKS, TPS) can exist within a given instance.
@@ -175,7 +175,7 @@ If successful, the installer will not prompt for these ports.
 
 **Export certificate:**  
     Setup the path where the admin certificate of this \<subsystem> should be stored.
-    The default value is $HOME/.dogtag/pki-tomcat/\<ca/kra/ocsp/tks/tps>_admin.cert.
+    The default value is $HOME/.dogtag/pki-quarkus/\<ca/kra/ocsp/tks/tps>_admin.cert.
 
 ### Directory Server Parameters
 
@@ -200,7 +200,7 @@ If successful, the installer will not prompt for these ports.
 
 **Base DN:**  
     The Base DN to be used for the internal database for this subsystem.
-    The default value is o=pki-tomcat-\<subsystem>.
+    The default value is o=pki-quarkus-\<subsystem>.
 
 **Bind DN:**  
     The bind DN required to connect for the directory server.
@@ -310,13 +310,13 @@ This invocation of **pkispawn** creates a Tomcat instance containing a CA
 running on the local machine with secure port 8443 and unsecure port 8080.
 To access this CA, simply point a browser to https://*hostname*:8443.
 
-The instance name (defined by **pki_instance_name**) is pki-tomcat, and it is
-located at /var/lib/pki/pki-tomcat. Logs for the instance are located
-at /var/lib/pki/pki-tomcat/logs, and an installation log is written to
+The instance name (defined by **pki_instance_name**) is pki-quarkus, and it is
+located at /var/lib/pki/pki-quarkus. Logs for the instance are located
+at /var/lib/pki/pki-quarkus/logs, and an installation log is written to
 /var/log/pki/pki-*subsystem*-spawn.*timestamp*.log.
 
 A PKCS #12 file containing the administrator certificate is created in
-$HOME/.dogtag/pki-tomcat. This PKCS #12 file uses the password
+$HOME/.dogtag/pki-quarkus. This PKCS #12 file uses the password
 designated by **pki_client_pkcs12_password** in the configuration file.
 
 To access the agent pages, first import the CA certificate by accessing the CA
@@ -466,7 +466,7 @@ For this particular example, the computed default values for a
 PKI instance name including its ports, URLs, machine names, etc.
 were utilized as defined in /usr/share/pki/server/etc/default.cfg.
 Each subsystem in this example will reside under the
-/var/lib/pki/pki-tomcat instance housed within their own
+/var/lib/pki/pki-quarkus instance housed within their own
 **ca**, **kra**, **ocsp**, **tks**, and **tps**
 subdirectories, utilizing the same default port values of
 8080 (http), 8443 (https), 8009 (ajp), 8005 (tomcat), using the
@@ -728,25 +728,25 @@ on the TKS side and imported into the TPS side in this case.
 Generate the shared secret key (if needed) in TKS with the following command:
 
 ```
-$ tkstool -T -d /var/lib/pki/pki-tomcat/alias -n sharedSecret
+$ tkstool -T -d /var/lib/pki/pki-quarkus/alias -n sharedSecret
 ```
 
 Verify the shared secret key in TKS with the following command:
 
 ```
-$ tkstool -L -d /var/lib/pki/pki-tomcat/alias
+$ tkstool -L -d /var/lib/pki/pki-quarkus/alias
 ```
 
 Once TPS is installed, shutdown TPS instance, then import the shared secret key into TPS with the following command:
 
 ```
-$ tkstool -I -d /var/lib/pki/pki-tomcat/alias -n sharedSecret
+$ tkstool -I -d /var/lib/pki/pki-quarkus/alias -n sharedSecret
 ```
 
 Verify the shared secret key in TPS with the following command:
 
 ```
-$ tkstool -L -d /var/lib/pki/pki-tomcat/alias
+$ tkstool -L -d /var/lib/pki/pki-quarkus/alias
 ```
 
 The shared secret key nickname should be stored in the following property in the TPS's CS.cfg:
@@ -990,7 +990,7 @@ and setting the relevant SELinux and file permissions is shown below.
 **pkcs12_password_file** is a text file containing the password selected for the generated PKCS12 file.
 
 ```
-master# PKCS12Export -d /var/lib/pki/pki-tomcat/conf/alias -p pwfile \
+master# PKCS12Export -d /var/lib/pki/pki-quarkus/conf/alias -p pwfile \
         -w pkcs12_password_file -o backup_keys.p12
 master# scp backup_keys.p12 clone:/backup_keys.p12
 
@@ -1009,12 +1009,12 @@ This method can be used if both master and clone are 10.3 or above.
 To export the required keys from the master, use the **pki-server** command line tool.
 
 ```
-master# pki-server ca-clone-prepare -i pki-tomcat \
+master# pki-server ca-clone-prepare -i pki-quarkus \
         --pkcs12-file backup_keys.p12 \
         --pkcs12-password Secret123
 
 master# scp backup_keys.p12 clone:/backup_keys.p12
-master# scp /var/lib/pki/pki-tomcat/conf/external_certs.conf \
+master# scp /var/lib/pki/pki-quarkus/conf/external_certs.conf \
          clone:/external_certs.conf
 ```
 
@@ -1335,25 +1335,25 @@ Then execute **pkispawn** to create the CA subsystem.
 To start a PKI instance named \<pki_instance_name>:
 
 ```
-$ systemctl start pki-tomcatd@<pki_instance_name>.service
+$ systemctl start pki-quarkusd@<pki_instance_name>.service
 ```
 
 To stop a PKI instance named \<pki_instance_name>:
 
 ```
-$ systemctl stop pki-tomcatd@<pki_instance_name>.service
+$ systemctl stop pki-quarkusd@<pki_instance_name>.service
 ```
 
 To restart a PKI instance named \<pki_instance_name>:
 
 ```
-$ systemctl restart pki-tomcatd@<pki_instance_name>.service
+$ systemctl restart pki-quarkusd@<pki_instance_name>.service
 ```
 
 To obtain the status of a PKI instance named \<pki_instance_name>:
 
 ```
-$ systemctl status pki-tomcatd@<pki_instance_name>.service
+$ systemctl status pki-quarkusd@<pki_instance_name>.service
 ```
 
 To obtain a detailed status of a Tomcat PKI instance named \<pki_instance_name>:

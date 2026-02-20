@@ -58,7 +58,7 @@ jobs:
           docker exec ca pki-server cert-find
 
       - name: Install banner in CA container
-        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-quarkus/conf
 
       - name: Set up TKS DS container
         run: |
@@ -83,7 +83,7 @@ jobs:
       - name: Install TKS in TKS container
         run: |
           docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
+          docker exec ca cp /root/.dogtag/pki-quarkus/ca_admin.cert ${SHARED}/ca_admin.cert
           docker exec tks pkispawn \
               -f /usr/share/pki/server/examples/installation/tks.cfg \
               -s TKS \
@@ -112,14 +112,14 @@ jobs:
           docker exec tks pki-server cert-find
 
       - name: Install banner in TKS container
-        run: docker exec tks cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
+        run: docker exec tks cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-quarkus/conf
 
       - name: Run PKI healthcheck
         run: docker exec tks pki-healthcheck --failures-only
 
       - name: Verify TKS admin
         run: |
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec ca cp /root/.dogtag/pki-quarkus/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
 
           docker exec tks pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
@@ -175,12 +175,12 @@ jobs:
       - name: Check CA systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check TKS DS server systemd journal
         if: always()
@@ -195,12 +195,12 @@ jobs:
       - name: Check TKS systemd journal
         if: always()
         run: |
-          docker exec tks journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec tks journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check TKS debug log
         if: always()
         run: |
-          docker exec tks find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+          docker exec tks find /var/lib/pki/pki-quarkus/logs/tks -name "debug.*" -exec cat {} \;
 
       - name: Upload artifacts
         if: always()

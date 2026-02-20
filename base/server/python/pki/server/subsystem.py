@@ -96,24 +96,9 @@ class PKISubsystem(object):
         self.default_doc_base = os.path.join(
             pki.SHARE_DIR,
             self.name,
-            'webapps',
-            self.name)
+            'lib')
 
-        self.doc_base = os.path.join(instance.webapps_dir, self.name)
-
-        self.default_context_xml = os.path.join(
-            pki.SHARE_DIR,
-            self.name,
-            'conf',
-            'Catalina',
-            'localhost',
-            self.name + '.xml')
-
-        self.context_xml = os.path.join(
-            instance.conf_dir,
-            'Catalina',
-            'localhost',
-            self.name + '.xml')
+        self.doc_base = os.path.join(instance.conf_dir, self.name)
 
     def __eq__(self, other):
         if not isinstance(other, PKISubsystem):
@@ -188,7 +173,7 @@ class PKISubsystem(object):
         self.instance.makedirs(self.base_dir, exist_ok=exist_ok)
 
         # Link /var/lib/pki/<instance>/<subsystem>/registry
-        # to /etc/sysconfig/pki/tomcat/<instance>
+        # to /etc/sysconfig/pki/quarkus/<instance>
 
         registry_link = os.path.join(self.base_dir, 'registry')
         self.instance.symlink(
@@ -253,12 +238,12 @@ class PKISubsystem(object):
     def create_registry(self, exist_ok=False):
 
         # Create subsystem registry folder at
-        # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+        # /etc/sysconfig/pki/quarkus/<instance>/<subsystem>
 
         self.instance.makedirs(self.registry_dir, exist_ok=exist_ok)
 
         # Copy /usr/share/pki/server/etc/default.cfg
-        # to /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
+        # to /etc/sysconfig/pki/quarkus/<instance>/<subsystem>/default.cfg
 
         default_cfg = os.path.join(
             pki.server.PKIServer.SHARE_DIR,
@@ -289,7 +274,7 @@ class PKISubsystem(object):
 
         if os.path.exists(self.default_cfg):
 
-            # Remove /etc/sysconfig/pki/tomcat/<instance>/<subsystem>/default.cfg
+            # Remove /etc/sysconfig/pki/quarkus/<instance>/<subsystem>/default.cfg
 
             logger.info('Removing %s', self.default_cfg)
             pki.util.remove(self.default_cfg, force=force)
@@ -297,7 +282,7 @@ class PKISubsystem(object):
         if os.path.exists(self.registry_dir):
 
             # Remove subsystem registry folder at
-            # /etc/sysconfig/pki/tomcat/<instance>/<subsystem>
+            # /etc/sysconfig/pki/quarkus/<instance>/<subsystem>
 
             logger.info('Removing %s', self.registry_dir)
             pki.util.rmtree(self.registry_dir, force=force)
@@ -582,19 +567,17 @@ class PKISubsystem(object):
                 None, self.instance)
 
     def is_enabled(self):
-        return self.instance.is_deployed(self.name)
+        return os.path.exists(self.conf_dir)
 
     def is_ready(self, secure_connection=True, timeout=None):
 
-        server_config = self.instance.get_server_config()
-
         if secure_connection:
             protocol = 'https'
-            port = server_config.get_https_port()
+            port = str(pki.server.DEFAULT_HTTPS_PORT)
 
         else:
             protocol = 'http'
-            port = server_config.get_http_port()
+            port = str(pki.server.DEFAULT_HTTP_PORT)
 
         # When waiting for a connection to come alive, don't bother verifying
         # the certificate at this stage.
@@ -662,31 +645,15 @@ class PKISubsystem(object):
 
     def enable(self, wait=False, max_wait=60, timeout=None):
 
-        if os.path.exists(self.doc_base):
-            # deploy custom subsystem if exists
-            doc_base = self.doc_base
+        logger.info('Enabling %s subsystem', self.name)
 
-        else:
-            # otherwise deploy default subsystem directly from
-            # /usr/share/pki/<subsystem>/webapps/<subsystem>
-            doc_base = self.default_doc_base
-
-        self.instance.deploy_webapp(
-            self.name,
-            self.default_context_xml,
-            doc_base=doc_base,
-            wait=wait,
-            max_wait=max_wait,
-            timeout=timeout)
+        # Create subsystem config if it doesn't exist
+        if not os.path.exists(self.conf_dir):
+            self.create_conf()
 
     def disable(self, force=False, wait=False, max_wait=60, timeout=None):
 
-        self.instance.undeploy_webapp(
-            self.name,
-            force=force,
-            wait=wait,
-            max_wait=max_wait,
-            timeout=timeout)
+        logger.info('Disabling %s subsystem', self.name)
 
     def restart(self, wait=False, max_wait=60, timeout=None):
         self.disable(wait=True, max_wait=max_wait, timeout=timeout)
@@ -883,8 +850,8 @@ class PKISubsystem(object):
         try:
             # export audit-events.properties from pki-server.jar
             server_jar = \
-                '/usr/share/pki/%s/webapps/%s/WEB-INF/lib/pki-server.jar' \
-                % (self.name, self.name)
+                '/usr/share/pki/%s/lib/pki-server.jar' \
+                % self.name
 
             cmd = [
                 'unzip',
@@ -2477,9 +2444,8 @@ class PKISubsystem(object):
         java_opts = self.instance.config.get('JAVA_OPTS')
 
         classpath = [
-            pki.server.Tomcat.LIB_DIR + '/*',
             pki.server.PKIServer.SHARE_DIR + '/' +
-            self.name + '/webapps/' + self.name + '/WEB-INF/lib/*',
+            self.name + '/lib/*',
             self.instance.common_lib_dir + '/*',
             pki.server.PKIServer.SHARE_DIR + '/lib/*'
         ]
@@ -2498,13 +2464,8 @@ class PKISubsystem(object):
 
         cmd.extend([
             '-classpath', os.pathsep.join(classpath),
-            '-Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory',
-            '-Dcatalina.base=' + self.instance.base_dir,
-            '-Dcatalina.home=' + pki.server.Tomcat.SHARE_DIR,
-            '-Djava.endorsed.dirs=',
-            '-Djava.io.tmpdir=' + self.instance.temp_dir,
-            '-Djava.util.logging.config.file=' + self.instance.logging_properties,
-            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager'
+            '-Dpki.instance.dir=' + self.instance.base_dir,
+            '-Dpki.subsystem.type=' + self.name,
         ])
 
         if java_opts:
@@ -3808,15 +3769,13 @@ class ESTSubsystem(PKISubsystem):
             status request. Default: None.
         """
 
-        server_config = self.instance.get_server_config()
-
         if secure_connection:
             protocol = 'https'
-            port = server_config.get_https_port()
+            port = pki.server.PKIServer.DEFAULT_HTTPS_PORT
 
         else:
             protocol = 'http'
-            port = server_config.get_http_port()
+            port = pki.server.PKIServer.DEFAULT_HTTP_PORT
 
         # When waiting for a connection to come alive, don't bother verifying
         # the certificate at this stage.

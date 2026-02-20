@@ -86,7 +86,7 @@ jobs:
       - name: Check root CA certs
         if: always()
         run: |
-          docker exec rootca pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-find
+          docker exec rootca pki -d /var/lib/pki/pki-quarkus/conf/alias nss-cert-find
 
           docker exec rootca pki-server cert-export \
               --cert-file ${SHARED}/root-ca_signing.crt \
@@ -145,7 +145,7 @@ jobs:
       - name: Check sub CA certs
         if: always()
         run: |
-          docker exec subca pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-find
+          docker exec subca pki -d /var/lib/pki/pki-quarkus/conf/alias nss-cert-find
 
           docker exec subca pki-server cert-export \
               --cert-file ${SHARED}/ca_signing.crt \
@@ -184,7 +184,7 @@ jobs:
           cat cert_chain.crt
 
       - name: Install banner in sub CA container
-        run: docker exec subca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
+        run: docker exec subca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-quarkus/conf
 
       - name: Verify sub CA admin
         run: |
@@ -197,7 +197,7 @@ jobs:
               --trust CT,C,C
 
           docker exec subca pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
           docker exec subca pki -n caadmin --ignore-banner ca-user-show caadmin
@@ -227,7 +227,7 @@ jobs:
           docker exec subca pki-server cert-export \
               --cert-file ${SHARED}/ca_signing.crt \
               ca_signing
-          docker exec subca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
+          docker exec subca cp /root/.dogtag/pki-quarkus/ca_admin.cert ${SHARED}/ca_admin.cert
           docker exec kra pkispawn \
               -f /usr/share/pki/server/examples/installation/kra.cfg \
               -s KRA \
@@ -278,7 +278,7 @@ jobs:
       - name: Check KRA certs
         if: always()
         run: |
-          docker exec kra pki -d /var/lib/pki/pki-tomcat/conf/alias nss-cert-find
+          docker exec kra pki -d /var/lib/pki/pki-quarkus/conf/alias nss-cert-find
 
       - name: Check KRA users
         if: always()
@@ -288,7 +288,7 @@ jobs:
           docker exec kra pki-server kra-user-role-find kraadmin
 
       - name: Install banner in KRA container
-        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
+        run: docker exec kra cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-quarkus/conf
 
       # TODO: Fix DogtagKRAConnectivityCheck to work without CA
       # - name: Run PKI healthcheck
@@ -304,7 +304,7 @@ jobs:
               --cert ${SHARED}/ca_signing.crt \
               --trust CT,C,C
 
-          docker exec subca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec subca cp /root/.dogtag/pki-quarkus/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
           docker exec kra pki pkcs12-import \
               --pkcs12 ${SHARED}/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
@@ -370,32 +370,32 @@ jobs:
       - name: Check PKI server systemd journal in root CA container
         if: always()
         run: |
-          docker exec rootca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec rootca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check root CA debug log
         if: always()
         run: |
-          docker exec rootca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec rootca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal in sub CA container
         if: always()
         run: |
-          docker exec subca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec subca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check sub CA debug log
         if: always()
         run: |
-          docker exec subca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec subca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal in KRA container
         if: always()
         run: |
-          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec kra journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec kra find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

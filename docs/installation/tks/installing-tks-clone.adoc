@@ -30,7 +30,7 @@ If necessary, third-party certificates, for example trust anchors, can be added 
 
 [literal]
 ....
-$ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/password.conf \
+$ pki -d /var/lib/pki/pki-quarkus/conf/alias -f /var/lib/pki/pki-quarkus/conf/password.conf \
     pkcs12-cert-import <nickname> \
     --pkcs12-file tks-certs.p12 \
     --pkcs12-password Secret.123 \
@@ -39,7 +39,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/pass
 
 == Installing TKS subsystem
 
-Prepare a deployment configuration, for example `tks-clone.cfg`, to deploy TKS subsystem clone. By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
+Prepare a deployment configuration, for example `tks-clone.cfg`, to deploy TKS subsystem clone. By default the subsystem is deployed into a Tomcat instance called `pki-quarkus`.
 
 A sample deployment configuration is available at xref:../../../base/server/examples/installation/tks-clone.cfg[/usr/share/pki/server/examples/installation/tks-clone.cfg].
 
@@ -64,11 +64,11 @@ $ pkispawn -f tks-clone.cfg -s TKS
 
 == TKS system certificates
 
-After installation the existing TKS system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`), and a new SSL server certificate is created for the new instance:
+After installation the existing TKS system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-quarkus/conf/alias`), and a new SSL server certificate is created for the new instance:
 
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

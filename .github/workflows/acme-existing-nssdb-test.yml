@@ -71,7 +71,7 @@ jobs:
               ca_signing
 
           docker exec ca pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
           docker exec ca pki -n caadmin ca-user-show caadmin
@@ -124,27 +124,27 @@ jobs:
           docker exec acme openssl req \
               -text \
               -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/sslserver.csr
 
           # issue cert
           docker exec acme pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /etc/pki/pki-quarkus/alias \
+              -f /etc/pki/pki-quarkus/password.conf \
               -U https://ca.example.com:8443 \
               -u caadmin \
               -w Secret.123 \
               ca-cert-issue \
               --profile caServerCert \
-              --csr-file /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr \
-              --output-file /var/lib/pki/pki-tomcat/conf/certs/sslserver.crt
+              --csr-file /var/lib/pki/pki-quarkus/conf/certs/sslserver.csr \
+              --output-file /var/lib/pki/pki-quarkus/conf/certs/sslserver.crt
           docker exec acme openssl x509 \
               -text \
               -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.crt
+              -in /var/lib/pki/pki-quarkus/conf/certs/sslserver.crt
 
           # install cert
           docker exec acme pki-server cert-import \
-              --input /var/lib/pki/pki-tomcat/conf/certs/sslserver.crt \
+              --input /var/lib/pki/pki-quarkus/conf/certs/sslserver.crt \
               sslserver
 
       - name: Install ACME
@@ -161,7 +161,7 @@ jobs:
         if: always()
         run: |
           # check file types, owners, and permissions
-          docker exec acme ls -l /var/lib/pki/pki-tomcat \
+          docker exec acme ls -l /var/lib/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -170,12 +170,12 @@ jobs:
           # TODO: review permissions
           cat > expected << EOF
           drwxrwx--- pkiuser pkiuser acme
-          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
+          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-quarkus/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxr-x--- pkiuser pkiuser common
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-quarkus
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-quarkus
           drwxr-x--- pkiuser pkiuser temp
           drwxr-x--- pkiuser pkiuser webapps
           drwxr-x--- pkiuser pkiuser work
@@ -187,7 +187,7 @@ jobs:
         if: always()
         run: |
           # check file types, owners, and permissions
-          docker exec acme ls -l /etc/pki/pki-tomcat \
+          docker exec acme ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -215,7 +215,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec acme ls -l /var/log/pki/pki-tomcat \
+          docker exec acme ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -238,7 +238,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec acme ls -l /var/log/pki/pki-tomcat \
+          docker exec acme ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -258,7 +258,7 @@ jobs:
       - name: Check ACME base dir
         if: always()
         run: |
-          docker exec acme ls -l /var/lib/pki/pki-tomcat/acme \
+          docker exec acme ls -l /var/lib/pki/pki-quarkus/acme \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -266,8 +266,8 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-tomcat/conf/acme
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/lib/pki/pki-tomcat/logs/acme
+          lrwxrwxrwx pkiuser pkiuser conf -> /var/lib/pki/pki-quarkus/conf/acme
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/lib/pki/pki-quarkus/logs/acme
           EOF
 
           diff expected output
@@ -276,7 +276,7 @@ jobs:
         if: always()
         run: |
           # check file types, owners, and permissions
-          docker exec acme ls -l /etc/pki/pki-tomcat/acme \
+          docker exec acme ls -l /etc/pki/pki-quarkus/acme \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -294,32 +294,32 @@ jobs:
       - name: Check ACME database config
         if: always()
         run: |
-          docker exec acme cat /etc/pki/pki-tomcat/acme/database.conf
+          docker exec acme cat /etc/pki/pki-quarkus/acme/database.conf
           docker exec acme pki-server acme-database-show
 
       - name: Check ACME issuer config
         if: always()
         run: |
-          docker exec acme cat /etc/pki/pki-tomcat/acme/issuer.conf
+          docker exec acme cat /etc/pki/pki-quarkus/acme/issuer.conf
           docker exec acme pki-server acme-issuer-show
 
       - name: Check ACME realm config
         if: always()
         run: |
-          docker exec acme cat /etc/pki/pki-tomcat/acme/realm.conf
+          docker exec acme cat /etc/pki/pki-quarkus/acme/realm.conf
           docker exec acme pki-server acme-realm-show
 
       - name: Check ACME logs dir
         if: always()
         run: |
-          docker exec acme ls -l /var/log/pki/pki-tomcat/acme
+          docker exec acme ls -l /var/log/pki/pki-quarkus/acme
 
       - name: Check ACME system certs
         if: always()
         run: |
           docker exec acme pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /etc/pki/pki-quarkus/alias \
+              -f /etc/pki/pki-quarkus/password.conf \
               nss-cert-find
 
       - name: Initialize ACME database
@@ -786,7 +786,7 @@ jobs:
       - name: Check ACME server base dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec acme ls -l /var/lib/pki/pki-tomcat \
+          docker exec acme ls -l /var/lib/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -794,8 +794,8 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-quarkus
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-quarkus
           EOF
 
           diff expected output
@@ -803,7 +803,7 @@ jobs:
       - name: Check ACME server conf dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec acme ls -l /etc/pki/pki-tomcat \
+          docker exec acme ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -831,7 +831,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec acme ls -l /var/log/pki/pki-tomcat \
+          docker exec acme ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -854,7 +854,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec acme ls -l /var/log/pki/pki-tomcat \
+          docker exec acme ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -884,12 +884,12 @@ jobs:
       - name: Check CA server systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check ACME DS server systemd journal
         if: always()
@@ -904,12 +904,12 @@ jobs:
       - name: Check ACME server systemd journal
         if: always()
         run: |
-          docker exec acme journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec acme journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check ACME debug log
         if: always()
         run: |
-          docker exec acme find /var/lib/pki/pki-tomcat/logs/acme -name "debug.*" -exec cat {} \;
+          docker exec acme find /var/lib/pki/pki-quarkus/logs/acme -name "debug.*" -exec cat {} \;
 
       - name: Check certbot log
         if: always()

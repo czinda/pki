@@ -52,19 +52,19 @@ CA_SUB_EXT="ca_sub_signing.conf"
 SSL_EXT="sslserver.conf"
 
 ## 0.4 Subjects
-S_CA_ROOT="CN=CA Root Certificate, OU=pki-tomcat, O=dogtag"
-S_CA_SUB="CN=CA Sub Certificate, OU=pki-tomcat, O=dogtag"
-S_CA_SERVER="CN=ab.example.com, OU=pki-tomcat, O=dogtag"
-S_CA_SUB_SERVER_A="CN=aaa.example.com, OU=pki-tomcat, O=dogtag"
-S_CA_SUB_SERVER_B="CN=aab.example.com, OU=pki-tomcat, O=dogtag"
+S_CA_ROOT="CN=CA Root Certificate, OU=pki-quarkus, O=dogtag"
+S_CA_SUB="CN=CA Sub Certificate, OU=pki-quarkus, O=dogtag"
+S_CA_SERVER="CN=ab.example.com, OU=pki-quarkus, O=dogtag"
+S_CA_SUB_SERVER_A="CN=aaa.example.com, OU=pki-quarkus, O=dogtag"
+S_CA_SUB_SERVER_B="CN=aab.example.com, OU=pki-quarkus, O=dogtag"
 
-S_COMP_ROOT="CN=Compromised Root Certificate, OU=pki-tomcat, O=dogtag"
-S_COMP_SUB="CN=Compromised Sub Certificate, OU=pki-tomcat, O=dogtag"
-S_COMP_SERVER="CN=bb.example.com, OU=pki-tomcat, O=dogtag"
-S_COMP_SUB_SERVER_A="CN=baa.example.com, OU=pki-tomcat, O=dogtag"
-S_COMP_SUB_SERVER_B="CN=bab.example.com, OU=pki-tomcat, O=dogtag"
+S_COMP_ROOT="CN=Compromised Root Certificate, OU=pki-quarkus, O=dogtag"
+S_COMP_SUB="CN=Compromised Sub Certificate, OU=pki-quarkus, O=dogtag"
+S_COMP_SERVER="CN=bb.example.com, OU=pki-quarkus, O=dogtag"
+S_COMP_SUB_SERVER_A="CN=baa.example.com, OU=pki-quarkus, O=dogtag"
+S_COMP_SUB_SERVER_B="CN=bab.example.com, OU=pki-quarkus, O=dogtag"
 
-S_SELF_SERVER="CN=c.example.com, OU=pki-tomcat, O=dogtag"
+S_SELF_SERVER="CN=c.example.com, OU=pki-quarkus, O=dogtag"
 
 
 function __d() {

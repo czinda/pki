@@ -64,7 +64,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
@@ -165,19 +165,19 @@ jobs:
       - name: Check ACME database config
         if: always()
         run: |
-          docker exec pki cat /etc/pki/pki-tomcat/acme/database.conf
+          docker exec pki cat /etc/pki/pki-quarkus/acme/database.conf
           docker exec pki pki-server acme-database-show
 
       - name: Check ACME issuer config
         if: always()
         run: |
-          docker exec pki cat /etc/pki/pki-tomcat/acme/issuer.conf
+          docker exec pki cat /etc/pki/pki-quarkus/acme/issuer.conf
           docker exec pki pki-server acme-issuer-show
 
       - name: Check ACME realm config
         if: always()
         run: |
-          docker exec pki cat /etc/pki/pki-tomcat/acme/realm.conf
+          docker exec pki cat /etc/pki/pki-quarkus/acme/realm.conf
           docker exec pki pki-server acme-realm-show
 
       - name: Run PKI healthcheck in PKI container
@@ -560,17 +560,17 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check ACME debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/acme -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/acme -name "debug.*" -exec cat {} \;
 
       - name: Check certbot log
         if: always()

@@ -107,7 +107,7 @@ class pki_externalca_common(object):
         self.subsystem = kwargs['subsystem'] if 'subsystem' in kwargs.keys() else 'CA'
         self.passwd = kwargs['passwd'] if 'passwd' in kwargs.keys() else 'SECret.123'
         self.pass_file = kwargs['pass_file'] if 'pass_file' in kwargs.keys() else '/tmp/pass.txt'
-        self.instance_name = kwargs['instance_name'] if 'instance_name' in kwargs.keys() else 'pki-tomcat'
+        self.instance_name = kwargs['instance_name'] if 'instance_name' in kwargs.keys() else 'pki-quarkus'
         self.externalca_port = kwargs['externalca_port'] if 'externalca_port' in kwargs.keys() else '8080'
 
     def create_nssdb(self, ansible_module):
@@ -154,7 +154,7 @@ class pki_externalca_common(object):
         else:
             return map(str,[pkispawn_output[x]['stdout'] for x in pkispawn_output.keys()])[0]
 
-    def importp12_externalca(self, ansible_module, p12file="/root/.dogtag/pki-tomcat/ca_admin_cert.p12"):
+    def importp12_externalca(self, ansible_module, p12file="/root/.dogtag/pki-quarkus/ca_admin_cert.p12"):
         '''
         Import ExternalCA certificate to nssdb
         '''

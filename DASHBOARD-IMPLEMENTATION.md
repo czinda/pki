@@ -116,7 +116,7 @@ This implementation adds three major features to Dogtag PKI:
 {
   "event": "certificate.issued",
   "timestamp": "2024-01-15T10:30:00Z",
-  "instanceId": "pki-tomcat",
+  "instanceId": "pki-quarkus",
   "certificate": {
     "serialNumber": "12345",
     "serialNumberHex": "0x3039",
@@ -265,7 +265,7 @@ ca.notification.webhook.instance.cmdb.enabled=true
 │  ┌─────────────────────────────────────────────────────────────┐│
 │  │ SessionContext stores:                                      ││
 │  │ • USER_ID: "jsmith"                                         ││
-│  │ • USER_DN: "uid=jsmith,ou=people,o=pki-tomcat"             ││
+│  │ • USER_DN: "uid=jsmith,ou=people,o=pki-quarkus"             ││
 │  │ • GROUPS: ["users", "developers"]                           ││
 │  │ • AUTH_METHOD: "certUserDBAuth"                             ││
 │  └─────────────────────────────────────────────────────────────┘│

@@ -130,7 +130,7 @@ class CertFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server cert-find [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('      --show-all                  Show all attributes.')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -239,7 +239,7 @@ class CertShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server cert-show [OPTIONS] <cert ID>')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('      --show-all                  Show all attributes.')
         print('      --pretty-print              Pretty print.')
         print('  -v, --verbose                   Run in verbose mode.')
@@ -316,7 +316,7 @@ class CertValidateCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server cert-validate [OPTIONS] <cert ID>
 
-          -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>    Instance ID (default: pki-quarkus)
           -v, --verbose                   Run in verbose mode.
               --debug                     Run in debug mode.
               --help                      Show help message.
@@ -428,7 +428,7 @@ class CertUpdateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server cert-update [OPTIONS] <cert ID>')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -537,7 +537,7 @@ class CertRequestCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server cert-request [OPTIONS] <Cert ID>
 
-          -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>    Instance ID (default: pki-quarkus)
               --token <name>              Token for storing the key pair
               --subject <DN>              Subject DN
               --ext <path>                CSR extension configuration
@@ -627,7 +627,7 @@ class CertCreateCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server cert-create [OPTIONS] <Cert ID>
 
-          -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>    Instance ID (default: pki-quarkus)
               --token <name>              Token that stores the signing key
               --issuer <nickname>         Issuer certificate nickname
               --ext <path>                Certificate extension configuration
@@ -805,7 +805,7 @@ class CertImportCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server cert-import [OPTIONS] [Cert ID]
 
-          -i, --instance <instance ID>    Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>    Instance ID (default: pki-quarkus)
               --token <name>              Token to store the certificate
               --nickname <nickname>       Certificate nickname
               --input <file>              Certificate file
@@ -946,7 +946,7 @@ class CertExportCLI(pki.cli.CLI):
         print()
         print('Specify at least one output file: certificate, CSR, or PKCS #12.')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --cert-file <path>             Output file to store the exported certificate '
               'in PEM format.')
         print('      --csr-file <path>              Output file to store the exported CSR in PEM '
@@ -1174,7 +1174,7 @@ class CertRemoveCLI(pki.cli.CLI):
         # ca_audit_signing, kra_audit_signing
         # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('      --remove-key                Remove key.')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -1209,7 +1209,7 @@ class CertRemoveCLI(pki.cli.CLI):
             logger.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
-        # Load the instance. Default: pki-tomcat
+        # Load the instance. Default: pki-quarkus
         instance.load()
 
         logger.info('Removing %s certificate from NSS database', cert_id)
@@ -1277,7 +1277,7 @@ class CertFixCLI(pki.cli.CLI):
 
     def print_help(self):
         print('Usage: pki-server cert-fix [OPTIONS]')
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat)')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus)')
         print('  -p, --port <port number>        HTTPS port number (default: 8443)')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
         # ca_audit_signing, kra_audit_signing

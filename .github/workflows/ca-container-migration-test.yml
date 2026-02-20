@@ -83,7 +83,7 @@ jobs:
 
       - name: Check CA admin user
         run: |
-          docker cp pki:/root/.dogtag/pki-tomcat/ca_admin_cert.p12 .
+          docker cp pki:/root/.dogtag/pki-quarkus/ca_admin_cert.p12 .
 
           docker exec client pki pkcs12-import \
               --pkcs12 $SHARED/ca_admin_cert.p12 \
@@ -146,8 +146,8 @@ jobs:
           User=pkiuser
           Group=pkiuser
           # use shared folders in PKI home directory
-          Volume=/etc/pki/pki-tomcat:/conf
-          Volume=/var/log/pki/pki-tomcat:/logs
+          Volume=/etc/pki/pki-quarkus:/conf
+          Volume=/var/log/pki/pki-quarkus:/logs
           # configure database
           Environment=PKI_DS_URL=ldap://ds.example.com:3389
           Environment=PKI_DS_PASSWORD=Secret.123
@@ -189,7 +189,7 @@ jobs:
       - name: Check conf dir
         if: always()
         run: |
-          docker exec pki ls -l /etc/pki/pki-tomcat \
+          docker exec pki ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -218,7 +218,7 @@ jobs:
       - name: Check conf/alias dir
         if: always()
         run: |
-          docker exec pki ls -l /etc/pki/pki-tomcat/alias \
+          docker exec pki ls -l /etc/pki/pki-quarkus/alias \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -238,7 +238,7 @@ jobs:
       - name: Check conf/ca dir
         if: always()
         run: |
-          docker exec pki ls -l /etc/pki/pki-tomcat/ca \
+          docker exec pki ls -l /etc/pki/pki-quarkus/ca \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -268,7 +268,7 @@ jobs:
       - name: Check logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -291,7 +291,7 @@ jobs:
       - name: Check logs dir
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\S* *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3/' \
@@ -351,7 +351,7 @@ jobs:
       - name: Check PKI Tomcat systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check PKI CA systemd journal
         if: always()
@@ -366,4 +366,4 @@ jobs:
       - name: Check CA debug logs
         if: always()
         run: |
-          docker exec pki find /var/log/pki/pki-tomcat/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/log/pki/pki-quarkus/ca -name "debug.*" -exec cat {} \;

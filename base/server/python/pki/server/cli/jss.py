@@ -63,7 +63,7 @@ class JSSEnableCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server jss-enable [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -99,10 +99,6 @@ class JSSEnableCLI(pki.cli.CLI):
 
         instance.store_jss_config(jss_config)
 
-        server_config = instance.get_server_config()
-        server_config.create_listener('org.dogtagpki.jss.tomcat.JSSListener')
-        server_config.save()
-
 
 class JSSDisableCLI(pki.cli.CLI):
 
@@ -132,7 +128,7 @@ class JSSDisableCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server jss-disable [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -161,6 +157,4 @@ class JSSDisableCLI(pki.cli.CLI):
             print("ERROR: Invalid instance: %s" % instance_name)
             sys.exit(1)
 
-        server_config = instance.get_server_config()
-        server_config.remove_listener('org.dogtagpki.jss.tomcat.JSSListener')
-        server_config.save()
+        logger.info('JSS disabled for instance %s', instance_name)

@@ -68,7 +68,7 @@ jobs:
               ca_signing
 
           docker exec ca pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       - name: Set up OCSP DS container
@@ -266,7 +266,7 @@ jobs:
               ca_signing
 
           docker exec ocsp pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ocsp_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ocsp_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec ocsp pki -n ocspadmin ocsp-user-show ocspadmin
 
@@ -298,12 +298,12 @@ jobs:
       - name: Check CA systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check OCSP DS server systemd journal
         if: always()
@@ -318,12 +318,12 @@ jobs:
       - name: Check OCSP systemd journal
         if: always()
         run: |
-          docker exec ocsp journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ocsp journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check OCSP debug log
         if: always()
         run: |
-          docker exec ocsp find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+          docker exec ocsp find /var/lib/pki/pki-quarkus/logs/ocsp -name "debug.*" -exec cat {} \;
 
       - name: Upload artifacts
         if: always()

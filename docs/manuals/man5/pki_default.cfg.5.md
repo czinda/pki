@@ -72,7 +72,7 @@ This list is not exhaustive.
 
 **pki_instance_name**  
 Name of the instance. The instance is located at /var/lib/pki/*instance_name*.
-For Java subsystems, the default is specified as pki-tomcat.
+For Java subsystems, the default is specified as pki-quarkus.
 
 **pki_https_port**, **pki_http_port**  
 Secure and unsecure ports.  Defaults to standard Tomcat ports 8443 and 8080, respectively.
@@ -339,8 +339,8 @@ Defaults to True (see the following note on why this was previously 'False').
 
 **Note:**
 Since this parameter did not exist prior to Dogtag 10.2.3, the default behavior of PKI instances in Dogtag 10.2.2 and prior was False.
-To manually enable this behavior, obtain superuser privileges, and execute '**systemctl enable pki-tomcatd.target**';
-to manually disable this behavior, execute '**systemctl disable pki-tomcatd.target**'.
+To manually enable this behavior, obtain superuser privileges, and execute '**systemctl enable pki-quarkusd.target**';
+to manually disable this behavior, execute '**systemctl disable pki-quarkusd.target**'.
 
 **pki_security_manager**  
 Enables the Java security manager policies provided by the JDK to be used with the instance.  Defaults to False.

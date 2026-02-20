@@ -159,7 +159,6 @@ RUN pki-server http-connector-add \
   --secure true \
   --sslEnabled true \
   --sslProtocol SSL \
-  --sslImpl org.dogtagpki.jss.tomcat.JSSImplementation \
   Secure
 
 # Configure SSL server certificate
@@ -179,12 +178,12 @@ RUN pki-server webapp-deploy \
   pki
 
 # Store default config files
-RUN cp -r /conf /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf /var/lib/pki/pki-quarkus/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
-RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-quarkus
+RUN chmod -Rf g+rw /var/lib/pki/pki-quarkus
 
 VOLUME [ "/certs", "/conf", "/logs" ]
 
@@ -212,12 +211,12 @@ RUN pki-server ca-create
 RUN pki-server ca-deploy
 
 # Store additional default config files
-RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-quarkus/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
-RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-quarkus
+RUN chmod -Rf g+rw /var/lib/pki/pki-quarkus
 
 CMD [ "/usr/share/pki/ca/bin/pki-ca-run" ]
 
@@ -243,12 +242,12 @@ RUN pki-server kra-create
 RUN pki-server kra-deploy
 
 # Store additional default config files
-RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-quarkus/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
-RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-quarkus
+RUN chmod -Rf g+rw /var/lib/pki/pki-quarkus
 
 CMD [ "/usr/share/pki/kra/bin/pki-kra-run" ]
 
@@ -274,12 +273,12 @@ RUN pki-server ocsp-create
 RUN pki-server ocsp-deploy
 
 # Store additional default config files
-RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-quarkus/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
-RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-quarkus
+RUN chmod -Rf g+rw /var/lib/pki/pki-quarkus
 
 CMD [ "/usr/share/pki/ocsp/bin/pki-ocsp-run" ]
 
@@ -305,12 +304,12 @@ RUN pki-server tks-create
 RUN pki-server tks-deploy
 
 # Store additional default config files
-RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-quarkus/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
-RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-quarkus
+RUN chmod -Rf g+rw /var/lib/pki/pki-quarkus
 
 CMD [ "/usr/share/pki/tks/bin/pki-tks-run" ]
 
@@ -336,12 +335,12 @@ RUN pki-server tps-create
 RUN pki-server tps-deploy
 
 # Store additional default config files
-RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-quarkus/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
-RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-quarkus
+RUN chmod -Rf g+rw /var/lib/pki/pki-quarkus
 
 CMD [ "/usr/share/pki/tps/bin/pki-tps-run" ]
 
@@ -370,13 +369,13 @@ RUN ln -s /usr/share/java/postgresql-jdbc/postgresql.jar /usr/share/pki/server/c
 RUN pki-server acme-create
 
 # Use in-memory database by default
-RUN cp /usr/share/pki/acme/database/in-memory/database.conf /var/lib/pki/pki-tomcat/conf/acme
+RUN cp /usr/share/pki/acme/database/in-memory/database.conf /var/lib/pki/pki-quarkus/conf/acme
 
 # Use NSS issuer by default
-RUN cp /usr/share/pki/acme/issuer/nss/issuer.conf /var/lib/pki/pki-tomcat/conf/acme
+RUN cp /usr/share/pki/acme/issuer/nss/issuer.conf /var/lib/pki/pki-quarkus/conf/acme
 
 # Use in-memory realm by default
-RUN cp /usr/share/pki/acme/realm/in-memory/realm.conf /var/lib/pki/pki-tomcat/conf/acme
+RUN cp /usr/share/pki/acme/realm/in-memory/realm.conf /var/lib/pki/pki-quarkus/conf/acme
 
 # Remove PKI ACME web application logging.properties so the logs will appear on the console
 RUN rm -f /usr/share/pki/acme/webapps/acme/WEB-INF/classes/logging.properties
@@ -385,12 +384,12 @@ RUN rm -f /usr/share/pki/acme/webapps/acme/WEB-INF/classes/logging.properties
 RUN pki-server acme-deploy
 
 # Store additional default config files
-RUN cp -r /conf/* /var/lib/pki/pki-tomcat/conf.default
+RUN cp -r /conf/* /var/lib/pki/pki-quarkus/conf.default
 
 # Grant the root group the full access to PKI ACME files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chown -Rf pkiuser:root /var/lib/pki/pki-tomcat
-RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+RUN chown -Rf pkiuser:root /var/lib/pki/pki-quarkus
+RUN chmod -Rf g+rw /var/lib/pki/pki-quarkus
 
 VOLUME [ \
     "/certs", \
@@ -422,22 +421,6 @@ RUN dnf install -y /tmp/RPMS/* \
 
 # Import PKI sources
 COPY . /root/pki/
-
-# Prepare sources the same way the RPM %prep section does:
-# 1. Migrate source from javax to jakarta (needed for Fedora 43+ / Tomcat 10+)
-# 2. Install pki-local:jboss-jaxrs-api_2.0_spec into ~/.m2 so Maven can resolve it
-# 3. Disable tomcat-9.0 module (incompatible with Jakarta Servlet on Fedora 43+)
-#    and remove its dependency from base/server, matching pki.spec behavior
-RUN cd /root/pki \
-    && /usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base \
-    && JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p') \
-    && cp /usr/share/java/jboss-jaxrs-2.0-api.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
-    && /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
-    && mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION \
-    && cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
-    && rm -f jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
-    && sed -i '/<module>tomcat-9.0<\/module>/d; /<module>console<\/module>/d' base/pom.xml \
-    && sed -i '/<dependency>/{N;N;N;N;/pki-tomcat-9.0/d}' base/server/pom.xml
 
 # Build all modules (including Quarkus) via Maven.
 # This stage runs in parallel with pki-builder since both inherit from

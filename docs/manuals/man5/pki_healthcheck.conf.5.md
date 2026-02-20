@@ -38,7 +38,7 @@ The following options are relevant for the healthcheck tool:
     The number of days left before a certificate expires to start displaying a warning. The default is 28.
 
 **instance_name**  
-    The name of the PKI instance. The default is **pki-tomcat**
+    The name of the PKI instance. The default is **pki-quarkus**
 
 ## EXAMPLES
 
@@ -46,7 +46,7 @@ The following options are relevant for the healthcheck tool:
 cert_expiration_days = 30  
 
 [dogtag]  
-instance_name = pki-tomcat
+instance_name = pki-quarkus
 
 ## FILES
 

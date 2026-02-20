@@ -26,9 +26,8 @@ import com.netscape.cmscore.apps.CMS;
 /**
  * Container-agnostic authentication method checking logic.
  *
- * Extracts the business logic from AuthMethodFilter (which extends
- * HttpFilter) so it can be reused by both Tomcat servlet filters and
- * Quarkus ContainerRequestFilters.
+ * Extracts the business logic from AuthMethodFilter so it can be
+ * reused by Quarkus ContainerRequestFilters.
  *
  * NOTE: This class will be moved to pki-server-core once its
  * dependencies are moved there.

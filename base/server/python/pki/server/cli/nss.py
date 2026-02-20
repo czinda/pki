@@ -71,7 +71,7 @@ class NSSCreateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server nss-create [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --no-password                  Without NSS database password.')
         print('      --password <password>          NSS database password.')
         print('      --password-file <path>         NSS database password file.')
@@ -159,7 +159,7 @@ class NSSRemoveCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server nss-remove [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --force                        Force removal.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')

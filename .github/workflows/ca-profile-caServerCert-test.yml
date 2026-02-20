@@ -63,7 +63,7 @@ jobs:
               -e '$ a policyset.serverCertSet.13.default.class_id=userExtensionDefaultImpl' \
               -e '$ a policyset.serverCertSet.13.default.name=User supplied extension in CSR' \
               -e '$ a policyset.serverCertSet.13.default.params.userExtOID=2.5.29.17' \
-              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
+              /var/lib/pki/pki-quarkus/conf/ca/profiles/ca/caServerCert.cfg
 
           # require unique subject name
           docker exec pki sed -i \
@@ -72,10 +72,10 @@ jobs:
               -e '$ a policyset.serverCertSet.14.constraint.name=Unique Subject Name Constraint' \
               -e '$ a policyset.serverCertSet.14.default.class_id=noDefaultImpl' \
               -e '$ a policyset.serverCertSet.14.default.name=No Default' \
-              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
+              /var/lib/pki/pki-quarkus/conf/ca/profiles/ca/caServerCert.cfg
 
           # check updated profile
-          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
+          docker exec pki cat /var/lib/pki/pki-quarkus/conf/ca/profiles/ca/caServerCert.cfg
 
           docker exec pki pki-server ca-redeploy --wait
 
@@ -89,7 +89,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       - name: Create SSL server cert
@@ -165,9 +165,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

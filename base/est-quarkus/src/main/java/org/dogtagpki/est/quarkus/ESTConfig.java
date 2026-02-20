@@ -21,7 +21,7 @@ public interface ESTConfig {
     /**
      * EST configuration directory
      */
-    @WithDefault("/etc/pki/pki-tomcat/est")
+    @WithDefault("/etc/pki/pki-quarkus/est")
     String configDir();
 
     /**

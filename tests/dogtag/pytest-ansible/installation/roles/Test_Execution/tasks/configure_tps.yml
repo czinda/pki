@@ -52,5 +52,5 @@
 
 - name: Starting TPS Subsystem
   service:
-    name: pki-tomcatd@{{ topology }}-TPS.service
+    name: pki-quarkusd@{{ topology }}-TPS.service
     state: started

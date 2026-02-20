@@ -12,7 +12,6 @@ import java.util.StringTokenizer;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.server.ca.ProfileEntryConfig;
 import org.dogtagpki.server.ca.ProfileSubsystemConfig;
@@ -69,7 +68,7 @@ public class CAProfileImportCLI extends CommandCLI {
 
         String instanceDir = CMS.getInstanceDir();
 
-        new TomcatJSSInitializer().initialize();
+        // JSS initialization is handled by the Quarkus runtime.
 
         String subsystemName = parent.getParent().getName();
         String configFile = instanceDir + File.separator + subsystemName + File.separator +

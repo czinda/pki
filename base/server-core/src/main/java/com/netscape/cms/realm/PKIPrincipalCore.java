@@ -24,14 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Container-agnostic PKI principal.
+ * PKI principal.
  *
  * This class implements java.security.Principal and carries user
- * information, authentication token, and roles without depending
- * on any container-specific classes (e.g. Tomcat's GenericPrincipal).
- *
- * Container-specific principal classes (such as PKIPrincipal for Tomcat)
- * wrap or delegate to this class.
+ * information, authentication token, and roles.
  */
 public class PKIPrincipalCore implements Principal, Serializable {
 

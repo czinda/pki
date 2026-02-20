@@ -46,7 +46,7 @@ if os.path.isfile('/tmp/test_dir/constants.py'):
 
 
 def instance_status(ansible_module, status=None):
-    command = 'systemctl {} pki-tomcatd@{}'.format(status, constants.CA_INSTANCE_NAME)
+    command = 'systemctl {} pki-quarkusd@{}'.format(status, constants.CA_INSTANCE_NAME)
     out = ansible_module.shell(command)
     for res in out.values():
         assert res['rc'] == 0

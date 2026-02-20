@@ -42,7 +42,7 @@ Note that the existing SSL server certificate is not exported.
 If necessary, third-party certificates, for example trust anchors, can be added into the same PKCS #12 file with the following command:
 [literal]
 ....
-$ pki -d /var/lib/pki/pki-tomcat/conf/alias -f /var/lib/pki/pki-tomcat/conf/password.conf \
+$ pki -d /var/lib/pki/pki-quarkus/conf/alias -f /var/lib/pki/pki-quarkus/conf/password.conf \
     pkcs12-cert-import <nickname> \
     --pkcs12-file ca-certs.p12 \
     --pkcs12-password Secret.123 \
@@ -66,7 +66,7 @@ $ chown pkiuser:pkiuser ca-certs.p12
 
 == Installing the CA subsystem
 
-Prepare a deployment configuration, for example `ca-secure-ds-secondary.cfg`, to deploy a CA subsystem clone. By default the subsystem is deployed into a Tomcat instance called `pki-tomcat`.
+Prepare a deployment configuration, for example `ca-secure-ds-secondary.cfg`, to deploy a CA subsystem clone. By default the subsystem is deployed into a Tomcat instance called `pki-quarkus`.
 
 [NOTE]
 ====
@@ -101,10 +101,10 @@ $ pkispawn -f ca-secure-ds-secondary.cfg -s CA
 
 == CA system certificates 
 
-After installation the existing CA system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-tomcat/conf/alias`), and a new SSL server certificate is created for the new instance. Note that if the ds_signing certificate is the same certificate as ca_signing, it does not show in the following `certutil` listing:
+After installation the existing CA system certificates (including the certificate chain) and their keys are stored in the server NSS database (i.e. `/var/lib/pki/pki-quarkus/conf/alias`), and a new SSL server certificate is created for the new instance. Note that if the ds_signing certificate is the same certificate as ca_signing, it does not show in the following `certutil` listing:
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

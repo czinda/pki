@@ -67,7 +67,7 @@ jobs:
               ca_signing
 
           docker exec ca pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       - name: Set up TKS DS container
@@ -185,7 +185,7 @@ jobs:
               ca_signing
 
           docker exec tks pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/tks_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/tks_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec tks pki -n tksadmin tks-user-show tksadmin
 
@@ -217,12 +217,12 @@ jobs:
       - name: Check CA systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check TKS DS server systemd journal
         if: always()
@@ -237,12 +237,12 @@ jobs:
       - name: Check TKS systemd journal
         if: always()
         run: |
-          docker exec tks journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec tks journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check TKS debug log
         if: always()
         run: |
-          docker exec tks find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+          docker exec tks find /var/lib/pki/pki-quarkus/logs/tks -name "debug.*" -exec cat {} \;
 
       - name: Upload artifacts
         if: always()

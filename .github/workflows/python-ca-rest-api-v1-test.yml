@@ -504,7 +504,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec ca find /var/log/pki/pki-tomcat \
+          docker exec ca find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -2 \
@@ -532,7 +532,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec ca find /var/log/pki/pki-tomcat \
+          docker exec ca find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -3 \
@@ -559,7 +559,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec ca find /var/log/pki/pki-tomcat \
+          docker exec ca find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -3 \
@@ -590,7 +590,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec ca find /var/log/pki/pki-tomcat \
+          docker exec ca find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -5 \
@@ -621,7 +621,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec ca find /var/log/pki/pki-tomcat \
+          docker exec ca find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -3 \
@@ -650,7 +650,7 @@ jobs:
           sleep 1
 
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec ca find /var/log/pki/pki-tomcat \
+          docker exec ca find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -5 \
@@ -681,7 +681,7 @@ jobs:
       - name: Check PKI server access log
         if: always()
         run: |
-          docker exec ca find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec ca find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA container logs
         if: always()

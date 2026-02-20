@@ -40,7 +40,7 @@ public final class CMS {
 
     public static final Logger logger = LoggerFactory.getLogger(CMS.class);
 
-    private static InstanceConfig instanceConfig = new TomcatInstanceConfig();
+    private static InstanceConfig instanceConfig = new QuarkusInstanceConfig();
 
     // product name is provided by the server theme package
     private static final String PRODUCT_NAME_FILE = "/usr/share/pki/CS_SERVER_VERSION";
@@ -70,7 +70,7 @@ public final class CMS {
     }
 
     public static String getProductVersion() {
-        return System.getenv("PKI_VERSION");  // defined in tomcat.conf
+        return System.getenv("PKI_VERSION");  // defined in server environment
     }
 
     public static InstanceConfig getInstanceConfig() {

@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Quarkus ContainerRequestFilter that checks if the ACME service is enabled.
  *
- * Replaces the Tomcat ACMEEnableFilter (HttpFilter). Applied to all ACME
- * protocol endpoints but not to admin endpoints (enable/disable/login/logout).
+ * ContainerRequestFilter that checks whether ACME is enabled. Applied to all
+ * ACME protocol endpoints but not to admin endpoints (enable/disable/login/logout).
  *
  * @author Fraser Tweedale (original)
  */

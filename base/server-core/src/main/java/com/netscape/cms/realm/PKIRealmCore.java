@@ -9,13 +9,10 @@ import java.security.Principal;
 import java.security.cert.X509Certificate;
 
 /**
- * Container-agnostic abstract base for PKI realms.
+ * Abstract base for PKI realms.
  *
- * Provides authentication methods that return PKIPrincipalCore
- * without depending on Tomcat's RealmBase or any container classes.
- *
- * Container-specific realm classes (e.g. PKIRealm, PKILDAPRealm for Tomcat)
- * should delegate to implementations of this class.
+ * Provides authentication methods that return PKIPrincipalCore.
+ * Realm implementations should extend this class.
  */
 public abstract class PKIRealmCore {
 

@@ -37,14 +37,10 @@ import pki.server.cli.cert
 import pki.server.cli.config
 import pki.server.cli.db
 import pki.server.cli.est
-import pki.server.cli.http
 import pki.server.cli.instance
 import pki.server.cli.jss
 import pki.server.cli.kra
-import pki.server.cli.listener
-import pki.server.cli.migrate
 import pki.server.cli.nss
-import pki.server.cli.nuxwdog
 import pki.server.cli.ocsp
 import pki.server.cli.password
 import pki.server.cli.sd
@@ -53,7 +49,6 @@ import pki.server.cli.subsystem
 import pki.server.cli.tks
 import pki.server.cli.tps
 import pki.server.cli.upgrade
-import pki.server.cli.webapp
 import pki.util
 
 logger = logging.getLogger(__name__)
@@ -126,16 +121,10 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.StartCLI())
         self.add_module(pki.server.cli.StopCLI())
         self.add_module(pki.server.cli.RestartCLI())
-        self.add_module(pki.server.cli.RunCLI())
-
-        self.add_module(pki.server.cli.http.HTTPCLI())
-        self.add_module(pki.server.cli.listener.ListenerCLI())
 
         self.add_module(pki.server.cli.password.PasswordCLI())
         self.add_module(pki.server.cli.nss.NSSCLI())
         self.add_module(pki.server.cli.jss.JSSCLI())
-
-        self.add_module(pki.server.cli.webapp.WebappCLI())
 
         self.add_module(pki.server.cli.sd.SDCLI())
         self.add_module(pki.server.cli.ca.CACLI())
@@ -150,8 +139,6 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.db.DBCLI())
         self.add_module(pki.server.cli.instance.InstanceCLI())
         self.add_module(pki.server.cli.subsystem.SubsystemCLI())
-        self.add_module(pki.server.cli.migrate.MigrateCLI())
-        self.add_module(pki.server.cli.nuxwdog.NuxwdogCLI())
         self.add_module(pki.server.cli.cert.CertCLI())
         self.add_module(pki.server.cli.selftest.SelfTestCLI())
 
@@ -196,7 +183,7 @@ class PKIServerCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>   Instance ID (default: pki-tomcat)')
+        print('  -i, --instance <instance ID>   Instance ID (default: pki-quarkus)')
         print('      --as-current-user          Run as current user.')
         print('  -v, --verbose                  Run in verbose mode.')
         print('      --debug                    Show debug messages.')
@@ -241,25 +228,17 @@ class PKIServerCLI(pki.cli.CLI):
         cmd.extend([java_home + '/bin/java'])
 
         # configure classpath
-        # include Tomcat and all PKI libraries
+        # include all PKI libraries
         classpath = [
-            pki.server.Tomcat.LIB_DIR + '/*',
             pki.server.PKIServer.SHARE_DIR + '/lib/*',
             pki.server.PKIServer.SHARE_DIR + '/server/common/lib/*',
-            pki.server.PKIServer.SHARE_DIR + '/' +
-            'ca/webapps/ca/WEB-INF/lib/*',
-            pki.server.PKIServer.SHARE_DIR + '/' +
-            'kra/webapps/kra/WEB-INF/lib/*',
-            pki.server.PKIServer.SHARE_DIR + '/' +
-            'ocsp/webapps/ocsp/WEB-INF/lib/*',
-            pki.server.PKIServer.SHARE_DIR + '/' +
-            'tks/webapps/tks/WEB-INF/lib/*',
-            pki.server.PKIServer.SHARE_DIR + '/' +
-            'tps/webapps/tps/WEB-INF/lib/*',
-            pki.server.PKIServer.SHARE_DIR + '/' +
-            'acme/webapps/acme/WEB-INF/lib/*',
-            pki.server.PKIServer.SHARE_DIR + '/' +
-            'est/webapps/est/WEB-INF/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/ca/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/kra/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/ocsp/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/tks/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/tps/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/acme/lib/*',
+            pki.server.PKIServer.SHARE_DIR + '/est/lib/*',
         ]
 
         cmd.extend([
@@ -268,21 +247,6 @@ class PKIServerCLI(pki.cli.CLI):
 
         # suppress JNI warnings
         cmd.append('--enable-native-access=ALL-UNNAMED')
-
-        # configure logging
-        logging_config = os.getenv('PKI_LOGGING_CONFIG')
-        if not logging_config:
-            logging_config = instance.logging_properties
-
-        cmd.extend([
-            '-Djava.io.tmpdir=' + instance.temp_dir,
-            '-Djava.util.logging.config.file=' + logging_config,
-            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager',
-            '-Djava.endorsed.dirs=',
-            '-Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory',
-            '-Dcatalina.home=' + pki.server.Tomcat.SHARE_DIR,
-            '-Dcatalina.base=' + instance.base_dir
-        ])
 
         # include Java options
         java_opts = os.getenv('JAVA_OPTS')
@@ -361,7 +325,7 @@ class PKIServerCLI(pki.cli.CLI):
             # if global instance name (pki-server -i <instance>)
             # is not specified, get the command's instance name
             # (pki-server <command> -i <instance>) which defaults
-            # to pki-tomcat
+            # to pki-quarkus
             instance_name = cmd_args.instance
 
         if cmd_args.help:
@@ -379,24 +343,12 @@ class PKIServerCLI(pki.cli.CLI):
     def print_status(instance):
         print('  Instance ID: %s' % instance.name)
         print('  Active: %s' % instance.is_active())
-        print('  Nuxwdog Enabled: %s' % instance.type.endswith('-nuxwdog'))
 
-        server_config = instance.get_server_config()
+        http_port = str(pki.server.DEFAULT_HTTP_PORT)
+        https_port = str(pki.server.DEFAULT_HTTPS_PORT)
 
-        http_port = server_config.get_http_port()
-        if http_port:
-            print('  Unsecure Port: %s' % http_port)
-
-        https_port = server_config.get_https_port()
-        if https_port:
-            print('  Secure Port: %s' % https_port)
-
-        ajpPort = server_config.get_ajp_port()
-        if ajpPort:
-            print('  AJP Port: %s' % ajpPort)
-
-        tomcatPort = server_config.get_port()
-        print('  Tomcat Port: %s' % tomcatPort)
+        print('  HTTP Port: %s' % http_port)
+        print('  HTTPS Port: %s' % https_port)
 
         hostname = socket.gethostname()
 
@@ -1000,108 +952,3 @@ class RestartCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance.restart(wait=wait, max_wait=max_wait, timeout=timeout)
-
-
-class RunCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super().__init__('run', 'Run PKI server in foreground')
-
-    def create_parser(self, subparsers=None):
-
-        self.parser = argparse.ArgumentParser(
-            self.get_full_name(),
-            add_help=False)
-        self.parser.add_argument(
-            '--as-current-user',
-            action='store_true')
-        self.parser.add_argument(
-            '--with-jdb',
-            action='store_true')
-        self.parser.add_argument(
-            '--with-gdb',
-            action='store_true')
-        self.parser.add_argument(
-            '--with-valgrind',
-            action='store_true')
-        self.parser.add_argument('--agentpath')
-        self.parser.add_argument(
-            '--skip-upgrade',
-            action='store_true')
-        self.parser.add_argument(
-            '--skip-migration',
-            action='store_true')
-        self.parser.add_argument(
-            '-v',
-            '--verbose',
-            action='store_true')
-        self.parser.add_argument(
-            '--debug',
-            action='store_true')
-        self.parser.add_argument(
-            '--help',
-            action='store_true')
-        self.parser.add_argument(
-            'instance_name',
-            nargs='?',
-            default=pki.server.DEFAULT_INSTANCE_NAME)
-
-    def print_help(self):
-        print('Usage: pki-server run [OPTIONS] [<instance ID>]')
-        print()
-        print('      --skip-upgrade            Skip config upgrade.')
-        print('      --skip-migration          Skip config migration.')
-        print('      --as-current-user         Run as current user.')
-        print('      --with-jdb                Run with Java debugger.')
-        print('      --with-gdb                Run with GNU debugger.')
-        print('      --with-valgrind           Run with Valgrind.')
-        print('      --agentpath <value>       Java agent path.')
-        print('  -v, --verbose                 Run in verbose mode.')
-        print('      --debug                   Run in debug mode.')
-        print('      --help                    Show help message.')
-        print()
-
-    def execute(self, argv, args=None):
-
-        if not args:
-            args = self.parser.parse_args(args=argv)
-
-        if args.help:
-            self.print_help()
-            return
-
-        if args.debug:
-            logging.getLogger().setLevel(logging.DEBUG)
-
-        elif args.verbose:
-            logging.getLogger().setLevel(logging.INFO)
-
-        instance_name = args.instance_name
-        as_current_user = args.as_current_user
-        with_jdb = args.with_jdb
-        with_gdb = args.with_gdb
-        with_valgrind = args.with_valgrind
-        agentpath = args.agentpath
-        skip_upgrade = args.skip_upgrade
-        skip_migration = args.skip_migration
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-
-        if not instance.exists():
-            logger.error('Invalid instance: %s', instance_name)
-            sys.exit(1)
-
-        instance.load()
-
-        try:
-            instance.run(
-                as_current_user=as_current_user,
-                with_jdb=with_jdb,
-                with_gdb=with_gdb,
-                with_valgrind=with_valgrind,
-                agentpath=agentpath,
-                skip_upgrade=skip_upgrade,
-                skip_migration=skip_migration)
-
-        except KeyboardInterrupt:
-            logger.debug('Server stopped')

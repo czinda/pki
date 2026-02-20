@@ -86,7 +86,7 @@ jobs:
       - name: Check system certs
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee system-certs.orig
 
       - name: Check TPS admin
@@ -99,7 +99,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
           docker exec pki pki nss-cert-find | tee admin-cert.orig
@@ -112,7 +112,7 @@ jobs:
       - name: Check PKI server base dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+          docker exec pki ls -l /var/lib/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -121,14 +121,14 @@ jobs:
           # TPS subsystem should be removed
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
+          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-quarkus/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxrwx--- pkiuser pkiuser ca
           drwxrwx--- pkiuser pkiuser common
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-quarkus
           drwxrwx--- pkiuser pkiuser kra
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-quarkus
           drwxrwx--- pkiuser pkiuser temp
           drwxrwx--- pkiuser pkiuser tks
           drwxr-xr-x pkiuser pkiuser webapps
@@ -140,7 +140,7 @@ jobs:
       - name: Check PKI server conf dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat \
+          docker exec pki ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -170,13 +170,13 @@ jobs:
           diff expected output
 
           # save the original config
-          docker exec pki cp -r /etc/pki/pki-tomcat /etc/pki/pki-tomcat.orig
+          docker exec pki cp -r /etc/pki/pki-quarkus /etc/pki/pki-quarkus.orig
 
       - name: Check PKI server logs dir after removal
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -203,7 +203,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -237,10 +237,10 @@ jobs:
       - name: Check PKI server config after second installation
         run: |
           # server config should not change
-          docker exec pki diff /etc/pki/pki-tomcat.orig/server.xml /etc/pki/pki-tomcat/server.xml
+          docker exec pki diff /etc/pki/pki-quarkus.orig/server.xml /etc/pki/pki-quarkus/server.xml
 
           # passwords should not change
-          docker exec pki diff /etc/pki/pki-tomcat.orig/password.conf /etc/pki/pki-tomcat/password.conf
+          docker exec pki diff /etc/pki/pki-quarkus.orig/password.conf /etc/pki/pki-quarkus/password.conf
 
       - name: Check TPS config after second installation
         run: |
@@ -251,7 +251,7 @@ jobs:
           docker exec pki sed \
               -e '/^installDate=/d' \
               -e '/^config\.Subsystem_Connections\..*\.timestamp=/d' \
-              /etc/pki/pki-tomcat.orig/tps/CS.cfg \
+              /etc/pki/pki-quarkus.orig/tps/CS.cfg \
               | sort > expected
 
           # normalize actual result:
@@ -259,7 +259,7 @@ jobs:
           docker exec pki sed \
               -e '/^installDate=/d' \
               -e '/^config\.Subsystem_Connections\..*\.timestamp=/d' \
-              /etc/pki/pki-tomcat/tps/CS.cfg \
+              /etc/pki/pki-quarkus/tps/CS.cfg \
               | sort > actual
 
           # TPS config should not change
@@ -268,7 +268,7 @@ jobs:
       - name: Check system certs again
         run: |
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee system-certs.new
 
           # system certs should not change
@@ -286,22 +286,22 @@ jobs:
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check TKS debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/tks -name "debug.*" -exec cat {} \;
 
       - name: Check TPS debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/tps -name "debug.*" -exec cat {} \;
 
       - name: Remove TPS again
         run: |
@@ -338,11 +338,11 @@ jobs:
       - name: Check PKI server base dir after second removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+          docker exec pki ls -l /var/lib/pki/pki-quarkus \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          ls: cannot access '/var/lib/pki/pki-tomcat': No such file or directory
+          ls: cannot access '/var/lib/pki/pki-quarkus': No such file or directory
           EOF
 
           diff expected stderr
@@ -350,11 +350,11 @@ jobs:
       - name: Check PKI server conf dir after second removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat \
+          docker exec pki ls -l /etc/pki/pki-quarkus \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          ls: cannot access '/etc/pki/pki-tomcat': No such file or directory
+          ls: cannot access '/etc/pki/pki-quarkus': No such file or directory
           EOF
 
           diff expected stderr
@@ -362,11 +362,11 @@ jobs:
       - name: Check PKI server logs dir after second removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          ls: cannot access '/var/log/pki/pki-tomcat': No such file or directory
+          ls: cannot access '/var/log/pki/pki-quarkus': No such file or directory
           EOF
 
           diff expected stderr
@@ -384,4 +384,4 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service

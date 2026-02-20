@@ -21,7 +21,7 @@
 		     General.SuiteSpotUserID=dirsrv\
 		     General.SuiteSpotGroup=dirsrv\
 		     slapd.ServerPort=389\
-		     slapd.ServerIdentifier=pki-tomcat\
+		     slapd.ServerIdentifier=pki-quarkus\
 		     slapd.Suffix=dc=example,dc=com\
 		     slapd.RootDN="cn=Directory Manager"\
 		     slapd.RootDNPwd=Secret123
@@ -35,10 +35,10 @@
          for authentication in the tests.
 
          Since pkispawn can only be run as root user, the ca_admin_cert.p12
-         file is created in /root/.dogtag/pki-tomcat/. The root user can run
+         file is created in /root/.dogtag/pki-quarkus/. The root user can run
          the following commands to make it available to a non-root user.
 
-         cp ~/.dogtag/pki-tomcat/ca_admin_cert.p12 /tmp
+         cp ~/.dogtag/pki-quarkus/ca_admin_cert.p12 /tmp
          chmod 777 /tmp/ca_admin_cert.p12
 
          Now the following commands can be executed to import the cert PKCS12

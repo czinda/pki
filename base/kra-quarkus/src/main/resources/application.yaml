@@ -16,9 +16,9 @@ quarkus:
       # Client certificate authentication
       client-auth: REQUEST
       # certificate:
-      #   key-store-file: /etc/pki/pki-tomcat/alias/keystore.p12
+      #   key-store-file: /etc/pki/pki-quarkus/alias/keystore.p12
       #   key-store-password: <password>
-      #   trust-store-file: /etc/pki/pki-tomcat/alias/ca.p12
+      #   trust-store-file: /etc/pki/pki-quarkus/alias/ca.p12
       #   trust-store-password: <password>
 
     # Force HTTPS for all endpoints

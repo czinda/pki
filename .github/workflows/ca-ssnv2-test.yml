@@ -70,7 +70,7 @@ jobs:
         run: |
           cat > expected <<EOF
           Loading deployment configuration from /usr/share/pki/server/examples/installation/ca.cfg.
-          Installing CA into /var/lib/pki/pki-tomcat.
+          Installing CA into /var/lib/pki/pki-quarkus.
           
           Installation failed: pki_serial_number_range_start must start with 0x
           
@@ -99,7 +99,7 @@ jobs:
       - name: Cleanup CA installation
         run: |
           docker exec pki pkidestroy -s CA --remove-conf --remove-logs --force
-          docker exec pki rm -rf /root/.dogtag/pki-tomcat
+          docker exec pki rm -rf /root/.dogtag/pki-quarkus
 
       - name: Create CA
         run: |
@@ -133,7 +133,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       - name: Check requests
@@ -1688,14 +1688,14 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check PKI server access log
         if: always()
         run: |
-          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec pki find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

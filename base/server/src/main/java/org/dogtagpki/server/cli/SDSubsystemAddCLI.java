@@ -13,7 +13,6 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CommandCLI;
-import com.netscape.cmscore.apps.TomcatJSSInitializer;
 
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -99,7 +98,7 @@ public class SDSubsystemAddCLI extends CommandCLI {
 
         String instanceDir = CMS.getInstanceDir();
 
-        new TomcatJSSInitializer().initialize();
+        // JSS initialization is handled by the Quarkus runtime.
 
         String subsystem = parent.getParent().getParent().getName();
         String subsystemDir = instanceDir + File.separator + subsystem;

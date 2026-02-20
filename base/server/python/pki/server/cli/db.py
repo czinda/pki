@@ -74,7 +74,7 @@ class DBSchemaUpgradeCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server db-schema-upgrade [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -D, --bind-dn <Bind DN>            Connect DN (default: cn=Directory Manager).')
         print('  -w, --bind-password <password>     Password to connect to DB.')
         print('  -v, --verbose                      Run in verbose mode.')
@@ -160,7 +160,7 @@ class DBUpgradeCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server db-upgrade [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -318,7 +318,7 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-config-show [OPTIONS]' % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -409,7 +409,7 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-config-mod [OPTIONS]' % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --hostname <hostname>          Set hostname.')
         print('      --port <port>                  Set port number.')
         print('      --secure <True|False>          Set secure connection.')
@@ -571,7 +571,7 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-info [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -624,7 +624,7 @@ class SubsystemDBCreateCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-db-create [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -671,7 +671,7 @@ class SubsystemDBInitCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-db-init [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --skip-config                  Skip DS server configuration.
               --skip-schema                  Skip DS schema setup.
               --skip-base                    Skip base entry setup.
@@ -762,7 +762,7 @@ class SubsystemDBEmptyCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-empty [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --force                        Force database removal.')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
@@ -807,7 +807,7 @@ class SubsystemDBRemoveCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-remove [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --force                        Force database removal.')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
@@ -851,7 +851,7 @@ class SubsystemDBUpgradeCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-upgrade [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -921,7 +921,7 @@ class SubsystemDBAccessGrantCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-db-access-grant [OPTIONS] <DN>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --as-current-user              Run as current user.
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
@@ -975,7 +975,7 @@ class SubsystemDBAccessRevokeCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-db-access-revoke [OPTIONS] <DN>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --as-current-user              Run as current user.
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
@@ -1045,7 +1045,7 @@ class SubsystemDBIndexAddCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-db-index-add [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -1092,7 +1092,7 @@ class SubsystemDBIndexRebuildCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-db-index-rebuild [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -1155,7 +1155,7 @@ class SubsystemDBReplicationEnableCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-db-repl-enable [OPTIONS]
 
-          -i, --instance <instance ID>            Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>            Instance ID (default: pki-quarkus)
               --url <URL>                         Database URL
               --bind-dn <DN>                      Database bind DN
               --bind-password <password>          Database bind password
@@ -1232,7 +1232,7 @@ class SubsystemDBReplicationAgreementAddCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-db-repl-agmt-add [OPTIONS] <name>
 
-          -i, --instance <instance ID>            Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>            Instance ID (default: pki-quarkus)
               --url <URL>                         Database URL
               --bind-dn <DN>                      Database bind DN
               --bind-password <password>          Database bind password
@@ -1298,7 +1298,7 @@ class SubsystemDBReplicationAgreementInitCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-db-repl-agmt-init [OPTIONS] <name>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --url <URL>                    Database URL
               --bind-dn <DN>                 Database bind DN
               --bind-password <password>     Database bind password
@@ -1396,7 +1396,7 @@ class SubsystemDBVLVFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-vlv-find [OPTIONS]' % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -1439,7 +1439,7 @@ class SubsystemDBVLVAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-vlv-add [OPTIONS]' % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -1482,7 +1482,7 @@ class SubsystemDBVLVDeleteCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-vlv-del [OPTIONS]' % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -1525,7 +1525,7 @@ class SubsystemDBVLVReindexCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-db-vlv-reindex [OPTIONS]' % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')

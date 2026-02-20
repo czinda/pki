@@ -47,7 +47,7 @@ public class SubsystemUserCertFindCLI extends ServerCommandCLI {
 
         String userID = cmdArgs[0];
 
-        initializeTomcatJSS();
+        initializeJSS();
 
         String subsystem = parent.getParent().getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);

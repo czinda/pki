@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 # get subsystem cert using certutil
-certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -n subsystem -r > /tmp/subsystem.crt
+certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -n subsystem -r > /tmp/subsystem.crt
 
 # get subsystem cert using pki ca-cert-subsystem-export
 pki ca-cert-subsystem-export > /tmp/subsystem.pem

@@ -51,7 +51,7 @@
 
 - name: Starting OCSP Subsystem
   service:
-    name: pki-tomcatd@{{ topology }}-OCSP.service
+    name: pki-quarkusd@{{ topology }}-OCSP.service
     state: started
 
 - name: OCSP Clone Preparation

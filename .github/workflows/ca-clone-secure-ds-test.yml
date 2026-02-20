@@ -125,8 +125,8 @@ jobs:
         run: |
           # NSS database should contain DS cert and PKI certs
           docker exec primary pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /etc/pki/pki-quarkus/alias \
+              -f /etc/pki/pki-quarkus/password.conf \
               nss-cert-find \
               | tee output
 
@@ -189,8 +189,8 @@ jobs:
 
           # NSS database should contain the external cert
           docker exec primary pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /etc/pki/pki-quarkus/alias \
+              -f /etc/pki/pki-quarkus/password.conf \
               nss-cert-show \
               external \
               | tee output
@@ -208,7 +208,7 @@ jobs:
           diff expected actual
 
           # external_certs.conf should contain the external cert
-          docker exec primary cat /etc/pki/pki-tomcat/external_certs.conf | tee output
+          docker exec primary cat /etc/pki/pki-quarkus/external_certs.conf | tee output
 
           cat > expected << EOF
           0.nickname=external
@@ -245,7 +245,7 @@ jobs:
               ca_signing
 
           docker exec primary pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --password Secret.123
 
           docker exec primary pki -n caadmin ca-user-find
@@ -384,7 +384,7 @@ jobs:
           diff expected actual
 
           # export external_certs.conf
-          docker cp primary:/etc/pki/pki-tomcat/external_certs.conf .
+          docker cp primary:/etc/pki/pki-quarkus/external_certs.conf .
 
       - name: Install CA in secondary PKI container
         run: |
@@ -402,8 +402,8 @@ jobs:
         run: |
           # NSS database should contain DS cert, PKI certs, and external cert
           docker exec secondary pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /etc/pki/pki-quarkus/alias \
+              -f /etc/pki/pki-quarkus/password.conf \
               nss-cert-find \
               | tee output
 
@@ -441,7 +441,7 @@ jobs:
       - name: Check external cert in secondary PKI server
         run: |
           # external_certs.conf should contain the external cert
-          docker exec secondary cat /etc/pki/pki-tomcat/external_certs.conf | tee output
+          docker exec secondary cat /etc/pki/pki-quarkus/external_certs.conf | tee output
 
           cat > expected << EOF
           0.nickname=external
@@ -475,7 +475,7 @@ jobs:
       - name: Verify users and SD hosts in secondary PKI container
         run: |
           docker exec primary cp \
-              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               $SHARED/ca_admin_cert.p12
 
           docker exec secondary pki-server \
@@ -543,8 +543,8 @@ jobs:
         run: |
           # NSS database should contain DS cert, PKI certs, and external cert
           docker exec secondary pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /etc/pki/pki-quarkus/alias \
+              -f /etc/pki/pki-quarkus/password.conf \
               nss-cert-find \
               | tee output
 
@@ -587,8 +587,8 @@ jobs:
 
           # NSS database should not contain the external cert
           docker exec secondary pki \
-              -d /etc/pki/pki-tomcat/alias \
-              -f /etc/pki/pki-tomcat/password.conf \
+              -d /etc/pki/pki-quarkus/alias \
+              -f /etc/pki/pki-quarkus/password.conf \
               nss-cert-show \
               external \
               > >(tee stdout) 2> >(tee stderr >&2) || true
@@ -600,11 +600,11 @@ jobs:
           diff expected stderr
 
           # external_certs.conf should be removed
-          docker exec secondary cat /etc/pki/pki-tomcat/external_certs.conf \
+          docker exec secondary cat /etc/pki/pki-quarkus/external_certs.conf \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
           cat > expected << EOF
-          cat: /etc/pki/pki-tomcat/external_certs.conf: No such file or directory
+          cat: /etc/pki/pki-quarkus/external_certs.conf: No such file or directory
           EOF
 
           diff expected stderr

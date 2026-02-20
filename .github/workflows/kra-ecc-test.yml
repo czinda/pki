@@ -67,7 +67,7 @@ jobs:
       - name: Check KRA storage cert
         run: |
           docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/kra_storage.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/kra_storage.csr
 
           docker exec pki pki-server cert-export kra_storage \
               --cert-file kra_storage.crt
@@ -92,7 +92,7 @@ jobs:
       - name: Check KRA transport cert
         run: |
           docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/kra_transport.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/kra_transport.csr
 
           docker exec pki pki-server cert-export kra_transport \
               --cert-file kra_transport.crt
@@ -117,7 +117,7 @@ jobs:
       - name: Check KRA audit signing cert
         run: |
           docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/kra_audit_signing.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/kra_audit_signing.csr
 
           docker exec pki pki-server cert-export kra_audit_signing \
               --cert-file kra_audit_signing.crt
@@ -141,7 +141,7 @@ jobs:
       - name: Check subsystem cert
         run: |
           docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/subsystem.csr
 
           docker exec pki pki-server cert-export subsystem \
               --cert-file subsystem.crt
@@ -166,7 +166,7 @@ jobs:
       - name: Check SSL server cert
         run: |
           docker exec pki openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/sslserver.csr
 
           docker exec pki pki-server cert-export sslserver \
               --cert-file sslserver.crt
@@ -191,7 +191,7 @@ jobs:
       - name: Check KRA admin cert
         run: |
           docker exec pki openssl x509 -text -noout \
-              -in /root/.dogtag/pki-tomcat/ca_admin.cert | tee output
+              -in /root/.dogtag/pki-quarkus/ca_admin.cert | tee output
 
           # public key algorithm should be "id-ecPublicKey"
           echo "id-ecPublicKey" > expected
@@ -216,7 +216,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin kra-user-show kraadmin
 
@@ -372,17 +372,17 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

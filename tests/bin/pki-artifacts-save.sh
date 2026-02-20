@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTANCE=pki-tomcat
+INSTANCE=pki-quarkus
 OUTPUT=
 
 while getopts v-: arg ; do
@@ -56,6 +56,6 @@ mkdir -p $OUTPUT/var/log
 docker cp $NAME:/var/log/pki $OUTPUT/var/log
 
 mkdir -p $OUTPUT/var/log/pki/$INSTANCE
-docker exec $NAME journalctl -u pki-tomcatd@$INSTANCE.service > $OUTPUT/var/log/pki/$INSTANCE/systemd.log
+docker exec $NAME journalctl -u pki-quarkusd@$INSTANCE.service > $OUTPUT/var/log/pki/$INSTANCE/systemd.log
 
 docker logs $NAME > $OUTPUT/var/log/pki/$INSTANCE/container.log 2>&1

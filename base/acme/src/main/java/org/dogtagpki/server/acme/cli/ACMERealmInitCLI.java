@@ -37,7 +37,7 @@ public class ACMERealmInitCLI extends ServerCommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        initializeTomcatJSS();
+        initializeJSS();
 
         String instanceDir = CMS.getInstanceDir();
         String serverConfDir = instanceDir + File.separator + "conf";

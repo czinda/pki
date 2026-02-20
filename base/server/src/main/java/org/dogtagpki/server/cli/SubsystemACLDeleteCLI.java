@@ -43,7 +43,7 @@ public class SubsystemACLDeleteCLI extends ServerCommandCLI {
 
         String acl = cmdArgs[0];
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.parent.getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

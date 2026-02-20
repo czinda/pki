@@ -31,7 +31,7 @@ A sample deployment configuration is available at xref:../../../base/server/exam
 $ pkispawn -f kra-standalone-step1.cfg -s KRA
 ....
 
-It creates an NSS database in `/var/lib/pki/pki-tomcat/alias` and generate CSRs in the specified paths.
+It creates an NSS database in `/var/lib/pki/pki-quarkus/alias` and generate CSRs in the specified paths.
 
 == Issuing certificates 
 

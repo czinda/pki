@@ -90,7 +90,7 @@ class CACertFindCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-cert-find [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --status <status>              Certificate status: VALID, INVALID, REVOKED, EXPIRED, REVOKED_EXPIRED
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
@@ -133,7 +133,7 @@ class CACertCreateCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-cert-create [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --csr <path>                   CSR path
               --csr-format <format>          CSR format: PEM (default), DER
               --request <ID>                 Request ID
@@ -242,7 +242,7 @@ class CACertImportCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-cert-import [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus)')
         print('      --cert <path>                  Certificate path')
         print('      --format <format>              Certificate format: PEM (default), DER')
         print('      --csr <path>                   CSR path')
@@ -286,7 +286,7 @@ class CACertRemoveCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-cert-remove [OPTIONS] <serial number>')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -332,7 +332,7 @@ class CACertChainExportCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-cert-chain-export [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --pkcs12-file <path>           PKCS #12 file to store certificates and keys.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
@@ -452,7 +452,7 @@ class CACertRequestFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-cert-request-find [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --cert                         Issued certificate.')
         print('      --cert-file                    File containing issued certificate.')
         print('  -v, --verbose                      Run in verbose mode.')
@@ -540,7 +540,7 @@ class CACertRequestShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-cert-request-show [OPTIONS] <request ID>')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --output-file <file_name>      Save request in file.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -625,7 +625,7 @@ class CACertRequestImportCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-cert-request-import [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>     Instance ID (default: pki-tomcat)')
+        print('  -i, --instance <instance ID>     Instance ID (default: pki-quarkus)')
         print('      --csr <path>                 Certificate request path')
         print('      --format <format>            Certificate request format: PEM (default), DER')
         print('      --profile <path>             Bootstrap profile path')
@@ -663,7 +663,7 @@ class CACRLShowCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-crl-show [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -788,7 +788,7 @@ class CACRLIPFindCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-crl-ip-find [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -870,7 +870,7 @@ class CACRLIPShowCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-crl-ip-show [OPTIONS] <id>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -950,7 +950,7 @@ class CACRLIPModifyCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-crl-ip-mod [OPTIONS] <id>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --desc <value>                 Issuing point description
               --class <value>                Issuing point class
               --enable <value>               Enable issuing point (default: true)
@@ -1058,7 +1058,7 @@ class CACRLRecordShowCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-crl-record-show [OPTIONS] <CRL Record ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -1110,7 +1110,7 @@ class CACRLRecordCertFindCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-crl-record-cert-find [OPTIONS] <CRL Record ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -1188,7 +1188,7 @@ class CAClonePrepareCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-clone-prepare [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --pkcs12-file <path>           PKCS #12 file to store certificates and keys.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
@@ -1347,7 +1347,7 @@ class CAConnectorFindCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-connector-find [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --show-all                     Show all attributes.
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
@@ -1461,7 +1461,7 @@ class CAConnectorAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-connector-add [OPTIONS] <connector ID>')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus)')
         print('      --url <URL>                    Subsystem URL')
         print('      --nickname <nickname>          Certificate nickname')
         print('      --transport-cert <path>        Transport certificate')
@@ -1548,7 +1548,7 @@ class CAProfileFindCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-profile-find [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -1655,7 +1655,7 @@ class CAProfileImportCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-profile-import [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --input-folder <path>          '
               'Input folder (default: /usr/share/pki/ca/profiles/ca)')
         print('      --as-current-user              Run as current user.')
@@ -1673,7 +1673,7 @@ class CAProfileModifyCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server ca-profile-mod [OPTIONS] <profile ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --name <name>                  Profile name')
               --desc <description>           Profile description')
               --visible <boolean>            Profile visibile')

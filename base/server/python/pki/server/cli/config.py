@@ -70,7 +70,7 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-config-find [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -146,7 +146,7 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-config-show [OPTIONS] <name>' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -235,7 +235,7 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
         print('Usage: pki-server %s-config-set [OPTIONS] <name> <value>'
               % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -318,7 +318,7 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
         print('Usage: pki-server %s-config-unset [OPTIONS] <name>'
               % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')

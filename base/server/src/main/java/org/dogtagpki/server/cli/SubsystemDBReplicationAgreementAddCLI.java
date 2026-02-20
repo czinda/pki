@@ -175,7 +175,7 @@ public class SubsystemDBReplicationAgreementAddCLI extends ServerCommandCLI {
 
         String replicationSecurity = cmd.getOptionValue("replication-security");
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.parent.parent.parent.getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

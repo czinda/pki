@@ -227,7 +227,7 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           docker exec primary pki-server restart --wait
 
@@ -246,7 +246,7 @@ jobs:
               --pkcs12-password Secret.123
 
           docker exec primary cp \
-              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               $SHARED
 
       - name: Set up secondary DS container
@@ -498,21 +498,21 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           docker exec secondary pki-server restart --wait
 
       - name: Check CA CS.cfg
         run: |
-          docker cp primary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.primary.CA
-          docker cp secondary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.secondary.CA
+          docker cp primary:/etc/pki/pki-quarkus/ca/CS.cfg CS.cfg.primary.CA
+          docker cp secondary:/etc/pki/pki-quarkus/ca/CS.cfg CS.cfg.secondary.CA
 
           diff CS.cfg.primary.CA CS.cfg.secondary.CA || true
 
       - name: Check OCSP CS.cfg
         run: |
-          docker cp primary:/etc/pki/pki-tomcat/ocsp/CS.cfg CS.cfg.primary.OCSP
-          docker cp secondary:/etc/pki/pki-tomcat/ocsp/CS.cfg CS.cfg.secondary.OCSP
+          docker cp primary:/etc/pki/pki-quarkus/ocsp/CS.cfg CS.cfg.primary.OCSP
+          docker cp secondary:/etc/pki/pki-quarkus/ocsp/CS.cfg CS.cfg.secondary.OCSP
 
           diff CS.cfg.primary.OCSP CS.cfg.secondary.OCSP || true
 
@@ -753,19 +753,19 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           docker exec tertiary pki-server restart --wait
 
       - name: Check CA CS.cfg
         run: |
-          docker cp tertiary:/etc/pki/pki-tomcat/ca/CS.cfg CS.cfg.tertiary.CA
+          docker cp tertiary:/etc/pki/pki-quarkus/ca/CS.cfg CS.cfg.tertiary.CA
 
           diff CS.cfg.secondary.CA CS.cfg.tertiary.CA || true
 
       - name: Check OCSP CS.cfg
         run: |
-          docker cp tertiary:/etc/pki/pki-tomcat/ocsp/CS.cfg CS.cfg.tertiary.OCSP
+          docker cp tertiary:/etc/pki/pki-quarkus/ocsp/CS.cfg CS.cfg.tertiary.OCSP
 
           diff CS.cfg.secondary.OCSP CS.cfg.tertiary.OCSP || true
 
@@ -1300,22 +1300,22 @@ jobs:
       - name: Check primary PKI server systemd journal
         if: always()
         run: |
-          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec primary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check primary PKI server access log
         if: always()
         run: |
-          docker exec primary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec primary find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check primary CA debug log
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check primary OCSP debug log
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/ocsp -name "debug.*" -exec cat {} \;
 
       - name: Check secondary DS server systemd journal
         if: always()
@@ -1330,22 +1330,22 @@ jobs:
       - name: Check secondary PKI server systemd journal
         if: always()
         run: |
-          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec secondary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check secondary PKI server access log
         if: always()
         run: |
-          docker exec secondary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec secondary find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check secondary CA debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check secondary OCSP debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/ocsp -name "debug.*" -exec cat {} \;
 
       - name: Check tertiary DS server systemd journal
         if: always()
@@ -1360,19 +1360,19 @@ jobs:
       - name: Check tertiary PKI server systemd journal
         if: always()
         run: |
-          docker exec tertiary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec tertiary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check tertiary PKI server access log
         if: always()
         run: |
-          docker exec tertiary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec tertiary find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check tertiary CA debug log
         if: always()
         run: |
-          docker exec tertiary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec tertiary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check tertiary OCSP debug log
         if: always()
         run: |
-          docker exec tertiary find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+          docker exec tertiary find /var/lib/pki/pki-quarkus/logs/ocsp -name "debug.*" -exec cat {} \;

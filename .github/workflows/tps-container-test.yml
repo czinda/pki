@@ -559,8 +559,8 @@ jobs:
       - name: Create shared secret in TKS
         run: |
           docker exec tks pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-create \
               --key-type AES \
               --op-flags WRAP,UNWRAP,ENCRYPT,ENCRYPT \
@@ -888,8 +888,8 @@ jobs:
         run: |
           # export shared secret from TKS
           docker exec tks pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-export \
               --wrapper-cert tps_subsystem.crt \
               --output shared-secret.json \
@@ -900,8 +900,8 @@ jobs:
 
           # import shared secret into TPS
           docker exec tps pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-import \
               --input shared-secret.json \
               --wrapper subsystem \
@@ -1149,8 +1149,8 @@ jobs:
       - name: Check shared secret in TPS after restart
         run: |
           docker exec tps pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find
 
           docker exec tps pki-server tps-config-find | grep ^conn. | tee output
@@ -1307,12 +1307,12 @@ jobs:
       - name: Check CA access log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs -name "localhost_access_log.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug logs
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA DS server systemd journal
         if: always()
@@ -1332,12 +1332,12 @@ jobs:
       - name: Check KRA access log
         if: always()
         run: |
-          docker exec kra find /var/lib/pki/pki-tomcat/logs -name "localhost_access_log.*" -exec cat {} \;
+          docker exec kra find /var/lib/pki/pki-quarkus/logs -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check KRA debug logs
         if: always()
         run: |
-          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec kra find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check TKS DS server systemd journal
         if: always()
@@ -1357,12 +1357,12 @@ jobs:
       - name: Check TKS access log
         if: always()
         run: |
-          docker exec tks find /var/lib/pki/pki-tomcat/logs -name "localhost_access_log.*" -exec cat {} \;
+          docker exec tks find /var/lib/pki/pki-quarkus/logs -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check TKS debug logs
         if: always()
         run: |
-          docker exec tks find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+          docker exec tks find /var/lib/pki/pki-quarkus/logs/tks -name "debug.*" -exec cat {} \;
 
       - name: Check TPS DS server systemd journal
         if: always()
@@ -1382,12 +1382,12 @@ jobs:
       - name: Check TPS access log
         if: always()
         run: |
-          docker exec tps find /var/lib/pki/pki-tomcat/logs -name "localhost_access_log.*" -exec cat {} \;
+          docker exec tps find /var/lib/pki/pki-quarkus/logs -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check TPS debug logs
         if: always()
         run: |
-          docker exec tps find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
+          docker exec tps find /var/lib/pki/pki-quarkus/logs/tps -name "debug.*" -exec cat {} \;
 
       - name: Check client container logs
         if: always()

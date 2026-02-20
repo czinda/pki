@@ -120,7 +120,7 @@ run_tomcatjss-bug-verification(){
                 search_string3="+TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
                 replace_string3="-TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
 	fi
-	rlRun "systemctl stop pki-tomcatd@pki-ca-bug.service"
+	rlRun "systemctl stop pki-quarkusd@pki-ca-bug.service"
 	search_string1="strictCiphers=\"false\""
         replace_string1="strictCiphers=\"true\""
 	search_string2="sslOptions=\"ssl2=true,ssl3=true,tls=true\""
@@ -142,7 +142,7 @@ run_tomcatjss-bug-verification(){
 		rlRun "sleep 5"
 		rlRun "modutil -dbdir /var/lib/pki/pki-ca-bug/ca/alias -chkfips true > /tmp/chkfips.out"
 		rlAssertGrep "FIPS mode enabled." "/tmp/chkfips.out"
-		rlRun "systemctl start pki-tomcatd@pki-ca-bug.service"
+		rlRun "systemctl start pki-quarkusd@pki-ca-bug.service"
 		rlRun "ssltap -sfx $CA_HOST:$CA_PORT > /tmp/new_cipher.out &"
 		rlRun "sleep 10"
 		rlLog "Executing: wget https://$CA_HOST:1924 --no-check-certificate"

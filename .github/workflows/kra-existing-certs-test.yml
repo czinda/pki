@@ -61,8 +61,8 @@ jobs:
       - name: Install CA admin cert
         run: |
           docker exec ca pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-export \
               --output-file $SHARED/cert_chain.pem \
               --with-chain \
@@ -73,7 +73,7 @@ jobs:
               --trust CT,C,C
 
           docker exec ca pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec ca pki nss-cert-find
 
@@ -299,8 +299,8 @@ jobs:
       - name: Check KRA storage cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-show \
               kra_storage | tee kra_storage.crt.after
 
@@ -308,8 +308,8 @@ jobs:
           diff kra_storage.crt.before kra_storage.crt.after
 
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find \
               --nickname kra_storage | tee kra_storage.key.after
 
@@ -319,8 +319,8 @@ jobs:
       - name: Check KRA transport cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-show \
               kra_transport | tee kra_transport.crt.after
 
@@ -328,8 +328,8 @@ jobs:
           diff kra_transport.crt.before kra_transport.crt.after
 
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find \
               --nickname kra_transport | tee kra_transport.key.after
 
@@ -339,8 +339,8 @@ jobs:
       - name: Check KRA audit signing cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-show \
               kra_audit_signing | tee kra_audit_signing.crt.after
 
@@ -348,8 +348,8 @@ jobs:
           diff kra_audit_signing.crt.before kra_audit_signing.crt.after
 
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find \
               --nickname kra_audit_signing | tee kra_audit_signing.key.after
 
@@ -359,8 +359,8 @@ jobs:
       - name: Check subsystem cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-show \
               subsystem | tee subsystem.crt.after
 
@@ -368,8 +368,8 @@ jobs:
           diff subsystem.crt.before subsystem.crt.after
 
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find \
               --nickname subsystem | tee subsystem.key.after
 
@@ -379,8 +379,8 @@ jobs:
       - name: Check SSL server cert in server's NSS database
         run: |
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-show \
               sslserver | tee sslserver.crt.after
 
@@ -388,8 +388,8 @@ jobs:
           diff sslserver.crt.before sslserver.crt.after
 
           docker exec kra pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-key-find \
               --nickname sslserver | tee sslserver.key.after
 
@@ -421,22 +421,22 @@ jobs:
       - name: Check PKI server systemd journal in CA container
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal in KRA container
         if: always()
         run: |
-          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec kra journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec kra find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

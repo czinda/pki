@@ -42,7 +42,7 @@ PKI_BASE_RESERVED_NAMES = ["alias", "bin", "ca", "common", "conf", "kra",
                            "webapps", "work"]
 PKI_CONFIGURATION_RESERVED_NAMES = ["CA", "java", "nssdb", "rpm-gpg",
                                     "rsyslog", "tls"]
-PKI_TOMCAT_REGISTRY_RESERVED_NAMES = ["ca", "kra", "ocsp", "tks", "tps"]
+PKI_REGISTRY_RESERVED_NAMES = ["ca", "kra", "ocsp", "tks", "tps"]
 
 PKI_DEPLOYMENT_INTERRUPT_BANNER = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"\
                                   "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"

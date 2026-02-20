@@ -196,7 +196,7 @@ jobs:
 
       - name: Check admin user
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec primary cp /root/.dogtag/pki-quarkus/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
 
           docker exec secondary pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
@@ -254,27 +254,27 @@ jobs:
       - name: Check primary PKI server systemd journal
         if: always()
         run: |
-          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec primary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check primary CA debug log
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check primary KRA debug log
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check primary TKS debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/tks -name "debug.*" -exec cat {} \;
 
       - name: Check primary TPS debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/tps -name "debug.*" -exec cat {} \;
 
       - name: Check secondary DS server systemd journal
         if: always()
@@ -289,27 +289,27 @@ jobs:
       - name: Check secondary PKI server systemd journal
         if: always()
         run: |
-          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec secondary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check secondary CA debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check secondary KRA debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check secondary TKS debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/tks -name "debug.*" -exec cat {} \;
 
       - name: Check secondary TPS debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/tps -name "debug.*" -exec cat {} \;
 
       - name: Upload artifacts
         if: always()

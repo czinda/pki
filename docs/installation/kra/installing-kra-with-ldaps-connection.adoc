@@ -61,11 +61,11 @@ pki_subsystem_nickname=subsystem
 $ pkispawn -f kra.cfg -s KRA
 ....
 
-It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a KRA subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/.dogtag/pki-tomcat/kra/alias
+* admin NSS database: ~/.dogtag/pki-quarkus/kra/alias
 
 == Verifying system certificates
 
@@ -73,7 +73,7 @@ Verify that the server NSS database contains the following certificates:
 
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

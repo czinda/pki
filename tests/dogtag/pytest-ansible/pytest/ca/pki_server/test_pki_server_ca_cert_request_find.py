@@ -101,22 +101,22 @@ def test_pki_server_ca_cert_request_find(ansible_module):
     """
     :id: 1d2a3723-3fb4-4f22-af11-e9519cfa8a66
     :Title: Bug - 1289605 : Test pki-server ca-cert-request-find command should find
-            the certificate request with the default pki-tomcat instance.
+            the certificate request with the default pki-quarkus instance.
     :Description: Bug-1289605, Test pki-server ca-cert-request-find command should find
-        the certificate request with the default pki-tomcat instance.
+        the certificate request with the default pki-quarkus instance.
     :Requirement: Pki Server CA
     :Setup: Use the subsystems setup in ansible to run subsystem commands
     :CaseComponent: \-
     :Steps:
     :ExpectedResults:
         1. Verify whether pki-server ca-cert-request-find command shows the cert
-           request with default pki-tomcat instance.
+           request with default pki-quarkus instance.
     """
     cmd = 'pki-server ca-cert-request-find'
     request_out = ansible_module.command(cmd)
     for result in request_out.values():
         if result['rc'] >= 1:
-            assert "ERROR: Invalid instance pki-tomcat." in result['stdout']
+            assert "ERROR: Invalid instance pki-quarkus." in result['stdout']
         else:
             assert "entries matched" in result['stdout']
             assert "Request ID:" in result['stdout']

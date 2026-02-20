@@ -71,7 +71,7 @@ jobs:
               --type ds \
               -D url=ldap://ds.example.com:3389 \
               -D bindPassword=Secret.123
-          docker exec pki bash -c "echo baseURL=http://server1.example.com:8080/acme >> /var/lib/pki/pki-tomcat/conf/acme/engine.conf"
+          docker exec pki bash -c "echo baseURL=http://server1.example.com:8080/acme >> /var/lib/pki/pki-quarkus/conf/acme/engine.conf"
           docker exec pki pki-server acme-deploy --wait
 
       - name: Initialize ACME database
@@ -126,7 +126,7 @@ jobs:
         run: |
           docker exec pki pki-server acme-undeploy --wait
           docker network disconnect example pki
-          docker exec pki sed -i "s/server1.example.com/server2.example.com/g" /var/lib/pki/pki-tomcat/conf/acme/engine.conf
+          docker exec pki sed -i "s/server1.example.com/server2.example.com/g" /var/lib/pki/pki-quarkus/conf/acme/engine.conf
           docker network connect example pki --alias pki.example.com --alias server2.example.com
           docker exec pki pki-server acme-deploy --wait
 
@@ -178,17 +178,17 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check ACME debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/acme -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/acme -name "debug.*" -exec cat {} \;
 
       - name: Check certbot log
         if: always()

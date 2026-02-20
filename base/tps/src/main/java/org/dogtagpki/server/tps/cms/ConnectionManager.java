@@ -87,7 +87,7 @@ public class ConnectionManager
      *   tps.connector.ca1.maxHttpConns=15
      *   tps.connector.ca1.host=host1.EXAMPLE.com:8445 host2.EXAMPLE.com:8445
      *   tps.connector.ca1.port=<port number; unused if for failover case>
-     *   tps.connector.ca1.nickName=subsystemCert cert-pki-tomcat TPS
+     *   tps.connector.ca1.nickName=subsystemCert cert-pki-quarkus TPS
      *   tps.connector.ca1.timeout=30
      *   # In the example below,
      *   #   "enrollment", "getcert", "renewal", "revoke", and "unrevoke"

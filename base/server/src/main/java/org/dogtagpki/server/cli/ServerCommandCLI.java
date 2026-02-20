@@ -10,7 +10,6 @@ import java.io.File;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +42,13 @@ public abstract class ServerCommandCLI extends CommandCLI {
 
         super.createOptions();
 
-        Option option = new Option("i", "instance", true, "Instance ID (default: pki-tomcat)");
+        Option option = new Option("i", "instance", true, "Instance ID (default: pki-quarkus)");
         option.setArgName("instance ID");
         options.addOption(option);
     }
 
-    protected void initializeTomcatJSS() throws Exception {
-        new TomcatJSSInitializer().initialize();
+    protected void initializeJSS() throws Exception {
+        // No-op: JSS initialization is handled by the Quarkus runtime.
     }
 
     protected EngineConfig getEngineConfig(String subsystem) throws Exception {

@@ -22,11 +22,11 @@ It assumes that the root CA is already running at https://root.example.com:8443 
 $ pkispawn -f subca.cfg -s CA
 ....
 
-It installs a CA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a CA subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
+* admin NSS database: ~/.dogtag/pki-quarkus/ca/alias
 
 == Verifying system certificates 
 
@@ -34,7 +34,7 @@ Verify that the server NSS database contains the following certificates:
 
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -61,7 +61,7 @@ $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 [literal]
 ....
 $ pki pkcs12-import \
-    --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+    --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
     --pkcs12-password Secret.123
 ....
 

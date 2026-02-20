@@ -270,7 +270,7 @@ public interface CAConfig {
 pki:
   ca:
     instance-id: ${CA_INSTANCE_ID:pki-ca}
-    config-dir: ${CA_CONFIG_DIR:/etc/pki/pki-tomcat/ca}
+    config-dir: ${CA_CONFIG_DIR:/etc/pki/pki-quarkus/ca}
     backend:
       class-name: com.netscape.cmscore.apps.CABackend
       parameters:

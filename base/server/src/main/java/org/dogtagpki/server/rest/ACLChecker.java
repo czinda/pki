@@ -34,9 +34,8 @@ import com.netscape.cmscore.logging.Auditor;
 /**
  * Container-agnostic ACL checking logic.
  *
- * Extracts the business logic from ACLFilter (which extends HttpFilter)
- * so it can be reused by both Tomcat servlet filters and Quarkus
- * ContainerRequestFilters.
+ * Extracts the business logic from ACLFilter so it can be reused
+ * by Quarkus ContainerRequestFilters.
  *
  * NOTE: This class will be moved to pki-server-core once its
  * dependencies (CMSEngine, AuthzSubsystem, etc.) are moved there.

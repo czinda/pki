@@ -90,7 +90,7 @@ def test_pki_server_instance_externalcert_add_help_command(ansible_module):
 
         Usage: pki-server instance-externalcert-add [OPTIONS]
     
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat).
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus).
               --cert-file <path>             Input file containing the external certificate or 
               certificate chain.
               --trust-args <trust-args>      Trust args (default ",,").
@@ -105,7 +105,7 @@ def test_pki_server_instance_externalcert_add_help_command(ansible_module):
     for result in cmd_output.values():
         if result['rc'] == 0:
             assert "Usage: pki-server instance-externalcert-add [OPTIONS]" in result['stdout']
-            assert "-i, --instance <instance ID>       Instance ID (default: pki-tomcat)." in \
+            assert "-i, --instance <instance ID>       Instance ID (default: pki-quarkus)." in \
                    result['stdout']
             assert "--cert-file <path>             Input file containing the external " \
                    "certificate or certificate chain." in result['stdout']
@@ -239,7 +239,7 @@ def test_pki_server_instance_externalcert_add_without_nickname(ansible_module):
         if result['rc'] >= 1:
             assert "ERROR: missing nickname" in result['stdout']
             assert "Usage: pki-server instance-externalcert-add [OPTIONS]" in result['stdout']
-            assert " -i, --instance <instance ID>       Instance ID (default: pki-tomcat)." in \
+            assert " -i, --instance <instance ID>       Instance ID (default: pki-quarkus)." in \
                    result['stdout']
             assert "--cert-file <path>             Input file containing the external " \
                    "certificate or certificate chain." in result['stdout']

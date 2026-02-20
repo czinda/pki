@@ -112,7 +112,7 @@ def test_pki_server_ca_cert_chain_export_help(ansible_module):
     for result in help_out.values():
         if result['rc'] == 0:
             assert "-i, --instance <instance ID>       Instance ID " \
-                   "(default: pki-tomcat)" in result['stdout']
+                   "(default: pki-quarkus)" in result['stdout']
             assert "--pkcs12-file <path>           PKCS #12 file to store " \
                    "certificates and keys" in result['stdout']
             assert "--pkcs12-password <password>   Password for the " \

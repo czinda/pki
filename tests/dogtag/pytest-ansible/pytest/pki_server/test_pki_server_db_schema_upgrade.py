@@ -78,7 +78,7 @@ def test_pki_server_db_schema_upgrade_help_command(ansible_module):
 
      Usage: pki-server db-schema-upgrade [OPTIONS]
 
-       -i, --instance <instance ID>       Instance ID (default: pki-tomcat).
+       -i, --instance <instance ID>       Instance ID (default: pki-quarkus).
        -D, --bind-dn <Bind DN>            Connect DN (default: cn=Directory Manager).
        -w, --bind-password <password>     Password to connect to DB.
        -v, --verbose                      Run in verbose mode.
@@ -91,7 +91,7 @@ def test_pki_server_db_schema_upgrade_help_command(ansible_module):
     for result in cmd_output.values():
         if result['rc'] == 0:
             assert "Usage: pki-server db-schema-upgrade [OPTIONS]" in result['stdout']
-            assert "  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)." in \
+            assert "  -i, --instance <instance ID>       Instance ID (default: pki-quarkus)." in \
                    result['stdout']
             assert "  -D, --bind-dn <Bind DN>            Connect DN (default: cn=Directory " \
                    "Manager)." in result['stdout']

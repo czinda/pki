@@ -130,7 +130,7 @@ $ pki-server upgrade --verbose
 It is possible to rerun a failed upgrade for a specific instance:
 
 ```
-$ pki-server upgrade --instance pki-tomcat
+$ pki-server upgrade --instance pki-quarkus
 ```
 
 ### Reverting an upgrade

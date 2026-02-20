@@ -66,7 +66,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server selftest-enable [OPTIONS] [<Selftest ID>]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('  --subsystem <subsystem name>    Subsystem Name.')
         print('  --help                          Show help message.')
         print()
@@ -155,7 +155,7 @@ class DisableSelftestCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server selftest-disable [OPTIONS] [<Selftest ID>]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('  --subsystem <subsystem name>    Subsystem Name.')
         print('  --help                          Show help message.')
         print()

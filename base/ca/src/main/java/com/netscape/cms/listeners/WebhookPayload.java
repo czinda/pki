@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * {
  *   "event": "certificate.issued",
  *   "timestamp": "2024-01-15T10:30:00Z",
- *   "instanceId": "pki-tomcat",
+ *   "instanceId": "pki-quarkus",
  *   "certificate": {
  *     "serialNumber": "12345",
  *     "serialNumberHex": "0x3039",

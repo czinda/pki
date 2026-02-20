@@ -72,18 +72,18 @@ cms.tokenList=TOKEN_NAME
 When this parameter is added, nuxwdog will prompt the password for
 **hardware-TOKEN_NAME** in addition to the other passwords.
 
-An instance that is started by **nuxwdog** is started by a different systemd unit file (**pki-tomcatd-nuxwdog**).
+An instance that is started by **nuxwdog** is started by a different systemd unit file (**pki-quarkusd-nuxwdog**).
 Therefore, to start/stop/restart an instance using the following:
 
 ```
-$ systemctl <start/stop/restart> pki-tomcatd-nuxwdog@<instance_id>.service
+$ systemctl <start/stop/restart> pki-quarkusd-nuxwdog@<instance_id>.service
 ```
 
 If the PKI server instance is converted back to not using **nuxwdog** to start,
 then the usual systemd unit scripts can be invoked:
 
 ```
-$ systemctl <start/stop/restart> pki-tomcatd@<instance_id>.service
+$ systemctl <start/stop/restart> pki-quarkusd@<instance_id>.service
 ```
 
 ## SEE ALSO

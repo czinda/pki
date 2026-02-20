@@ -43,7 +43,7 @@ Certificate:
         Serial Number:
             33:1c:9e:b7:9a:2d:cc:17:69:24:a2:81:4e:06:07:40
         Signature Algorithm: sha256WithRSAEncryption
-        Issuer: O=EXAMPLE, OU=pki-tomcat, CN=CA Signing Certificate
+        Issuer: O=EXAMPLE, OU=pki-quarkus, CN=CA Signing Certificate
         Validity
             Not Before: Jan 16 11:31:11 2025 GMT
             Not After : Apr 16 11:31:11 2025 GMT
@@ -53,5 +53,5 @@ Certificate:
 Then the user entry `est-test-user` defined above requires a new entry in 
 the _user_certs_ table which can be added with:
 ----
-$ psql -U est -t -A -c "INSERT INTO user_certs VALUES ('est-test-user', '2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE;CN=test.example.com', pg_read_binary_file('/cert.der'));" est
+$ psql -U est -t -A -c "INSERT INTO user_certs VALUES ('est-test-user', '2;67939231264256858734977554404570695488;CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE;CN=test.example.com', pg_read_binary_file('/cert.der'));" est
 ----

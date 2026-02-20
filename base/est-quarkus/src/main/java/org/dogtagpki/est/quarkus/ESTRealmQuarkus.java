@@ -8,10 +8,9 @@ import org.slf4j.LoggerFactory;
 /**
  * EST Realm for Quarkus - manages authentication and authorization.
  *
- * This is a simplified realm implementation for the Quarkus PoC.
- * In Tomcat, this used org.apache.catalina.Realm and integrated with
- * ProxyRealm. In Quarkus, authentication is handled by Quarkus Security
- * framework with custom IdentityProvider implementations.
+ * This is a simplified realm implementation for the Quarkus deployment.
+ * Authentication is handled by Quarkus Security framework with custom
+ * IdentityProvider implementations.
  *
  * For the PoC, this class manages realm configuration but actual
  * authentication is delegated to Quarkus Security infrastructure.

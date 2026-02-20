@@ -57,7 +57,7 @@ class RangeShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-range-show [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -141,7 +141,7 @@ class RangeRequestCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-range-request [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --master <URL>                 Master URL.')
         print('      --session <ID>                 Session ID')
         print('      --install-token <path>         Install token')
@@ -227,7 +227,7 @@ class RangeUpdateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-range-update [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')

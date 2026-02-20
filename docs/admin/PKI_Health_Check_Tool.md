@@ -50,7 +50,7 @@ The `pki-healthcheck` tool will store its configuration in `/etc/pki/healthcheck
 
     # Dogtag specific section
     [dogtag]
-    instance_name=pki-tomcat
+    instance_name=pki-quarkus
 
 ### Limitations
 
@@ -89,7 +89,7 @@ The default output looks like:
         "duration": "0.194885",
         "kw": {
             "key": "ca_signing",
-            "configfile": "/var/lib/pki/pki-tomcat/ca/conf/CS.cfg"
+            "configfile": "/var/lib/pki/pki-quarkus/ca/conf/CS.cfg"
         }
     }
 

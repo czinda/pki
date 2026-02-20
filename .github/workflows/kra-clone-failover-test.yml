@@ -69,7 +69,7 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           # restart CA server
           docker exec ca pki-server restart --wait
@@ -95,7 +95,7 @@ jobs:
 
           # export admin cert and key
           docker exec ca cp \
-              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               $SHARED/ca_admin_cert.p12
 
           # import admin cert and key
@@ -132,7 +132,7 @@ jobs:
       - name: Install primary KRA
         run: |
           docker exec ca cp \
-              /root/.dogtag/pki-tomcat/ca_admin.cert \
+              /root/.dogtag/pki-quarkus/ca_admin.cert \
               $SHARED/ca_admin.cert
 
           docker exec primarykra pkispawn \
@@ -159,7 +159,7 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           # restart primary KRA server
           docker exec primarykra pki-server restart --wait
@@ -228,7 +228,7 @@ jobs:
       - name: Check access logs in primary KRA
         run: |
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec primarykra find /var/log/pki/pki-tomcat \
+          docker exec primarykra find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -5 \
@@ -288,7 +288,7 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           # restart secondary KRA server
           docker exec secondarykra pki-server restart --wait
@@ -350,7 +350,7 @@ jobs:
       - name: Check access logs in primary KRA
         run: |
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec primarykra find /var/log/pki/pki-tomcat \
+          docker exec primarykra find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -5 \
@@ -396,7 +396,7 @@ jobs:
       - name: Check access logs in secondary KRA
         run: |
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec secondarykra find /var/log/pki/pki-tomcat \
+          docker exec secondarykra find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -5 \
@@ -436,7 +436,7 @@ jobs:
       - name: Check access logs in secondary KRA
         run: |
           # check HTTP methods, paths, protocols, status, and authenticated users
-          docker exec secondarykra find /var/log/pki/pki-tomcat \
+          docker exec secondarykra find /var/log/pki/pki-quarkus \
               -name "localhost_access_log.*" \
               -exec cat {} \; \
               | tail -5 \
@@ -452,44 +452,44 @@ jobs:
       - name: Check CA systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA access log
         if: always()
         run: |
-          docker exec ca find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec ca find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check primary KRA systemd journal
         if: always()
         run: |
-          docker exec primarykra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec primarykra journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check primary KRA access log
         if: always()
         run: |
-          docker exec primarykra find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec primarykra find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check primary KRA debug log
         if: always()
         run: |
-          docker exec primarykra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec primarykra find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check secondary KRA systemd journal
         if: always()
         run: |
-          docker exec secondarykra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec secondarykra journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check secondary KRA access log
         if: always()
         run: |
-          docker exec secondarykra find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec secondarykra find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check secondary KRA debug log
         if: always()
         run: |
-          docker exec secondarykra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec secondarykra find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;

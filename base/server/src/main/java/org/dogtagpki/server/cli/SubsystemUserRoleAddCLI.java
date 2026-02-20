@@ -50,7 +50,7 @@ public class SubsystemUserRoleAddCLI extends ServerCommandCLI {
 
         String roleID = cmdArgs[1];
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

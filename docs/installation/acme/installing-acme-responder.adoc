@@ -5,7 +5,7 @@
 
 
 This document describes the process to install an ACME responder on a PKI server that already has a CA subsystem.
-It assumes that the CA was installed with the default instance name (i.e. `pki-tomcat`).
+It assumes that the CA was installed with the default instance name (i.e. `pki-quarkus`).
 
 == Installation Procedure ==
 

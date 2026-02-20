@@ -139,7 +139,7 @@ jobs:
 
       - name: Check CA admin cert
         run: |
-          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-quarkus/ca_admin.cert
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
@@ -154,7 +154,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
           docker exec pki /usr/share/pki/tests/ca/bin/ca-agent-create.sh
@@ -293,9 +293,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

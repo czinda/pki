@@ -43,7 +43,7 @@ public class SubsystemDBVLVFindCLI extends ServerCommandCLI {
     @Override
     public void execute(CommandLine cmd) throws Exception {
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.parent.parent.getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

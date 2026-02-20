@@ -112,7 +112,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       - name: Create request template for caServerKeygen_UserCert
@@ -225,7 +225,7 @@ jobs:
         run: |
           docker exec pki sed -i \
               's/^policyset.userCertSet.list=1,10,2,3,4,5,6,7,8,9,11/policyset.userCertSet.list=1,10,2,3,4,5,6,7,8,9/' \
-              /etc/pki/pki-tomcat/ca/profiles/ca/caServerKeygen_UserCert.cfg
+              /etc/pki/pki-quarkus/ca/profiles/ca/caServerKeygen_UserCert.cfg
 
           docker exec pki pki-server ca redeploy --wait
 
@@ -277,19 +277,19 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check PKI server access log
         if: always()
         run: |
-          docker exec pki find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec pki find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;

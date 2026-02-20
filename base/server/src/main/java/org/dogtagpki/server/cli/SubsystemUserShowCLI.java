@@ -68,7 +68,7 @@ public class SubsystemUserShowCLI extends ServerCommandCLI {
 
         String outputFormat = cmd.getOptionValue("output-format", "text");
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

@@ -76,7 +76,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_ca(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
 
     :Automated: Yes
 
@@ -105,9 +105,9 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_ca(ansible_module):
     ansible_module.copy(src='/tmp/ldap.inf', dest='/tmp/ldap.inf')
     ansible_module.shell('setup-ds.pl --silent --file=/tmp/ldap.inf')
     ansible_module.shell('pkispawn -s CA -f /tmp/ca.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-ca-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-ca-non-pkiuser.service.d/user.conf')
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-ca-non-pkiuser.service.d/user.conf" in result['stdout']
+        assert "/etc/systemd/system/pki-quarkusd@pki-ca-non-pkiuser.service.d/user.conf" in result['stdout']
     nuxwdog = NuxwdogOperations(subsystem_type='CA', subsystem_name='pki-ca-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.enable_nuxwdog(ansible_module)
 
@@ -138,7 +138,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_kra(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
 
     :Automated: Yes
     """
@@ -162,9 +162,9 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_kra(ansible_module):
     config.subsystem('/tmp/kra.inf', 'KRA', **subsystem_info)
     ansible_module.copy(src='/tmp/kra.inf', dest='/tmp/kra.inf')
     ansible_module.shell('pkispawn -s KRA -f /tmp/kra.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-kra-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-kra-non-pkiuser.service.d/user.conf')
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-kra-non-pkiuser.service.d/user.conf" in result['stdout']
+        assert "/etc/systemd/system/pki-quarkusd@pki-kra-non-pkiuser.service.d/user.conf" in result['stdout']
     nuxwdog = NuxwdogOperations(subsystem_type='KRA', subsystem_name='pki-kra-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.enable_nuxwdog(ansible_module)
 
@@ -195,7 +195,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_ocsp(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
 
     :Automated: Yes
     """
@@ -219,9 +219,9 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_ocsp(ansible_module):
     config.subsystem('/tmp/ocsp.inf', 'OCSP', **subsystem_info)
     ansible_module.copy(src='/tmp/ocsp.inf', dest='/tmp/ocsp.inf')
     ansible_module.shell('pkispawn -s OCSP -f /tmp/ocsp.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-ocsp-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-ocsp-non-pkiuser.service.d/user.conf')
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-ocsp-non-pkiuser.service.d/user.conf" in result['stdout']
+        assert "/etc/systemd/system/pki-quarkusd@pki-ocsp-non-pkiuser.service.d/user.conf" in result['stdout']
     nuxwdog = NuxwdogOperations(subsystem_type='OCSP', subsystem_name='pki-ocsp-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.enable_nuxwdog(ansible_module)
 
@@ -252,7 +252,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tks(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
 
     :Automated: Yes
     """
@@ -276,9 +276,9 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tks(ansible_module):
     config.subsystem('/tmp/tks.inf', 'TKS', **subsystem_info)
     ansible_module.copy(src='/tmp/tks.inf', dest='/tmp/tks.inf')
     ansible_module.shell('pkispawn -s TKS -f /tmp/tks.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-tks-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-tks-non-pkiuser.service.d/user.conf')
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-tks-non-pkiuser.service.d/user.conf" in result['stdout']
+        assert "/etc/systemd/system/pki-quarkusd@pki-tks-non-pkiuser.service.d/user.conf" in result['stdout']
     nuxwdog = NuxwdogOperations(subsystem_type='TKS', subsystem_name='pki-tks-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.enable_nuxwdog(ansible_module)
 
@@ -309,7 +309,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tps(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
 
     :Automated: Yes
     """
@@ -336,9 +336,9 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tps(ansible_module):
     config.subsystem('/tmp/tps.inf', 'TPS', **subsystem_info)
     ansible_module.copy(src='/tmp/tps.inf', dest='/tmp/tps.inf')
     ansible_module.shell('pkispawn -s TPS -f /tmp/tps.inf')
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-tps-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-tps-non-pkiuser.service.d/user.conf')
     for result in output.values():
-        assert "/etc/systemd/system/pki-tomcatd@pki-tps-non-pkiuser.service.d/user.conf" in result['stdout']
+        assert "/etc/systemd/system/pki-quarkusd@pki-tps-non-pkiuser.service.d/user.conf" in result['stdout']
     nuxwdog = NuxwdogOperations(subsystem_type='TPS', subsystem_name='pki-tps-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.enable_nuxwdog(ansible_module)
 
@@ -370,14 +370,14 @@ def test_bug_1523410_non_pkiuser_owned_pkidestroy_tps(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
             3. When the instance is pkidestroy'ed, the override directory should be deleted.
 
     :Automated: Yes
     """
     nuxwdog = NuxwdogOperations(subsystem_type='TPS', subsystem_name='pki-tps-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-tps-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-tps-non-pkiuser.service.d/user.conf')
     for result in output.values():
         assert "No such file or directory" in result['stderr']
 
@@ -405,14 +405,14 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_tks(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
             3. When the instance is pkidestroy'ed, the override directory should be deleted.
 
     :Automated: Yes
     """
     nuxwdog = NuxwdogOperations(subsystem_type='TKS', subsystem_name='pki-tks-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-tks-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-tks-non-pkiuser.service.d/user.conf')
     for result in output.values():
         assert "No such file or directory" in result['stderr']
 
@@ -440,14 +440,14 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_ocsp(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
             3. When the instance is pkidestroy'ed, the override directory should be deleted.
 
     :Automated: Yes
     """
     nuxwdog = NuxwdogOperations(subsystem_type='OCSP', subsystem_name='pki-ocsp-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-ocsp-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-ocsp-non-pkiuser.service.d/user.conf')
     for result in output.values():
         assert "No such file or directory" in result['stderr']
 
@@ -475,14 +475,14 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_kra(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
             3. When the instance is pkidestroy'ed, the override directory should be deleted.
 
     :Automated: Yes
     """
     nuxwdog = NuxwdogOperations(subsystem_type='KRA', subsystem_name='pki-kra-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-kra-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-kra-non-pkiuser.service.d/user.conf')
     for result in output.values():
         assert "No such file or directory" in result['stderr']
 
@@ -510,14 +510,14 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_ca(ansible_module):
     :Expectedresults:
             1. Instance should start up correctly as that user.
             2. The override file (and directory) should be created:
-               /etc/systemd/system/pki-tomcatd@<instance_name>.service.d/user.conf
+               /etc/systemd/system/pki-quarkusd@<instance_name>.service.d/user.conf
             3. When the instance is pkidestroy'ed, the override directory should be deleted.
 
     :Automated: Yes
     """
     nuxwdog = NuxwdogOperations(subsystem_type='CA', subsystem_name='pki-ca-non-pkiuser', pki_user='pkiuser2')
     nuxwdog.pkidestroy_nuxwdog(ansible_module)
-    output = ansible_module.shell('ls /etc/systemd/system/pki-tomcatd@pki-ca-non-pkiuser.service.d/user.conf')
+    output = ansible_module.shell('ls /etc/systemd/system/pki-quarkusd@pki-ca-non-pkiuser.service.d/user.conf')
     for result in output.values():
         assert "No such file or directory" in result['stderr']
     ansible_module.shell('remove-ds.pl -f -i slapd-testingmaster')

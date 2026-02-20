@@ -110,7 +110,7 @@ jobs:
               ca_signing
 
           docker exec primary pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       - name: Check requests
@@ -283,7 +283,7 @@ jobs:
               ca_signing
 
           docker exec primary cp \
-              /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               $SHARED/ca_admin_cert.p12
 
           docker exec secondary pki pkcs12-import \
@@ -1248,17 +1248,17 @@ jobs:
       - name: Check primary PKI server systemd journal
         if: always()
         run: |
-          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec primary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check primary PKI server access log
         if: always()
         run: |
-          docker exec primary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec primary find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check primary CA debug log
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check secondary DS server systemd journal
         if: always()
@@ -1273,14 +1273,14 @@ jobs:
       - name: Check secondary PKI server systemd journal
         if: always()
         run: |
-          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec secondary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check secondary PKI server access log
         if: always()
         run: |
-          docker exec secondary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec secondary find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check secondary CA debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

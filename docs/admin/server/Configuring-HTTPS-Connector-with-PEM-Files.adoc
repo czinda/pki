@@ -15,12 +15,12 @@ $ openssl req \
     -nodes \
     -days 365 \
     -subj "/CN=$HOSTNAME" \
-    -keyout /var/lib/pki/pki-tomcat/conf/sslserver.key \
-    -out /var/lib/pki/pki-tomcat/conf/sslserver.crt
-$ chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.crt
-$ chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.crt
-$ chown pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/sslserver.key
-$ chmod 660 /var/lib/pki/pki-tomcat/conf/sslserver.key
+    -keyout /var/lib/pki/pki-quarkus/conf/sslserver.key \
+    -out /var/lib/pki/pki-quarkus/conf/sslserver.crt
+$ chown pkiuser:pkiuser /var/lib/pki/pki-quarkus/conf/sslserver.crt
+$ chmod 660 /var/lib/pki/pki-quarkus/conf/sslserver.crt
+$ chown pkiuser:pkiuser /var/lib/pki/pki-quarkus/conf/sslserver.key
+$ chmod 660 /var/lib/pki/pki-quarkus/conf/sslserver.key
 ----
 
 See also link:https://github.com/dogtagpki/pki/wiki/Creating-Self-Signed-SSL-Server-Certificate-with-OpenSSL[Creating Self-Signed SSL Server Certificate with OpenSSL].
@@ -39,7 +39,7 @@ $ pki-server http-connector-add \
     Secure
 ----
 
-This command will create a `<Connector>` and an `<SSLHost>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+This command will create a `<Connector>` and an `<SSLHost>` in `/var/lib/pki/pki-quarkus/conf/server.xml`.
 
 See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-CLI[PKI Server HTTP Connector CLI].
 
@@ -47,10 +47,10 @@ To configure the certificate, execute the following command:
 
 ----
 $ pki-server http-connector-cert-add \
-    --certFile /var/lib/pki/pki-tomcat/conf/sslserver.crt \
-    --keyFile /var/lib/pki/pki-tomcat/conf/sslserver.key
+    --certFile /var/lib/pki/pki-quarkus/conf/sslserver.crt \
+    --keyFile /var/lib/pki/pki-quarkus/conf/sslserver.key
 ----
 
-This command will create a `<Certificate>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+This command will create a `<Certificate>` in `/var/lib/pki/pki-quarkus/conf/server.xml`.
 
 See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-Cert-CLI[PKI Server HTTP Connector Cert CLI].

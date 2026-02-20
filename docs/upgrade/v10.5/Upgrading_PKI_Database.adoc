@@ -23,16 +23,16 @@ Create an upgrade script as follows (customize the parameters as needed):
 userdn="cn=Directory Manager"
 
 # Sets the instance to modify
-instanceId="pki-tomcat"
+instanceId="pki-quarkus"
 
 # Database dn of instance to modify
-database="pki-tomcat-CA"
-rootSuffix="o=pki-tomcat-CA"
+database="pki-quarkus-CA"
+rootSuffix="o=pki-quarkus-CA"
 
 # Important value of the CA's issuer dn.
 # Can be found in the pretty print of the CA's signing cert, easily found in the EE interface GUI.
 
-caIssuerDN="cn=CA Signing Certificate,ou=pki-tomcat,o=host.com Security Domain"
+caIssuerDN="cn=CA Signing Certificate,ou=pki-quarkus,o=host.com Security Domain"
 
 # Port and host name values where the LDAP in question is running.
 port=389

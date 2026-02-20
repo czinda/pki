@@ -7,7 +7,7 @@
   shell: pkispawn -s CA -f /tmp/test_dir/ca.cfg
 
 - name: Stopping CA Subsystem
-  shell: systemctl stop pki-tomcatd@{{ topology }}-CA.service
+  shell: systemctl stop pki-quarkusd@{{ topology }}-CA.service
 
 - name: Enable SignedAudit for Subsystem
   shell: pki-server ca-audit-config-mod -i {{ topology }}-CA --logSigning True
@@ -32,7 +32,7 @@
 
 - name: Starting CA Subsystem
   service:
-    name: pki-tomcatd@{{ topology }}-CA.service
+    name: pki-quarkusd@{{ topology }}-CA.service
     state: started
 
 - name: CA Clone Preparation

@@ -25,7 +25,7 @@ To create a PKI server:
 $ pki-server create
 ....
 
-This will create a PKI server in /var/lib/pki/pki-tomcat.
+This will create a PKI server in /var/lib/pki/pki-quarkus.
 
 See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI[PKI Server CLI].
 

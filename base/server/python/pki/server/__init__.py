@@ -43,8 +43,6 @@ import time
 
 import ldap
 import ldap.filter
-from lxml import etree
-
 import pki
 import pki.account
 import pki.cert
@@ -82,10 +80,8 @@ SCHEMA_FILES = [
 
 DEFAULT_INSTANCE_NAME = 'pki-quarkus'
 
-DEFAULT_TOMCAT_PORT = 8005
-DEFAULT_TOMCAT_HTTP_PORT = 8080
-DEFAULT_TOMCAT_HTTPS_PORT = 8443
-DEFAULT_TOMCAT_AJP_PORT = 8009
+DEFAULT_HTTP_PORT = 8080
+DEFAULT_HTTPS_PORT = 8443
 
 PKI_INSTANCE_SELINUX_CONTEXT = 'pki_tomcat_var_lib_t'
 PKI_LOG_SELINUX_CONTEXT = 'pki_tomcat_log_t'
@@ -94,40 +90,6 @@ PKI_CERTDB_SELINUX_CONTEXT = 'pki_tomcat_cert_t'
 PKI_PORT_SELINUX_CONTEXT = 'http_port_t'
 
 logger = logging.getLogger(__name__)
-
-parser = etree.XMLParser(remove_blank_text=True)
-
-
-class Tomcat(object):
-
-    BASE_DIR = '/var/lib/tomcats'
-    CONF_DIR = '/etc/tomcat'
-    LIB_DIR = '/usr/share/java/tomcat'
-    SHARE_DIR = '/usr/share/tomcat'
-    EXECUTABLE = '/usr/sbin/tomcat'
-    UNIT_FILE = '/lib/systemd/system/tomcat@.service'
-    SERVER_XML = CONF_DIR + '/server.xml'
-    TOMCAT_CONF = CONF_DIR + '/tomcat.conf'
-
-    @classmethod
-    def get_version(cls):
-        cmd = [Tomcat.EXECUTABLE, 'version']
-        logger.debug('Command: %s', ' '.join(cmd))
-        output = subprocess.check_output(cmd)
-        output = output.decode('utf-8')
-
-        # find "Server version: Apache Tomcat/<version>"
-        match = re.search(
-            r'^Server version: *.*/(.+)$',
-            output,
-            re.MULTILINE  # pylint: disable=no-member
-        )
-
-        if not match:
-            raise Exception('Unable to determine Tomcat version')
-
-        # return version
-        return pki.util.Version(match.group(1))
 
 
 @functools.total_ordering
@@ -138,13 +100,12 @@ class PKIServer(object):
     LOG_DIR = '/var/log/pki'
     SHARE_DIR = '/usr/share/pki'
     REGISTRY_DIR = SYSCONFIG_DIR + '/pki'
-    TOMCAT_CONF = SHARE_DIR + '/etc/tomcat.conf'
 
     def __init__(self,
                  name,
-                 instance_type='tomcat',
-                 user='tomcat',
-                 group='tomcat'):
+                 instance_type='pki-quarkusd',
+                 user='pkiuser',
+                 group='pkiuser'):
 
         self.name = name
         self.type = instance_type
@@ -181,11 +142,7 @@ class PKIServer(object):
 
     @property
     def base_dir(self):
-        return os.path.join(Tomcat.BASE_DIR, self.name)
-
-    @property
-    def bin_dir(self):
-        return os.path.join(self.base_dir, 'bin')
+        return os.path.join(PKIServer.BASE_DIR, self.name)
 
     @property
     def conf_dir(self):
@@ -226,46 +183,6 @@ class PKIServer(object):
     @actual_logs_dir.setter
     def actual_logs_dir(self, value):
         self._logs_dir = value
-
-    @property
-    def temp_dir(self):
-        return os.path.join(self.base_dir, 'temp')
-
-    @property
-    def webapps_dir(self):
-        return os.path.join(self.base_dir, 'webapps')
-
-    @property
-    def work_dir(self):
-        return os.path.join(self.base_dir, 'work')
-
-    @property
-    def catalina_policy(self):
-        return os.path.join(self.conf_dir, 'catalina.policy')
-
-    @property
-    def catalina_properties(self):
-        return os.path.join(self.conf_dir, 'catalina.properties')
-
-    @property
-    def context_xml(self):
-        return os.path.join(self.conf_dir, 'context.xml')
-
-    @property
-    def logging_properties(self):
-        return os.path.join(self.conf_dir, 'logging.properties')
-
-    @property
-    def server_xml(self):
-        return os.path.join(self.conf_dir, 'server.xml')
-
-    @property
-    def tomcat_conf(self):
-        return os.path.join(self.conf_dir, 'tomcat.conf')
-
-    @property
-    def web_xml(self):
-        return os.path.join(self.conf_dir, 'web.xml')
 
     @property
     def service_name(self):
@@ -314,14 +231,14 @@ class PKIServer(object):
         '''
         Check whether the PKI server instance exists.
 
-        This method checks the bin folder under the instance's base folder.
+        This method checks the conf folder under the instance's base folder.
         If the folder exists the method will return True, otherwise False.
 
         The instance's base folder itself is not a reliable indicator since
         there might be files (e.g. config files, logs) left in the folder
         after removing an instance.
         '''
-        return os.path.isdir(self.bin_dir)
+        return os.path.isdir(self.conf_dir)
 
     def validate(self):
         if not self.exists():
@@ -332,58 +249,6 @@ class PKIServer(object):
         logger.debug('Command: %s', ' '.join(cmd))
         rc = subprocess.call(cmd)
         return rc == 0
-
-    def export_ca_cert(self):
-
-        server_config = self.get_server_config()
-        connector = server_config.get_https_connector()
-
-        if connector is None:
-            # HTTPS connector not configured, skip
-            return
-
-        sslhost = server_config.get_sslhost(connector)
-
-        if sslhost is None:
-            raise Exception('Missing SSL host')
-
-        sslcerts = server_config.get_sslcerts(sslhost)
-
-        if not sslcerts:
-            raise Exception('Missing SSL certificate')
-
-        for sslcert in sslcerts:
-            keystore_type = sslcert.get('certificateKeystoreType')
-            keystore_provider = sslcert.get('certificateKeystoreProvider')
-
-            if keystore_type == 'pkcs11' and keystore_provider == 'Mozilla-JSS':
-
-                # export CA cert from NSS database
-
-                token = pki.nssdb.INTERNAL_TOKEN_NAME
-                nickname = sslcert.get('certificateKeyAlias')
-
-                if nickname is None:
-                    continue
-
-                if ':' in nickname:
-                    parts = nickname.split(':', 1)
-                    token = parts[0]
-                    nickname = parts[1]
-
-                # Build a chain containing the certificate we're trying to
-                # export. OpenSSL gets confused if we don't have a key for
-                # the end certificate: rh-bz#1246371
-                nssdb = self.open_nssdb()
-                try:
-                    nssdb.export_cert_bundle(
-                        nickname,
-                        token=token,
-                        output_file=self.ca_cert)
-                finally:
-                    nssdb.close()
-
-            # TODO: handle other types of HTTP connector
 
     def cert_file(self, cert_id):
         '''
@@ -397,96 +262,10 @@ class PKIServer(object):
         '''
         return os.path.join(self.certs_dir, cert_id + '.csr')
 
-    def create_catalina_policy(self):
-
-        logger.info('Creating catalina.policy')
-
-        # add "do not edit" warning
-        filename = '/usr/share/pki/server/conf/catalina.policy'
-        logger.info('Appending %s', filename)
-        with open(filename, 'r', encoding='utf-8') as f:
-            content = f.read()
-
-        # add Tomcat's default policy
-        filename = '/usr/share/tomcat/conf/catalina.policy'
-        logger.info('Appending %s', filename)
-        with open(filename, 'r', encoding='utf-8') as f:
-            content += f.read()
-
-        content += '\n\n'
-
-        # add PKI's default policy
-        filename = '/usr/share/pki/server/conf/pki.policy'
-        logger.info('Appending %s', filename)
-        with open(filename, 'r', encoding='utf-8') as f:
-            content += f.read()
-
-        # generate policies for libraries in <instance>/common/lib
-        for root, _, filenames in os.walk(self.common_lib_dir):
-            for filename in filenames:
-                filepath = os.path.join(root, filename)
-                logger.info('Adding policy for %s', filepath)
-                content += '''
-grant codeBase "file:%s" {
-    permission java.security.AllPermission;
-};
-''' % filepath
-
-        # add admin's custom policy
-        filename = '%s/custom.policy' % self.conf_dir
-        if os.path.exists(filename):
-            logger.info('Appending %s', filename)
-            content += '\n'
-            with open(filename, 'r', encoding='utf-8') as f:
-                content += f.read()
-
-        # store everything into <instance>/conf/catalina.policy
-        filename = '%s/catalina.policy' % self.conf_dir
-        logger.info('Storing %s', filename)
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(content)
-
     def init(self):
-
-        self.export_ca_cert()
 
         if os.environ.get('PKI_SERVER_AUTO_ENABLE_SUBSYSTEMS', 'true') == 'true':
             self.enable_subsystems()
-
-        self.create_catalina_policy()
-
-    def is_running(self, timeout=None):
-
-        server_config = self.get_server_config()
-
-        protocol = 'https'
-        hostname = socket.getfqdn()
-        port = server_config.get_https_port()
-
-        if port is None:
-            protocol = 'http'
-            port = server_config.get_http_port()
-
-        connection = pki.client.PKIConnection(
-            protocol=protocol,
-            hostname=hostname,
-            port=port,
-            trust_env=False,
-            verify=False)
-
-        try:
-            connection.get('/', timeout=timeout)
-
-            # the path exists and the server is running
-            return True
-
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404:
-                # the path does not exist but the server is running
-                return True
-
-            # the server is not running
-            raise
 
     def start(self, wait=False, max_wait=60, timeout=None):
 
@@ -494,82 +273,11 @@ grant codeBase "file:%s" {
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-        if not wait:
-            return
-
-        logger.info('Waiting for PKI server to start')
-
-        start_time = datetime.datetime.today()
-        started = False
-        counter = 0
-
-        while not started:
-            try:
-                time.sleep(1)
-                started = self.is_running(timeout=timeout)
-
-            except requests.exceptions.SSLError as e:
-                max_retry_error = e.args[0]
-                reason = getattr(max_retry_error, 'reason')
-                raise Exception('Server unreachable due to SSL error: %s' % reason) from e
-
-            except pki.RETRYABLE_EXCEPTIONS as e:
-
-                stop_time = datetime.datetime.today()
-                counter = (stop_time - start_time).total_seconds()
-
-                if max_wait is not None and counter >= max_wait:
-                    raise Exception('Server did not start after %ds' %
-                                    max_wait) from e
-
-                logger.info(
-                    'Waiting for PKI server to start (%ds)',
-                    int(round(counter)))
-
-        logger.info('PKI server started')
-
     def stop(self, wait=False, max_wait=60, timeout=None):
 
         cmd = ['systemctl', 'stop', '%s.service' % self.service_name]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
-
-        if not wait:
-            return
-
-        logger.info('Waiting for PKI server to stop')
-
-        start_time = datetime.datetime.today()
-        stopped = False
-        counter = 0
-
-        while not stopped:
-            try:
-                time.sleep(1)
-                stopped = not self.is_running(timeout=timeout)
-
-            except requests.exceptions.SSLError as e:
-                max_retry_error = e.args[0]
-                reason = getattr(max_retry_error, 'reason')
-                raise Exception('Server unreachable due to SSL error: %s' % reason) from e
-
-            except requests.exceptions.ConnectionError:
-                stopped = True
-
-            except pki.RETRYABLE_EXCEPTIONS as e:
-
-                stop_time = datetime.datetime.today()
-                counter = (stop_time - start_time).total_seconds()
-
-                if max_wait is not None and counter >= max_wait:
-                    raise Exception('Server did not stop after %ds' %
-                                    max_wait) from e
-
-                logger.info(
-                    'Waiting for PKI server to stop (%ds)',
-                    int(round(counter)))
-
-        logger.info('PKI server stopped')
 
     def restart(self, wait=False, max_wait=60, timeout=None):
         self.stop(wait=True, max_wait=max_wait, timeout=timeout)
@@ -584,124 +292,6 @@ grant codeBase "file:%s" {
         cmd = ['systemctl', 'disable', '%s.service' % self.service_name]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
-
-    def run(self, command='start',
-            as_current_user=False,
-            with_jdb=False,
-            with_gdb=False,
-            with_valgrind=False,
-            agentpath=None,
-            skip_upgrade=False,
-            skip_migration=False):
-
-        p = self.execute(
-            command,
-            as_current_user=as_current_user,
-            with_jdb=with_jdb,
-            with_gdb=with_gdb,
-            with_valgrind=with_valgrind,
-            agentpath=agentpath,
-            skip_upgrade=skip_upgrade,
-            skip_migration=skip_migration)
-
-        p.wait()
-
-    # pylint: disable=W0613
-    def execute(
-            self, command,
-            as_current_user=False,
-            with_jdb=False,
-            with_gdb=False,
-            with_valgrind=False,
-            agentpath=None,
-            skip_upgrade=False,
-            skip_migration=False):
-
-        logger.debug('Environment variables:')
-        for name in self.config:
-            logger.debug('- %s: %s', name, self.config[name])
-
-        prefix = []
-
-        # by default run PKI server as systemd user
-        if not as_current_user:
-
-            current_user = pwd.getpwuid(os.getuid()).pw_name
-
-            # switch to systemd user if different from current user
-            if current_user != self.user:
-                prefix.extend(['/usr/sbin/runuser', '-u', self.user, '--'])
-
-        java_home = self.config.get('JAVA_HOME')
-        java_opts = self.config.get('JAVA_OPTS')
-        security_manager = self.config.get('SECURITY_MANAGER')
-
-        classpath = [
-            Tomcat.SHARE_DIR + '/bin/bootstrap.jar',
-            Tomcat.SHARE_DIR + '/bin/tomcat-juli.jar',
-            '/usr/share/java/ant.jar',
-            '/usr/share/java/ant-launcher.jar',
-            '/usr/lib/jvm/java/lib/tools.jar'
-        ]
-
-        cmd = prefix
-
-        if with_valgrind:
-            cmd.extend(['valgrind', '--trace-children=yes', '--tool=massif'])
-
-        if with_gdb:
-            cmd.extend(['gdb', '--args'])
-
-        if with_jdb:
-            cmd.extend(['jdb'])
-
-        else:
-            cmd.extend([java_home + '/bin/java'])
-
-            # add JVM options as in /etc/tomcat/conf.d/java-9-start-up-parameters.conf
-            cmd.extend([
-                '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-                '--add-opens', 'java.base/java.io=ALL-UNNAMED',
-                '--add-opens', 'java.base/java.util=ALL-UNNAMED',
-                '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED',
-                '--add-opens', 'java.rmi/sun.rmi.transport=ALL-UNNAMED',
-            ])
-
-        if agentpath:
-            cmd.extend(['-agentpath:%s' % agentpath])
-
-        elif os.path.exists('/usr/lib/abrt-java-connector/libabrt-java-connector.so'):
-            cmd.extend([
-                '-agentpath:/usr/lib/abrt-java-connector/libabrt-java-connector.so=abrt=on,'
-            ])
-
-        cmd.extend([
-            '-classpath', os.pathsep.join(classpath),
-            '-Dcatalina.base=' + self.base_dir,
-            '-Dcatalina.home=' + Tomcat.SHARE_DIR,
-            '-Djava.endorsed.dirs=',
-            '-Djava.io.tmpdir=' + self.temp_dir,
-            '-Djava.util.logging.config.file=' + self.logging_properties,
-            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager'
-        ])
-
-        if security_manager == 'true':
-            cmd.extend([
-                '-Djava.security.manager',
-                '-Djava.security.policy==' + self.catalina_policy
-            ])
-
-        if java_opts:
-            cmd.extend(java_opts.split())
-
-        if with_valgrind:
-            cmd.extend(['-Djava.compiler=NONE'])
-
-        cmd.extend(['org.apache.catalina.startup.Bootstrap', command])
-
-        logger.debug('Command: %s', ' '.join(cmd))
-
-        return subprocess.Popen(cmd, env=self.config)
 
     def chown(self, path):
 
@@ -801,63 +391,11 @@ grant codeBase "file:%s" {
 
         self.makedirs(self.base_dir, exist_ok=True)
 
-        bin_dir = os.path.join(Tomcat.SHARE_DIR, 'bin')
-        self.symlink(bin_dir, self.bin_dir, exist_ok=True)
-
         self.create_conf_dir(exist_ok=True)
         self.create_logs_dir(exist_ok=True)
         self.create_libs(force=force)
 
-        self.makedirs(self.temp_dir, exist_ok=True)
-        self.makedirs(self.webapps_dir, exist_ok=True)
-        self.makedirs(self.work_dir, exist_ok=True)
         self.makedirs(self.certs_dir, exist_ok=True)
-
-        self.create_server_xml(exist_ok=True)
-        self.enable_rewrite(exist_ok=True)
-
-        catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
-        self.copy(
-            catalina_policy,
-            self.catalina_policy,
-            exist_ok=True,
-            force=force)
-
-        self.create_catalina_properties(exist_ok=True)
-        self.create_context_xml(exist_ok=True)
-        self.create_logging_properties(exist_ok=True)
-        self.create_web_xml(exist_ok=True)
-
-        # copy /etc/tomcat/tomcat.conf
-        # to /var/lib/pki/<instance>/conf/tomcat.conf
-        self.copy(
-            Tomcat.TOMCAT_CONF,
-            self.tomcat_conf,
-            exist_ok=True,
-            force=force)
-
-        tomcat_conf = pki.PropertyFile(self.tomcat_conf, quote='"')
-        tomcat_conf.read()
-
-        # store JAVA_HOME from /usr/share/pki/etc/pki.conf
-        java_home = os.getenv('JAVA_HOME')
-        tomcat_conf.set('JAVA_HOME', java_home)
-
-        # update CATALINA_BASE
-        tomcat_conf.set('CATALINA_BASE', self.base_dir)
-
-        # store current PKI version
-        tomcat_conf.set('PKI_VERSION', pki.specification_version())
-
-        tomcat_conf.write()
-
-        # copy /var/lib/pki/<instance>/conf/tomcat.conf
-        # to /etc/sysconfig/<type>@<instance>
-        self.copy(
-            self.tomcat_conf,
-            self.service_conf,
-            exist_ok=True,
-            force=force)
 
     def create_conf_dir(self, exist_ok=False):
 
@@ -907,149 +445,6 @@ grant codeBase "file:%s" {
         common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
         self.symlink(common_lib_dir, self.common_lib_dir, exist_ok=True)
 
-    def create_catalina_properties(self, exist_ok=False):
-
-        # Link /var/lib/pki/<instance>/conf/catalina.properties
-        # to /usr/share/pki/server/conf/catalina.properties.
-
-        catalina_properties = os.path.join(
-            PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
-
-        if not os.path.exists(catalina_properties):
-            # fall back to system Tomcat catalina.properties
-            catalina_properties = os.path.join(Tomcat.CONF_DIR, 'catalina.properties')
-
-        self.symlink(catalina_properties, self.catalina_properties, exist_ok=exist_ok)
-
-    def create_context_xml(self, exist_ok=False):
-
-        # Link /var/lib/pki/<instance>/conf/context.xml
-        # to /etc/tomcat/context.xml.
-
-        context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
-        self.symlink(context_xml, self.context_xml, exist_ok=exist_ok)
-
-    def create_logging_properties(self, exist_ok=False):
-
-        # Copy /etc/tomcat/logging.properties
-        # to /var/lib/pki/<instance>/conf/logging.properties.
-
-        logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
-        self.copy(
-            logging_properties,
-            self.logging_properties,
-            exist_ok=exist_ok)
-
-    def create_server_xml(self, exist_ok=False):
-
-        # Copy /etc/tomcat/server.xml to <instance>/conf/server.xml
-
-        self.copy(
-            pki.server.Tomcat.SERVER_XML,
-            self.server_xml,
-            exist_ok=exist_ok)
-
-        server_config = self.get_server_config()
-
-        realm_class = 'org.apache.catalina.realm.LockOutRealm'
-        realm = server_config.get_realm(realm_class)
-
-        if realm is not None:
-            logger.info('Removing LockOutRealm')
-            server_config.remove_realm(realm_class)
-
-        resource_name = 'UserDatabase'
-        resource = server_config.get_global_naming_resource(resource_name)
-
-        if resource is not None:
-            logger.info('Removing UserDatabase')
-            server_config.remove_global_naming_resource(resource_name)
-
-        valve_class = 'org.apache.catalina.valves.AccessLogValve'
-        valve = server_config.get_valve(valve_class)
-
-        if valve is not None:
-            logger.info('Updating AccessLogValve')
-            valve.set('pattern', 'common')
-
-        server_config.save()
-
-        self.chown(self.server_xml)
-
-    def enable_rewrite(self, exist_ok=False):
-        '''
-        Rewrite rules are subsystem-specific, but the config is server-wide.
-        So we deploy them as part of the server config, regardless of which
-        subsystem(s) will eventually be deployed.
-        '''
-
-        server_config = self.get_server_config()
-
-        valve_class = 'org.apache.catalina.valves.rewrite.RewriteValve'
-        valve = server_config.get_valve(valve_class)
-
-        if valve is None:
-            logger.info('Adding RewriteValve')
-            server_config.create_valve(valve_class)
-
-        target = os.path.join(
-            PKIServer.SHARE_DIR,
-            'server',
-            'conf',
-            'Catalina',
-            'localhost',
-            'rewrite.config')
-
-        for service in server_config.get_services():
-
-            # https://tomcat.apache.org/tomcat-9.0-doc/config/engine.html
-            engine = service.find('Engine')
-            engine_name = engine.get('name')
-
-            # Create <instance>/conf/<engine> folder
-            engine_dir = os.path.join(self.conf_dir, engine_name)
-            self.makedirs(engine_dir, exist_ok=exist_ok)
-
-            # https://tomcat.apache.org/tomcat-9.0-doc/config/host.html
-            for host in engine.findall('Host'):
-                host_name = host.get('name')
-
-                # Create <instance>/conf/<engine>/<host> folder
-                host_dir = os.path.join(engine_dir, host_name)
-                self.makedirs(host_dir, exist_ok=exist_ok)
-
-                # Link <instance>/conf/<engine>/<host>/rewrite.config
-                # to /usr/share/pki/server/conf/Catalina/localhost/rewrite.config
-
-                link = os.path.join(host_dir, 'rewrite.config')
-
-                if os.path.exists(target):
-                    # symlink to shared rewrite.config if available
-                    self.symlink(target, link, exist_ok=exist_ok)
-                elif not os.path.exists(link):
-                    # generate rewrite.config directly
-                    logger.info('Creating %s', link)
-                    with open(link, 'w') as f:
-                        f.write('# EST\n')
-                        f.write('RewriteRule ^/.well-known/est/(.*)$ /est/$1\n')
-                        f.write('\n')
-                        f.write('# REST APIs\n')
-                        f.write('RewriteRule ^/(pki|ca|tps|tks|ocsp|kra)/rest/(.*)$ /$1/v1/$2\n')
-                    self.chown(link)
-                    os.chmod(link, DEFAULT_FILE_MODE)
-
-        server_config.save()
-
-    def create_web_xml(self, exist_ok=False):
-
-        # Link /var/lib/pki/<instance>/conf/web.xml
-        # to /etc/tomcat/web.xml.
-
-        self.symlink(
-            os.path.join(Tomcat.CONF_DIR, 'web.xml'),
-            self.web_xml,
-            exist_ok=exist_ok)
-
     def create_nssdb(self, force=False):
 
         logger.info('Creating %s', self.nssdb_dir)
@@ -1086,310 +481,10 @@ grant codeBase "file:%s" {
             user=self.user,
             group=self.group)
 
-    def get_webapp(self, webapp_id):
-        '''
-        Get a webapp in the instance.
-
-        https://tomcat.apache.org/tomcat-9.0-doc/config/context.html
-        '''
-
-        webapp = {}
-        webapp['id'] = webapp_id
-
-        parts = webapp_id.split('##')
-
-        # get context name
-        context_name = parts[0]
-
-        # get context version
-        if len(parts) > 1:
-            webapp['version'] = parts[1]
-
-        # get context path
-        if context_name == 'ROOT':
-            webapp['path'] = '/'
-        else:
-            webapp['path'] = '/' + context_name.replace('#', '/')
-
-        # get context descriptor
-        context_dir = os.path.join(
-            self.conf_dir,
-            'Catalina',
-            'localhost')
-        context_descriptor = os.path.join(context_dir, webapp_id + '.xml')
-
-        if not os.path.exists(context_descriptor):
-            return None
-
-        webapp['descriptor'] = context_descriptor
-
-        # get doc base
-        document = etree.parse(context_descriptor, parser)
-        context = document.getroot()
-        doc_base = context.get('docBase')
-        webapp['docBase'] = doc_base
-
-        return webapp
-
-    def get_webapps(self):
-        '''
-        Get all webapps in the instance.
-        '''
-
-        webapps = []
-
-        context_dir = os.path.join(
-            self.conf_dir,
-            'Catalina',
-            'localhost')
-
-        for filename in os.listdir(context_dir):
-
-            if not filename.endswith('.xml'):
-                continue
-
-            # remove .xml extension to get the webapp ID
-            webapp_id = filename[:-4]
-
-            webapp = self.get_webapp(webapp_id)
-            webapps.append(webapp)
-
-        return sorted(webapps, key=lambda webapp: webapp['id'])
-
-    def is_deployed(self, webapp_id):
-
-        context_xml = os.path.join(
-            self.conf_dir,
-            'Catalina',
-            'localhost',
-            webapp_id + '.xml')
-
-        return os.path.exists(context_xml)
-
-    def is_available(self, path='/', timeout=None):
-
-        server_config = self.get_server_config()
-
-        protocol = 'https'
-        hostname = socket.getfqdn()
-        port = server_config.get_https_port()
-
-        if port is None:
-            protocol = 'http'
-            port = server_config.get_http_port()
-
-        connection = pki.client.PKIConnection(
-            protocol=protocol,
-            hostname=hostname,
-            port=port,
-            trust_env=False,
-            verify=False)
-
-        try:
-            connection.get(path, timeout=timeout)
-            return True
-
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404:
-                return False
-            raise
-
-    def deploy_webapp(
-            self,
-            webapp_id,
-            descriptor,
-            doc_base=None,
-            wait=False,
-            max_wait=60,
-            timeout=None):
-        """
-        Deploy a web application into a Tomcat instance.
-
-        This method will copy the specified deployment descriptor into
-        <instance>/conf/Catalina/localhost/<name>.xml and point the docBase
-        to the specified location. The web application will become available
-        under "/<name>" URL path.
-
-        See also: https://tomcat.apache.org/tomcat-9.0-doc/config/context.html
-
-        :param webapp_id: Web application ID.
-        :type webapp_id: str
-        :param descriptor: Path to deployment descriptor (context.xml).
-        :type descriptor: str
-        :param doc_base: Path to web application content.
-        :type doc_base: str
-        """
-
-        context_xml = os.path.join(
-            self.conf_dir,
-            'Catalina',
-            'localhost',
-            webapp_id + '.xml')
-
-        if os.path.exists(context_xml):
-            logger.info('Reusing %s web application', webapp_id)
-
-        else:
-            logger.info('Deploying %s web application', webapp_id)
-
-            if os.path.exists(descriptor):
-                # read deployment descriptor from template
-                document = etree.parse(descriptor, parser)
-            else:
-                # generate default context XML
-                logger.info('Descriptor %s not found, generating default', descriptor)
-                context = etree.Element('Context')
-                context.set('crossContext', 'true')
-
-                manager = etree.SubElement(context, 'Manager')
-                manager.set('secureRandomProvider', 'Mozilla-JSS')
-                manager.set('secureRandomAlgorithm', 'pkcs11prng')
-
-                resources = etree.SubElement(context, 'Resources')
-                resources.set('allowLinking', 'true')
-
-                document = etree.ElementTree(context)
-
-            if doc_base:
-                # customize docBase
-                context = document.getroot()
-                context.set('docBase', doc_base)
-
-            logger.info('Creating %s', context_xml)
-            with open(context_xml, 'wb') as f:
-                # xml as UTF-8 encoded bytes
-                document.write(f, pretty_print=True, encoding='utf-8')
-
-            # set deployment descriptor ownership and permission
-            self.chown(context_xml)
-            os.chmod(context_xml, DEFAULT_FILE_MODE)
-
-        if not wait:
-            return
-
-        logger.info('Waiting for %s web application to start', webapp_id)
-
-        if webapp_id == 'ROOT':
-            path = '/'
-        else:
-            # end with backslash to avoid redirection
-            path = '/' + webapp_id + '/'
-
-        start_time = datetime.datetime.today()
-        counter = 0
-
-        while True:
-            try:
-                time.sleep(1)
-                available = self.is_available(path, timeout=timeout)
-
-                if available:
-                    break  # done
-
-                # continue waiting
-
-            except requests.exceptions.SSLError as e:
-                max_retry_error = e.args[0]
-                reason = getattr(max_retry_error, 'reason')
-                raise Exception('Server unreachable due to SSL error: %s' % reason) from e
-
-            except pki.RETRYABLE_EXCEPTIONS as e:
-                logger.debug('Unable to access path %s: %s', path, e)
-                # continue waiting
-
-            stop_time = datetime.datetime.today()
-            counter = (stop_time - start_time).total_seconds()
-
-            if max_wait is not None and counter >= max_wait:
-                raise Exception(
-                    '%s web application did not start after %ds' % (webapp_id, max_wait))
-
-            logger.info(
-                'Waiting for %s web application to start (%ds)',
-                webapp_id,
-                round(counter))
-
-        logger.info('%s web application started', webapp_id)
-
-    def undeploy_webapp(
-            self,
-            webapp_id,
-            force=False,
-            wait=False,
-            max_wait=60,
-            timeout=None):
-
-        logger.info('Undeploying %s web application', webapp_id)
-
-        context_xml = os.path.join(
-            self.conf_dir,
-            'Catalina',
-            'localhost',
-            webapp_id + '.xml')
-
-        logger.info('Removing %s', context_xml)
-        pki.util.remove(context_xml, force=force)
-
-        if not wait:
-            return
-
-        logger.info('Waiting for %s web application to stop', webapp_id)
-
-        if webapp_id == 'ROOT':
-            path = '/'
-        else:
-            # end with backslash to avoid redirection
-            path = '/' + webapp_id + '/'
-
-        start_time = datetime.datetime.today()
-        counter = 0
-
-        while True:
-            try:
-                time.sleep(1)
-                available = self.is_available(path, timeout=timeout)
-
-                if not available:
-                    break  # done
-
-                # continue waiting
-
-            except requests.exceptions.SSLError as e:
-                max_retry_error = e.args[0]
-                reason = getattr(max_retry_error, 'reason')
-                raise Exception('Server unreachable due to SSL error: %s' % reason) from e
-
-            except pki.RETRYABLE_EXCEPTIONS as e:
-                logger.debug('Unable to access path %s: %s', path, e)
-                # continue waiting
-
-            stop_time = datetime.datetime.today()
-            counter = (stop_time - start_time).total_seconds()
-
-            if max_wait is not None and counter >= max_wait:
-                raise Exception(
-                    '%s web application did not stop after %ds' % (webapp_id, max_wait))
-
-            logger.info(
-                'Waiting for %s web application to stop (%ds)',
-                webapp_id,
-                round(counter))
-
-        logger.info('%s web application stopped', webapp_id)
-
     def remove(self, remove_conf=False, remove_logs=False, force=False):
 
         logger.info('Removing %s', self.service_conf)
         pki.util.remove(self.service_conf, force=force)
-
-        logger.info('Removing %s', self.work_dir)
-        pki.util.rmtree(self.work_dir, force=force)
-
-        logger.info('Removing %s', self.webapps_dir)
-        pki.util.rmtree(self.webapps_dir, force=force)
-
-        logger.info('Removing %s', self.temp_dir)
-        pki.util.rmtree(self.temp_dir, force=force)
 
         if remove_logs:
             self.remove_logs_dir(force=force)
@@ -1398,9 +493,6 @@ grant codeBase "file:%s" {
 
         if remove_conf:
             self.remove_conf_dir(force=force)
-
-        logger.info('Removing %s', self.bin_dir)
-        pki.util.unlink(self.bin_dir, force=force)
 
         # remove <instance base dir>/alias if exists
         if os.path.islink(self.nssdb_link):
@@ -1486,15 +578,16 @@ grant codeBase "file:%s" {
 
         self.config.clear()
 
-        logger.info('Loading global Tomcat config: %s', Tomcat.TOMCAT_CONF)
-        pki.util.load_properties(Tomcat.TOMCAT_CONF, self.config)
+        # Load PKI config
+        pki_conf = os.path.join(PKIServer.SHARE_DIR, 'etc', 'pki.conf')
+        if os.path.exists(pki_conf):
+            logger.info('Loading PKI config: %s', pki_conf)
+            pki.util.load_properties(pki_conf, self.config)
 
-        logger.info('Loading PKI Tomcat config: %s', PKIServer.TOMCAT_CONF)
-        pki.util.load_properties(PKIServer.TOMCAT_CONF, self.config)
-
-        if os.path.exists(self.tomcat_conf):
-            logger.info('Loading instance Tomcat config: %s', self.tomcat_conf)
-            pki.util.load_properties(self.tomcat_conf, self.config)
+        # Load instance sysconfig
+        if os.path.exists(self.service_conf):
+            logger.info('Loading instance config: %s', self.service_conf)
+            pki.util.load_properties(self.service_conf, self.config)
 
         # strip quotes
         for name, value in self.config.items():
@@ -1588,11 +681,6 @@ grant codeBase "file:%s" {
     def store_jss_config(self, jss_config):
         self.store_properties(self.jss_conf, jss_config)
 
-    def get_server_config(self):
-        server_config = ServerConfig(self.server_xml)
-        server_config.load()
-        return server_config
-
     def get_password(self, name):
 
         # find password (e.g. internaldb, replicationdb) in password.conf
@@ -1653,56 +741,6 @@ grant codeBase "file:%s" {
             logger.info('Password cannot be provided from standard I/O')
 
         raise Exception('No available password to access the token "%s"' % token)
-
-    def get_sslserver_cert_nickname(self):
-
-        # Load SSL server cert nickname from server.xml
-
-        server_config = self.get_server_config()
-        connector = server_config.get_https_connector()
-
-        if connector is None:
-            return None
-
-        sslhost = server_config.get_sslhost(connector)
-
-        if sslhost is None:
-            raise Exception('Missing SSL host')
-
-        sslcert = server_config.get_sslcert(sslhost)
-
-        if sslcert is None:
-            raise Exception('Missing SSL certificate')
-
-        return sslcert.get('certificateKeyAlias')
-
-    def set_sslserver_cert_nickname(self, nickname, token=None):
-
-        # Store SSL server cert nickname into server.xml
-
-        if pki.nssdb.internal_token(token):
-            fullname = nickname
-        else:
-            fullname = token + ':' + nickname
-
-        server_config = self.get_server_config()
-        connector = server_config.get_https_connector()
-
-        if connector is None:
-            raise KeyError('Connector not found: Secure')
-
-        sslhost = server_config.get_sslhost(connector)
-
-        if sslhost is None:
-            raise Exception('Missing SSL host')
-
-        sslcert = server_config.get_sslcert(sslhost)
-
-        if sslcert is None:
-            raise Exception('Missing SSL certificate')
-
-        sslcert.set('certificateKeyAlias', fullname)
-        server_config.save()
 
     def selinux_context_exists(self, records, context_value):
         '''
@@ -2185,400 +1223,6 @@ class ExternalCert(object):
         self.token = token
 
 
-class ServerConfig(object):
-
-    def __init__(self, filename):
-        self.filename = filename
-        self.document = etree.ElementTree()
-
-    def load(self):
-        self.document = etree.parse(self.filename, parser)
-
-    def save(self):
-        with open(self.filename, 'wb') as f:
-            self.document.write(f, pretty_print=True, encoding='utf-8')
-
-    def get_port(self):
-        server = self.document.getroot()
-        return server.get('port')
-
-    def set_port(self, port):
-        server = self.document.getroot()
-        server.set('port', port)
-
-    def get_http_port(self):
-
-        connector = self.get_http_connector()
-        if connector is not None:
-            return connector.get('port')
-
-        return None
-
-    def get_https_port(self):
-
-        connector = self.get_https_connector()
-        if connector is not None:
-            return connector.get('port')
-
-        return None
-
-    def get_ajp_port(self):
-
-        connector = self.get_ajp_connector()
-        if connector is not None:
-            return connector.get('port')
-
-        return None
-
-    def get_listeners(self):
-        server = self.document.getroot()
-        return server.findall('Listener')
-
-    def get_listener(self, className):
-
-        listeners = self.get_listeners()
-
-        for listener in listeners:
-            c = listener.get('className')
-            if c == className:
-                return listener
-
-        return None
-
-    def create_listener(self, className, index=None):
-        '''
-        Create listener and add it after the last listener.
-        Optionally the listener can be added at a specific index.
-        '''
-
-        listener = etree.Element('Listener')
-        listener.set('className', className)
-
-        if index is None:
-            # insert after the last listener
-            listeners = self.get_listeners()
-            last_listener = listeners[-1]
-
-            server = self.document.getroot()
-            index = server.index(last_listener) + 1
-
-        server.insert(index, listener)
-
-        return listener
-
-    def remove_listener(self, className):
-        '''
-        Remove listener by class name.
-        '''
-
-        listener = self.get_listener(className)
-
-        if listener is None:
-            raise KeyError('Listener not found: %s' % className)
-
-        server = listener.getparent()
-        server.remove(listener)
-
-    def get_global_naming_resource(self, name):
-        '''
-        Find global naming resource by name.
-        '''
-
-        server = self.document.getroot()
-        return server.find('GlobalNamingResources/Resource[@name="%s"]' % name)
-
-    def remove_global_naming_resource(self, name):
-        '''
-        Remove global naming resource by name.
-        '''
-
-        resource = self.get_global_naming_resource(name)
-
-        if resource is None:
-            return
-
-        parent = resource.getparent()
-        parent.remove(resource)
-
-    def get_services(self):
-        '''
-        https://tomcat.apache.org/tomcat-9.0-doc/config/service.html
-        '''
-        server = self.document.getroot()
-        return server.findall('Service')
-
-    def get_service(self, name='Catalina'):
-        server = self.document.getroot()
-        return server.find('Service[@name="%s"]' % name)
-
-    def get_connectors(self):
-
-        service = self.get_service()
-
-        names = set()
-        connectors = []
-        counter = 0
-
-        for connector in service.findall('Connector'):
-
-            name = connector.get('name')
-
-            if not name:  # connector has no name, generate a temporary name
-
-                while True:  # find unused name
-                    counter += 1
-                    name = 'Connector%d' % counter
-                    if name not in names:
-                        break
-
-                connector.set('name', name)
-
-            names.add(name)
-            connectors.append(connector)
-
-        return connectors
-
-    def get_connector(self, name=None, port=None):
-        '''
-        Find connector by name or port.
-        '''
-
-        service = self.get_service()
-
-        xpath = 'Connector'
-        if name is not None:
-            xpath = xpath + '[@name="%s"]' % name
-        if port is not None:
-            xpath = xpath + '[@port="%s"]' % port
-
-        return service.find(xpath)
-
-    def get_http_connector(self):
-
-        for connector in self.get_connectors():
-
-            if connector.get('SSLEnabled'):
-                continue
-
-            if connector.get('protocol', '').startswith('AJP/'):
-                continue
-
-            return connector
-
-        return None
-
-    def get_https_connector(self):
-
-        for connector in self.get_connectors():
-
-            if not connector.get('SSLEnabled'):
-                continue
-
-            return connector
-
-        return None
-
-    def get_ajp_connector(self):
-
-        for connector in self.get_connectors():
-
-            if not connector.get('protocol', '').startswith('AJP/'):
-                continue
-
-            return connector
-
-        return None
-
-    def create_connector(self, name, index=None):
-        '''
-        Create connector and add it after the last connector.
-        '''
-
-        connector = etree.Element('Connector')
-        connector.set('name', name)
-
-        self.add_connector(connector, index=index)
-
-        return connector
-
-    def add_connector(self, connector, index=None):
-        '''
-        Add connector after the last connector.
-        '''
-
-        service = self.get_service()
-        connectors = service.findall('Connector')
-
-        if index is None:
-            # insert after the last connector
-            last_connector = connectors[-1]
-            index = service.index(last_connector) + 1
-
-        service.insert(index, connector)
-
-    def remove_connector(self, name):
-
-        connector = self.get_connector(name=name)
-
-        if connector is None:
-            raise KeyError('Connector not found: %s' % name)
-
-        service = connector.getparent()
-        service.remove(connector)
-
-    def get_sslhosts(self, connector):
-        return list(connector.iter('SSLHostConfig'))
-
-    def get_sslhost(self, connector, hostname='_default_'):
-        sslhosts = self.get_sslhosts(connector)
-
-        for sslhost in sslhosts:
-            h = sslhost.get('hostName', '_default_')
-            if h == hostname:
-                return sslhost
-
-        return None
-
-    def create_sslhost(self, connector, hostname='_default_'):
-        '''
-        Create SSL host and add it after the last SSL host.
-        '''
-
-        sslhost = etree.Element('SSLHostConfig')
-        if hostname != '_default_':
-            sslhost.set('hostName', hostname)
-
-        connector.append(sslhost)
-
-        return sslhost
-
-    def remove_sslhost(self, connector, hostname):
-
-        sslhost = self.get_sslhost(connector, hostname)
-
-        if sslhost is None:
-            raise Exception('SSL host not found: %s' % hostname)
-
-        connector.remove(sslhost)
-
-    def get_sslcerts(self, sslhost):
-        return list(sslhost.iter('Certificate'))
-
-    def get_sslcert(self, sslhost, certType='UNDEFINED'):
-        sslcerts = self.get_sslcerts(sslhost)
-
-        for sslcert in sslcerts:
-            t = sslcert.get('type', 'UNDEFINED')
-            if t == certType:
-                return sslcert
-
-        return None
-
-    def create_sslcert(self, sslhost, certType='UNDEFINED'):
-        '''
-        Create SSL cert and add it after the last SSL cert.
-        '''
-
-        sslcert = etree.Element('Certificate')
-        if certType != 'UNDEFINED':
-            sslcert.set('type', certType)
-
-        sslhost.append(sslcert)
-
-        return sslcert
-
-    def remove_sslcert(self, sslhost, certType):
-
-        sslcert = self.get_sslcert(sslhost, certType)
-
-        if sslcert is None:
-            raise Exception('SSL certificate not found: %s' % certType)
-
-        sslhost.remove(sslcert)
-
-    def get_realm(self, className):
-        '''
-        Find realm by class name.
-        '''
-
-        server = self.document.getroot()
-        return server.find('.//Realm[@className="%s"]' % className)
-
-    def remove_realm(self, className):
-        '''
-        Remove realm by class name.
-        '''
-
-        realm = self.get_realm(className)
-
-        if realm is None:
-            return
-
-        service = realm.getparent()
-        service.remove(realm)
-
-    def get_valves(self):
-        '''
-        Find all valves.
-        '''
-
-        server = self.document.getroot()
-        return server.findall('.//Valve')
-
-    def get_valve(self, className):
-        '''
-        Find valve by class name.
-        '''
-
-        server = self.document.getroot()
-        return server.find('.//Valve[@className="%s"]' % className)
-
-    def create_valve(self, className):
-        '''
-        Create valve and add it after the last valve.
-        '''
-
-        valve = etree.Element('Valve')
-        valve.set('className', className)
-
-        self.add_valve(valve)
-
-        return valve
-
-    def add_valve(self, valve):
-        '''
-        Add valve after the last valve.
-        '''
-
-        server = self.document.getroot()
-
-        # find last valve
-        host = server.find('.//Host[@name="localhost"]')
-        valves = host.findall('Valve')
-
-        # insert new valve after the last valve
-        if len(valves) == 0:
-            index = 0
-        else:
-            last_valve = valves[-1]
-            index = host.index(last_valve) + 1
-
-        host.insert(index, valve)
-
-    def remove_valve(self, className):
-        '''
-        Remove valve by class name.
-        '''
-
-        valve = self.get_valve(className)
-
-        if valve is None:
-            return
-
-        service = valve.getparent()
-        service.remove(valve)
-
-
 class PKIDatabaseConnection(object):
 
     def __init__(self, url='ldap://localhost:389'):
@@ -2652,7 +1296,7 @@ class PKIServerFactory(object):
         '''
         This method creates PKIServer object based on the
         optional service type specified in the service name.
-        The default type is 'pki-tomcatd'.
+        The default type is 'pki-quarkusd'.
 
         :param name: Server name in this format: [<type>@]<name>[.service]
         '''
@@ -2663,36 +1307,18 @@ class PKIServerFactory(object):
         parts = name.split('@')
 
         if len(parts) == 1:  # no type
-            instance_type = 'pki-tomcatd'
+            instance_type = 'pki-quarkusd'
             instance_name = name
 
         else:  # with type
             instance_type = parts[0]
             instance_name = parts[1]
 
-        sysconfig_file = os.path.join('/etc/sysconfig', instance_name)
-
-        if os.path.isfile(sysconfig_file):
-
-            with open(sysconfig_file, encoding='utf-8') as f:
-                nuxwdog_status = re.search('^USE_NUXWDOG=\"(.*)\"', f.read(), re.MULTILINE)
-
-                # Check if the regex was matched and then check if nuxwdog is enabled.
-                if nuxwdog_status and nuxwdog_status.group(1) == "true":
-                    instance_type += '-nuxwdog'
-
         logger.info('Loading instance type: %s', instance_type)
 
-        if instance_type == 'tomcat':
-            return pki.server.PKIServer(instance_name)
-
-        if instance_type.startswith('pki-tomcatd'):
+        if instance_type.startswith('pki-quarkusd'):
             module = __import__('pki.server.instance', fromlist=['PKIInstance'])
             clazz = getattr(module, 'PKIInstance')
             return clazz(instance_name, instance_type=instance_type)
-
-        if instance_type.startswith('pki-quarkusd'):
-            from pki.server.quarkus import QuarkusPKIInstance
-            return QuarkusPKIInstance(instance_name, instance_type)
 
         raise Exception('Unsupported instance type: %s' % instance_type)

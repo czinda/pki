@@ -119,7 +119,7 @@ jobs:
           # enable caDirUserCert profile
           docker exec pki sed -i \
               -e "s/^\(enable\)=.*/\1=true/" \
-              /var/lib/pki/pki-tomcat/ca/profiles/ca/caDirUserCert.cfg
+              /var/lib/pki/pki-quarkus/ca/profiles/ca/caDirUserCert.cfg
 
           # restart CA subsystem
           docker exec pki pki-server ca-redeploy --wait
@@ -134,7 +134,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       - name: Check enrollment using pki ca-cert-issue
@@ -319,9 +319,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

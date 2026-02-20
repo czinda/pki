@@ -19,10 +19,10 @@ Client initialized
 
 By default it will create a database in `~/.dogtag/nssdb` with the specified password.
 
-This operation is optional for the admin. When the admin creates a new subsystem, a client security database will automatically be created (e.g. `~/.dogtag/pki-tomcat/ca/alias`). The database can be used directly as follows:
+This operation is optional for the admin. When the admin creates a new subsystem, a client security database will automatically be created (e.g. `~/.dogtag/pki-quarkus/ca/alias`). The database can be used directly as follows:
 
 ----
-$ pki -d ~/.dogtag/pki-tomcat/ca/alias -c Secret.123 -n caadmin ca-user-find
+$ pki -d ~/.dogtag/pki-quarkus/ca/alias -c Secret.123 -n caadmin ca-user-find
 ----
 
 == Listing Client Certificates ==
@@ -36,13 +36,13 @@ $ pki -c Secret.123 client-cert-find
 ----------------------
   Serial Number: 0x1
   Nickname: CA Signing Certificate - EXAMPLE
-  Subject DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
-  Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  Subject DN: CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE
+  Issuer DN: CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE
 
   Serial Number: 0xa
   Nickname: testuser
   Subject DN: UID=testuser
-  Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+  Issuer DN: CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE
 ----------------------------
 Number of entries returned 2
 ----------------------------

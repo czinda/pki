@@ -82,7 +82,7 @@ def test_pki_server_db_upgrade_help_command(ansible_module):
         1. Verify whether pki-server db-upgrade --help command shows the following commands.
              Usage: pki-server db-upgrade [OPTIONS]
         
-              -i, --instance <instance ID>       Instance ID (default: pki-tomcat).
+              -i, --instance <instance ID>       Instance ID (default: pki-quarkus).
               -v, --verbose                      Run in verbose mode.
                   --help                         Show help message.
 
@@ -93,7 +93,7 @@ def test_pki_server_db_upgrade_help_command(ansible_module):
     for result in cmd_output.values():
         if result['rc'] == 0:
             assert "Usage: pki-server db-upgrade [OPTIONS]" in result['stdout']
-            assert " -i, --instance <instance ID>       Instance ID (default: pki-tomcat)." in \
+            assert " -i, --instance <instance ID>       Instance ID (default: pki-quarkus)." in \
                    result['stdout']
             assert " -v, --verbose                      Run in verbose mode." in result['stdout']
             assert "     --help                         Show help message." in result['stdout']

@@ -61,7 +61,7 @@ class SDCreateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server sd-create [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --name <name>                  Security domain name')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -150,7 +150,7 @@ class SDTypeAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server sd-type-add [OPTIONS] <subsystem_type>')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -239,7 +239,7 @@ class SDSubsystemFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server sd-subsystem-find [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -327,7 +327,7 @@ class SDSubsystemAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server sd-subsystem-add [OPTIONS] <subsystem ID>')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --subsystem <type>             Subsystem type')
         print('      --hostname <hostname>          Hostname')
         print('      --unsecure-port <port>         Unsecure port')
@@ -436,7 +436,7 @@ class SDSubsystemRemoveCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server sd-subsystem-del [OPTIONS] <subsystem ID>')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -508,7 +508,7 @@ class SubsystemSDCreateCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-sd-create [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --name <name>                  Security domain name
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
@@ -573,7 +573,7 @@ class SubsystemSDTypeAddCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-sd-type-add [OPTIONS] <subsystem_type>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -641,7 +641,7 @@ class SubsystemSDSubsystemFindCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-sd-subsystem-find [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -688,7 +688,7 @@ class SubsystemSDSubsystemAddCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-sd-subsystem-add [OPTIONS] <subsystem ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --subsystem <type>             Subsystem type
               --hostname <hostname>          Hostname
               --unsecure-port <port>         Unsecure port
@@ -756,7 +756,7 @@ class SubsystemSDSubsystemRemoveCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-sd-subsystem-del [OPTIONS] <subsystem ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.

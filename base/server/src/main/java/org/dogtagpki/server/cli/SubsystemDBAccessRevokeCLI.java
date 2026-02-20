@@ -45,7 +45,7 @@ public class SubsystemDBAccessRevokeCLI extends ServerCommandCLI {
 
         String dn = cmdArgs[0];
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.parent.parent.getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

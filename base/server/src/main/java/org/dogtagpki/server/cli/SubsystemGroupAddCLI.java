@@ -54,7 +54,7 @@ public class SubsystemGroupAddCLI extends ServerCommandCLI {
         String description = cmd.getOptionValue("description");
 
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

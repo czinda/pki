@@ -58,8 +58,8 @@ jobs:
       - name: Check first CA admin
         run: |
           docker exec pki1 pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-export \
               --output-file cert_chain.pem \
               --with-chain \
@@ -70,7 +70,7 @@ jobs:
               --trust CT,C,C
 
           docker exec pki1 pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki1 pki -n caadmin ca-user-show caadmin
 
@@ -250,8 +250,8 @@ jobs:
       - name: Check second CA admin
         run: |
           docker exec pki2 pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               nss-cert-export \
               --output-file cert_chain.pem \
               --with-chain \
@@ -262,7 +262,7 @@ jobs:
               --trust CT,C,C
 
           docker exec pki2 pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki2 pki -n caadmin ca-user-show caadmin
 
@@ -291,7 +291,7 @@ jobs:
           docker exec pki1 KRATool \
               -kratool_config_file /usr/share/pki/tools/KRATool.cfg \
               -source_kra_naming_context dc=kra,dc=pki1,dc=example,dc=com \
-              -source_pki_security_database_path /var/lib/pki/pki-tomcat/conf/alias \
+              -source_pki_security_database_path /var/lib/pki/pki-quarkus/conf/alias \
               -source_pki_security_database_pwdfile $SHARED/password.txt \
               -source_storage_token_name "Internal Key Storage Token" \
               -source_storage_certificate_nickname kra_storage \
@@ -411,19 +411,19 @@ jobs:
       - name: Check first CA debug log
         if: always()
         run: |
-          docker exec pki1 find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki1 find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check first KRA debug log
         if: always()
         run: |
-          docker exec pki1 find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec pki1 find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check second CA debug log
         if: always()
         run: |
-          docker exec pki2 find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki2 find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check second KRA debug log
         if: always()
         run: |
-          docker exec pki2 find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec pki2 find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;

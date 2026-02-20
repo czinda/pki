@@ -80,12 +80,12 @@ RUN pki-server ca-create
 RUN pki-server ca-deploy
 
 # Store default config files
-RUN mv /data/conf /var/lib/pki/pki-tomcat/conf.default
+RUN mv /data/conf /var/lib/pki/pki-quarkus/conf.default
 
 # Grant the root group the full access to PKI server files
 # https://www.openshift.com/blog/jupyter-on-openshift-part-6-running-as-an-assigned-user-id
-RUN chgrp -Rf root /var/lib/pki/pki-tomcat
-RUN chmod -Rf g+rw /var/lib/pki/pki-tomcat
+RUN chgrp -Rf root /var/lib/pki/pki-quarkus
+RUN chmod -Rf g+rw /var/lib/pki/pki-quarkus
 
 VOLUME [ "/certs", "/data" ]
 

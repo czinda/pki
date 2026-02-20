@@ -28,7 +28,7 @@ Configure the issuance backend. The class `org.dogtagpki.est.DogtagRABackend` is
 
 [literal]
 ....
-# cat >/var/lib/pki/pki-tomcat/conf/est/backend.conf <<EOF
+# cat >/var/lib/pki/pki-quarkus/conf/est/backend.conf <<EOF
 class=org.dogtagpki.est.DogtagRABackend
 url=https://$(hostname):8443
 profile=estServiceCert
@@ -51,7 +51,7 @@ parameter *executable*:
 
 [literal]
 ....
-# cat >/var/lib/pki/pki-tomcat/conf/est/authorizer.conf <<EOF
+# cat >/var/lib/pki/pki-quarkus/conf/est/authorizer.conf <<EOF
 class=org.dogtagpki.est.ExternalProcessRequestAuthorizer
 executable=/usr/share/pki/est/bin/estauthz
 EOF
@@ -71,7 +71,7 @@ Configure the authentication. The authentication allows one to use realms from _
 
 [literal]
 ....
-# cat >/var/lib/pki/pki-tomcat/conf/est/realm.conf <<EOF
+# cat >/var/lib/pki/pki-quarkus/conf/est/realm.conf <<EOF
 class=com.netscape.cms.realm.PKIInMemoryRealm
 username=alice
 password=4me2Test

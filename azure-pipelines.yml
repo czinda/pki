@@ -163,19 +163,19 @@ jobs:
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-tomcat.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-tomcat.cmake
+          jar tvf /root/build/dist/pki-quarkus.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-quarkus.cmake
       docker exec runner \
-          jar tvf /root/src/base/tomcat/target/pki-tomcat.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-tomcat.maven
-      diff pki-tomcat.cmake pki-tomcat.maven
-    displayName: Compare pki-tomcat.jar
+          jar tvf /root/src/base/tomcat/target/pki-quarkus.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-quarkus.maven
+      diff pki-quarkus.cmake pki-quarkus.maven
+    displayName: Compare pki-quarkus.jar
 
   - script: |
       docker exec runner \
-          jar tvf /root/build/dist/pki-tomcat-9.0.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-tomcat-9.0.cmake
+          jar tvf /root/build/dist/pki-quarkus-9.0.jar | awk '{print $8;}' | grep -v '/$' | sort | tee pki-quarkus-9.0.cmake
       docker exec runner \
-          jar tvf /root/src/base/tomcat-9.0/target/pki-tomcat-9.0.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-tomcat-9.0.maven
-      diff pki-tomcat-9.0.cmake pki-tomcat-9.0.maven
-    displayName: Compare pki-tomcat-9.0.jar
+          jar tvf /root/src/base/tomcat-9.0/target/pki-quarkus-9.0.jar | awk '{print $8;}' | grep -v -E '^META-INF/maven/|/$' | sort | tee pki-quarkus-9.0.maven
+      diff pki-quarkus-9.0.cmake pki-quarkus-9.0.maven
+    displayName: Compare pki-quarkus-9.0.jar
 
   - script: |
       docker exec runner \

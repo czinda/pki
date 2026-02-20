@@ -206,7 +206,7 @@ The PoC uses `application.yaml` for configuration. Key settings:
 ```yaml
 est:
   instance-id: ${EST_INSTANCE_ID:ROOT}
-  config-dir: ${EST_CONFIG_DIR:/etc/pki/pki-tomcat/est}
+  config-dir: ${EST_CONFIG_DIR:/etc/pki/pki-quarkus/est}
   backend:
     config-file: ${est.config-dir}/backend.conf
   authorizer:

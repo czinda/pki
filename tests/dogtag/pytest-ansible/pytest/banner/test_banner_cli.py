@@ -92,10 +92,10 @@ def import_admin_certs(ansible_module):
 @positive
 @pytest.mark.parametrize("bannercmd, inputhelp, expected",
     [("banner-validate", "--help", ["Usage: pki-server banner-validate [OPTIONS]",
-                                   "-i, --instance <instance ID>    Instance ID (default: pki-tomcat)",
+                                   "-i, --instance <instance ID>    Instance ID (default: pki-quarkus)",
                                    "--file <path>               Validate specified banner file."]),
     ("banner-show", "--help", ["Usage: pki-server banner-show [OPTIONS]",
-                               "-i, --instance <instance ID>    Instance ID (default: pki-tomcat)",
+                               "-i, --instance <instance ID>    Instance ID (default: pki-quarkus)",
                                "-v, --verbose                   Run in verbose mode.",
                                "--help                      Show help message."])])
 def test_banner_help(ansible_module, bannercmd, inputhelp, expected):

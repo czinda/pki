@@ -25,7 +25,7 @@ import io.quarkus.runtime.StartupEvent;
  * Unlike ACME which has a standalone engine, OCSP extends CMSEngine
  * and needs the full PKI infrastructure (LDAP, auth, authz, etc.).
  * This wrapper manages the real OCSPEngine lifecycle via CDI events
- * and replaces Tomcat-specific components with Quarkus equivalents.
+ * and uses Quarkus lifecycle management.
  */
 @ApplicationScoped
 public class OCSPEngineQuarkus {
@@ -66,14 +66,14 @@ public class OCSPEngineQuarkus {
         logger.info("OCSPEngineQuarkus: Starting OCSP engine");
 
         // Configure instance directory for Quarkus
-        // (replaces Tomcat's catalina.base with pki.instance.dir)
+        // (sets pki.instance.dir for instance discovery)
         CMS.setInstanceConfig(new QuarkusInstanceConfig());
 
         // Create the real OCSP engine
         engine = new OCSPEngine();
 
-        // Replace TomcatSocketListenerRegistry with Quarkus version
-        // to avoid TomcatJSS dependency at runtime
+        // Set Quarkus socket listener registry
+        // (uses direct JSS initialization)
         engine.setSocketListenerRegistry(new QuarkusSocketListenerRegistry());
 
         // Start the engine (loads CS.cfg, initializes all subsystems)

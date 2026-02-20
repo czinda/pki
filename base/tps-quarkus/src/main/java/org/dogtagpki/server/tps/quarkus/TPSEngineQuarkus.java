@@ -39,7 +39,7 @@ import io.quarkus.security.identity.SecurityIdentity;
  * TPS extends CMSEngine and needs the full PKI infrastructure
  * (LDAP, auth, authz, token databases, connectors, etc.).
  * This wrapper manages the real TPSEngine lifecycle via CDI events
- * and replaces Tomcat-specific components with Quarkus equivalents.
+ * and uses Quarkus lifecycle management.
  *
  * Provides utility methods for profile-based authorization and
  * audit logging that replace the TPSServlet base class methods.
@@ -126,8 +126,7 @@ public class TPSEngineQuarkus {
      * Get the list of TPS profiles authorized for the current user.
      * Replaces TPSServlet.getAuthorizedProfiles().
      *
-     * In Tomcat, this reads from SessionContext populated during authentication.
-     * In Quarkus, we extract the User from the SecurityIdentity's PKIPrincipalCore
+     * This reads from the User extracted from the SecurityIdentity's PKIPrincipalCore
      * and read TPS profiles from the user record.
      */
     public static List<String> getAuthorizedProfiles(SecurityIdentity identity) {

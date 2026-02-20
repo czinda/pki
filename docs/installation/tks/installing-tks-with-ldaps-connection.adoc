@@ -23,7 +23,7 @@ $ certutil -L -d /etc/dirsrv/slapd-localhost -n Self-Signed-CA -a > ds_signing.c
 [literal]
 ....
 [DEFAULT]
-pki_instance_name=pki-tomcat
+pki_instance_name=pki-quarkus
 pki_https_port=8443
 pki_http_port=8080
 pki_server_database_password=Secret.123
@@ -66,11 +66,11 @@ pki_subsystem_nickname=subsystem
 $ pkispawn -f tks.cfg -s TKS
 ....
 
-It installs a TKS subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a TKS subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/.dogtag/pki-tomcat/tks/alias
+* admin NSS database: ~/.dogtag/pki-quarkus/tks/alias
 
 == Verifying system certificates
 
@@ -78,7 +78,7 @@ Verify that the server NSS database contains the following certificates:
 
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

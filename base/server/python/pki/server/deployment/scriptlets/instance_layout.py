@@ -24,7 +24,7 @@ import logging
 import os
 
 import pki
-import pki.server.instance
+import pki.nssdb
 import pki.util
 
 # PKI Deployment Imports
@@ -52,10 +52,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Create /var/lib/pki/<instance>
         instance.makedirs(instance.base_dir, exist_ok=True)
 
-        # Link /var/lib/pki/<instance>/bin to /usr/share/tomcat/bin
-        bin_dir = os.path.join(pki.server.Tomcat.SHARE_DIR, 'bin')
-        instance.symlink(bin_dir, instance.bin_dir, exist_ok=True)
-
         # Create /etc/pki/<instance> and /var/lib/pki/<instance>/conf
         instance.create_conf_dir(exist_ok=True)
 
@@ -67,37 +63,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.with_maven_deps = deployer.with_maven_deps
         instance.create_libs(force=True)
 
-        # Create /var/lib/pki/<instance>/temp
-        instance.makedirs(instance.temp_dir, exist_ok=True)
-
-        # Create /var/lib/pki/<instance>/work
-        instance.makedirs(instance.work_dir, exist_ok=True)
-
         # Create /var/lib/pki/<instance>/conf/certs
         instance.makedirs(instance.certs_dir, exist_ok=True)
-
-        instance.create_server_xml(exist_ok=True)
-        deployer.configure_server_xml()
-        deployer.configure_http_connectors()
-        instance.enable_rewrite(exist_ok=True)
-
-        if config.str2bool(deployer.mdict['pki_enable_proxy']):
-            deployer.enable_proxy()
-
-        if config.str2bool(deployer.mdict['pki_enable_access_log']):
-            deployer.enable_access_log()
-        else:
-            deployer.disable_access_log()
-
-        shared_conf_path = os.path.join(
-            pki.server.PKIServer.SHARE_DIR,
-            'server',
-            'conf')
-
-        instance.create_catalina_properties(exist_ok=True)
-        instance.create_context_xml(exist_ok=True)
-        instance.create_logging_properties(exist_ok=True)
-        instance.create_web_xml(exist_ok=True)
 
         # Configuring internal token password
 
@@ -160,47 +127,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         deployer.create_server_nssdb()
 
-        # Copy /usr/share/pki/server/conf/tomcat.conf
-        # to /etc/sysconfig/<instance>
-
-        instance.copyfile(
-            os.path.join(shared_conf_path, 'tomcat.conf'),
-            instance.service_conf,
-            params=deployer.mdict,
-            exist_ok=True)
-
-        # Copy /usr/share/pki/server/conf/tomcat.conf to
-        # /var/lib/pki/<instance>/conf/tomcat.conf.
-
-        instance.copyfile(
-            os.path.join(shared_conf_path, 'tomcat.conf'),
-            instance.tomcat_conf,
-            params=deployer.mdict,
-            exist_ok=True)
-
-        # Deploy ROOT web application if descriptor template exists
-        root_xml = os.path.join(
-            shared_conf_path,
-            'Catalina',
-            'localhost',
-            'ROOT.xml')
-
-        if os.path.exists(root_xml):
-            instance.deploy_webapp('ROOT', root_xml)
-
-        # Deploy pki web application which includes themes,
-        # admin templates, and JS libraries
-        # Copy /usr/share/pki/server/conf/pki.xml
-        # to /var/lib/pki/<instance>/conf/Catalina/localhost/pki.xml
-
-        instance.deploy_webapp(
-            'pki',
-            os.path.join(
-                shared_conf_path,
-                'Catalina',
-                'localhost',
-                'pki.xml'))
-
         if config.str2bool(deployer.mdict['pki_registry_enable']):
             instance.create_registry()
 
@@ -227,10 +153,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to be started upon system boot (default is True)
 
             if config.str2bool(deployer.mdict['pki_enable_on_system_boot']):
-                '''
-                this command creates /etc/systemd/system/pki-tomcatd.target.want/pki-tomcatd@<instance>.service
-                or /etc/systemd/system/pki-tomcatd-nuxwdog.target.wants/pki-tomcatd-nuxwdog@<instance>.service
-                '''  # noqa: E501
                 instance.enable()
 
     def destroy(self, deployer):
@@ -253,20 +175,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         logger.info('Disabling PKI server')
-        '''
-        this command removes /etc/systemd/system/pki-tomcatd.target.want/pki-tomcatd@<instance>.service
-        or /etc/systemd/system/pki-tomcatd-nuxwdog.target.wants/pki-tomcatd-nuxwdog@<instance>.service
-        '''  # noqa: E501
         instance.disable()
 
         if os.path.exists(deployer.systemd.base_override_dir):
             logger.info('Removing %s', deployer.systemd.base_override_dir)
             pki.util.rmtree(path=deployer.systemd.base_override_dir,
-                            force=deployer.force)
-
-        if os.path.exists(deployer.systemd.nuxwdog_override_dir):
-            logger.info('Removing %s', deployer.systemd.nuxwdog_override_dir)
-            pki.util.rmtree(path=deployer.systemd.nuxwdog_override_dir,
                             force=deployer.force)
 
         deployer.systemd.daemon_reload()

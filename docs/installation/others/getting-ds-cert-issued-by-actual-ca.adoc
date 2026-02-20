@@ -174,8 +174,8 @@ If you are replacing the DS bootstrap certs, as a PKI administrator, stop the PK
 
 [literal]
 ....
-$ certutil -F -d /var/lib/pki/pki-tomcat/conf/alias \
-    -f /var/lib/pki/pki-tomcat/conf/alias/pwdfile.txt \
+$ certutil -F -d /var/lib/pki/pki-quarkus/conf/alias \
+    -f /var/lib/pki/pki-quarkus/conf/alias/pwdfile.txt \
     -n ds_signing
 ....
 

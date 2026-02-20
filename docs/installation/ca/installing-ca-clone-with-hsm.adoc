@@ -39,7 +39,7 @@ Note: It is assumed that the CA signing certificate has been exported into `ca_s
 [literal]
 ----
 [DEFAULT]
-pki_instance_name=pki-tomcat
+pki_instance_name=pki-quarkus
 pki_https_port=8443
 pki_http_port=8080
 
@@ -110,11 +110,11 @@ pki_subsystem_csr_path=subsystem.csr
 $ pkispawn -f ca.cfg -s CA
 ....
 
-It installs a CA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a CA subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
+* admin NSS database: ~/.dogtag/pki-quarkus/ca/alias
 
 == Verifying system certificates 
 
@@ -122,7 +122,7 @@ It installs a CA subsystem in a Tomcat instance (default is pki-tomcat) and crea
 +
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -136,7 +136,7 @@ ca_audit_signing                                             ,,P
 +
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI

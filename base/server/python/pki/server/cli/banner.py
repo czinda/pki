@@ -66,7 +66,7 @@ class BannerShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server banner-show [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -136,7 +136,7 @@ class BannerValidateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server banner-validate [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-quarkus).')
         print('      --file <path>               Validate specified banner file.')
         print('      --silent                    Run in silent mode.')
         print('  -v, --verbose                   Run in verbose mode.')

@@ -38,7 +38,7 @@ java.util.logging.SimpleFormatter.format = %4$s: %5$s%6$s%n
 The systemd journal can be viewed with the following command:
 
 ```
-$ journalctl -u pki-tomcatd@<instance>.service
+$ journalctl -u pki-quarkusd@<instance>.service
 ```
 
 For more information see the following documents:

@@ -19,7 +19,6 @@ javac(pki-tps-classes
         ${JSS_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
-        ${SERVLET_JAR}
         ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes

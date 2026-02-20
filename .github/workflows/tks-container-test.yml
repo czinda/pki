@@ -486,7 +486,7 @@ jobs:
       - name: Check CA debug logs
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check TKS DS server systemd journal
         if: always()
@@ -506,7 +506,7 @@ jobs:
       - name: Check TKS debug logs
         if: always()
         run: |
-          docker exec tks find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+          docker exec tks find /var/lib/pki/pki-quarkus/logs/tks -name "debug.*" -exec cat {} \;
 
       - name: Check client container logs
         if: always()

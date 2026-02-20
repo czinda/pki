@@ -76,7 +76,7 @@ jobs:
           diff expected actual
 
       - name: Install banner in CA container
-        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
+        run: docker exec ca cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-quarkus/conf
 
       - name: Set up OCSP DS container
         run: |
@@ -101,7 +101,7 @@ jobs:
       - name: Install OCSP in OCSP container
         run: |
           docker exec ca pki-server cert-export ca_signing --cert-file ${SHARED}/ca_signing.crt
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
+          docker exec ca cp /root/.dogtag/pki-quarkus/ca_admin.cert ${SHARED}/ca_admin.cert
           docker exec ocsp pkispawn \
               -f /usr/share/pki/server/examples/installation/ocsp.cfg \
               -s OCSP \
@@ -144,14 +144,14 @@ jobs:
           diff expected actual
 
       - name: Install banner in OCSP container
-        run: docker exec ocsp cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
+        run: docker exec ocsp cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-quarkus/conf
 
       - name: Run PKI healthcheck
         run: docker exec ocsp pki-healthcheck --failures-only
 
       - name: Verify OCSP admin
         run: |
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec ca cp /root/.dogtag/pki-quarkus/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
 
           docker exec ocsp pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
@@ -207,12 +207,12 @@ jobs:
       - name: Check CA systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check OCSP DS server systemd journal
         if: always()
@@ -227,12 +227,12 @@ jobs:
       - name: Check OCSP systemd journal
         if: always()
         run: |
-          docker exec ocsp journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ocsp journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check OCSP debug log
         if: always()
         run: |
-          docker exec ocsp find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+          docker exec ocsp find /var/lib/pki/pki-quarkus/logs/ocsp -name "debug.*" -exec cat {} \;
 
       - name: Upload artifacts
         if: always()

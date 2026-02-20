@@ -102,7 +102,7 @@ class TPSClonePrepareCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server tps-clone-prepare [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --pkcs12-file <path>           PKCS #12 file to store certificates and keys.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
@@ -241,7 +241,7 @@ class TPSConnectorFindCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server tps-connector-find [OPTIONS]
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --show-all                     Show all attributes.
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
@@ -356,7 +356,7 @@ class TPSConnectorAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server tps-connector-add [OPTIONS] <connector ID>')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus)')
         print('      --type <type>                  Connector type: CA, KRA, TKS')
         print('      --url <URL>                    Subsystem URL')
         print('      --nickname <nickname>          Certificate nickname')

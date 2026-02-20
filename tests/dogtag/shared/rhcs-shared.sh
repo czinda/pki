@@ -136,8 +136,8 @@ submit_instance_logs(){
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 rhcs_start_instance(){
         TOMCAT_ID=$1
-	rlLog "Executing: systemctl start pki-tomcatd@$TOMCAT_ID.service"
-	systemctl start pki-tomcatd@$TOMCAT_ID.service
+	rlLog "Executing: systemctl start pki-quarkusd@$TOMCAT_ID.service"
+	systemctl start pki-quarkusd@$TOMCAT_ID.service
 	sleep 60
 }
 
@@ -150,8 +150,8 @@ rhcs_start_instance(){
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 rhcs_stop_instance(){
         TOMCAT_ID=$1
-	rlLog "Executing: systemctl stop pki-tomcatd@$TOMCAT_ID.service"
-	systemctl stop pki-tomcatd@$TOMCAT_ID.service
+	rlLog "Executing: systemctl stop pki-quarkusd@$TOMCAT_ID.service"
+	systemctl stop pki-quarkusd@$TOMCAT_ID.service
         sleep 60
 }
 

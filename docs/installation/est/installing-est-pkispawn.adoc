@@ -29,7 +29,7 @@ pki_security_domain_password=Secret.123
 ....
 
 
-The following commands install an EST subsystem on a PKI server instance that already has a CA subsystem in it. By default the PKI server instance is called `pki-tomcat` and it  uses HTTP port `8080` and HTTPS port `8443`. To use a different instance name or port numbers refer to the command's manual page.
+The following commands install an EST subsystem on a PKI server instance that already has a CA subsystem in it. By default the PKI server instance is called `pki-quarkus` and it  uses HTTP port `8080` and HTTPS port `8443`. To use a different instance name or port numbers refer to the command's manual page.
 
 To install EST in the same instance of the CA and with the DS realm, run the command:
 

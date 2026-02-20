@@ -28,7 +28,7 @@ A sample deployment configuration is available at xref:../../../base/server/exam
 $ pkispawn -f ocsp-standalone-step1.cfg -s OCSP
 ....
 
-It creates an NSS database in `/var/lib/pki/pki-tomcat/alias` and generates CSRs in the specified paths.
+It creates an NSS database in `/var/lib/pki/pki-quarkus/alias` and generates CSRs in the specified paths.
 
 == Issuing certificates 
 

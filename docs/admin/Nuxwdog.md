@@ -20,7 +20,7 @@ in case of a server crash.
 First, shutdown the server with the following command:
 
 ```
-$ systemctl stop pki-tomcatd@<instance>.service
+$ systemctl stop pki-quarkusd@<instance>.service
 ```
 
 To enable all instances:
@@ -57,7 +57,7 @@ $ mv /var/lib/pki/<instance>/conf/password.conf /path/to/password.conf
 Restart the server with the following command:
 
 ```
-$ systemctl start pki-tomcatd-nuxwdog@<instance>.service
+$ systemctl start pki-quarkusd-nuxwdog@<instance>.service
 [<instance>] Please provide the password for internal: **********
 [<instance>] Please provide the password for internaldb: **********
 [<instance>] Please provide the password for replicationdb: ***********
@@ -70,7 +70,7 @@ First, stop the instance:
 
 
 ```
-$ systemctl stop pki-tomcatd-nuxwdog@<instance>.service
+$ systemctl stop pki-quarkusd-nuxwdog@<instance>.service
 ```
 
 To disable for all instances:
@@ -89,7 +89,7 @@ Finally, restart the instance:
 
 ```
 $ mv /path/to/password.conf /var/lib/pki/<instance>/conf/password.conf
-$ systemctl start pki-tomcatd@<instance>.service
+$ systemctl start pki-quarkusd@<instance>.service
 ```
 
 ## Technical Implementation
@@ -97,7 +97,7 @@ $ systemctl start pki-tomcatd@<instance>.service
 ### `pki-server-nuxwdog` python script
 
 [`pki-server-nuxwdog`](../../base/server/scripts/pki-server-nuxwdog) script is configured to run before the PKI server
-starts using [`systemd` unit file](../../base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service). It uses
+starts using [`systemd` unit file](../../base/server/share/lib/systemd/system/pki-quarkusd-nuxwdog@.service). It uses
 `systemd-ask-password` to prompt the user for relevant passwords. The relevant passwords include `internal` and
 list of passwords defined in fields `cms.passwordlist` and `cms.tokenList` of every subsystem's `CS.cfg`. The
 passwords are stored on the Kernel Keyring provided by the `keyutils` package.

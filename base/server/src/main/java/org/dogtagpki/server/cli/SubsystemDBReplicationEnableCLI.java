@@ -162,7 +162,7 @@ public class SubsystemDBReplicationEnableCLI extends ServerCommandCLI {
             replicaID = Integer.valueOf(cmd.getOptionValue("replica-id"));
         }
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.parent.parent.getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

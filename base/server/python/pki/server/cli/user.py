@@ -39,7 +39,7 @@ class UserAddCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-user-add [OPTIONS] <user ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --full-name <full name>        Full name
               --email <email>                Email
               --password <password>          Password
@@ -136,7 +136,7 @@ class UserFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-user-find [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --see-also <subject DN>        Find users linked to a certificate.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -184,7 +184,7 @@ class UserModifyCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-user-mod [OPTIONS] <user ID>' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --password <password>          User password')
         print('      --password-file <path>         User password file')
         print('      --attr <name>=<value>          Update attribute.')
@@ -204,7 +204,7 @@ class UserRemoveCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-user-del [OPTIONS] <user ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat).
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus).
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -282,7 +282,7 @@ class UserShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-user-show [OPTIONS] <user ID>' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --attr <name>                  Show attribute.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -335,7 +335,7 @@ class UserCertFindCLI(pki.cli.CLI):
         print('Usage: pki-server %s-user-cert-find [OPTIONS] <user ID>'
               % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -383,7 +383,7 @@ class UserCertAddCLI(pki.cli.CLI):
         print('Usage: pki-server %s-user-cert-add [OPTIONS] <user ID>'
               % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --cert <path>                  Certificate to add.')
         print('      --format <format>              Certificate format: PEM (default), DER.')
         print('      --ignore-duplicate             Ignore duplicate.')
@@ -401,7 +401,7 @@ class UserCertRemoveCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-user-cert-del [OPTIONS] <user ID> <cert ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat).
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus).
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -465,7 +465,7 @@ class UserRoleFindCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-user-role-find [OPTIONS] <user ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
               --output-format <format>       Output format: text (default), json.
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
@@ -517,7 +517,7 @@ class UserRoleAddCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-user-role-add [OPTIONS] <user ID> <role ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.
@@ -570,7 +570,7 @@ class UserRoleRemoveCLI(pki.cli.CLI):
     help = '''\
         Usage: pki-server {subsystem}-user-role-del [OPTIONS] <user ID> <role ID>
 
-          -i, --instance <instance ID>       Instance ID (default: pki-tomcat)
+          -i, --instance <instance ID>       Instance ID (default: pki-quarkus)
           -v, --verbose                      Run in verbose mode.
               --debug                        Run in debug mode.
               --help                         Show help message.

@@ -102,7 +102,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
             config.prepare_for_an_external_java_debugger(instance.service_conf)
 
-        # Start/Restart this Tomcat PKI Process
+        # Start/Restart this PKI Process
         if len(instance.get_subsystems()) == 1:
 
             logger.info('Enabling %s subsystem', subsystem.type)

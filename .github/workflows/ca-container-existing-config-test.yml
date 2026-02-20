@@ -94,7 +94,7 @@ jobs:
 
       - name: Check CA admin user
         run: |
-          docker cp pki:/root/.dogtag/pki-tomcat/ca_admin_cert.p12 .
+          docker cp pki:/root/.dogtag/pki-quarkus/ca_admin_cert.p12 .
 
           docker exec client pki pkcs12-import \
               --pkcs12 $SHARED/ca_admin_cert.p12 \
@@ -118,8 +118,8 @@ jobs:
           # export system certs and keys
           docker exec pki pki \
               -v \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               pkcs12-export \
               --pkcs12 $SHARED/certs/server.p12 \
               --password Secret.123 \
@@ -135,32 +135,32 @@ jobs:
 
           # export system cert requests
           docker exec pki cp \
-              /var/lib/pki/pki-tomcat/conf/certs/ca_signing.csr \
+              /var/lib/pki/pki-quarkus/conf/certs/ca_signing.csr \
               $SHARED/certs/ca_signing.csr
           docker exec pki cp \
-              /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.csr \
+              /var/lib/pki/pki-quarkus/conf/certs/ca_ocsp_signing.csr \
               $SHARED/certs/ca_ocsp_signing.csr
           docker exec pki cp \
-              /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.csr \
+              /var/lib/pki/pki-quarkus/conf/certs/ca_audit_signing.csr \
               $SHARED/certs/audit_signing.csr
           docker exec pki cp \
-              /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr \
+              /var/lib/pki/pki-quarkus/conf/certs/subsystem.csr \
               $SHARED/certs/subsystem.csr
           docker exec pki cp \
-              /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr \
+              /var/lib/pki/pki-quarkus/conf/certs/sslserver.csr \
               $SHARED/certs/sslserver.csr
 
           ls -la certs
 
       - name: Export config files
         run: |
-          docker cp pki:/etc/pki/pki-tomcat conf
+          docker cp pki:/etc/pki/pki-quarkus conf
 
           ls -la conf
 
       - name: Export log files
         run: |
-          docker cp pki:/var/log/pki/pki-tomcat logs
+          docker cp pki:/var/log/pki/pki-quarkus logs
 
           ls -la logs
 
@@ -339,12 +339,12 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check CA container logs
         if: always()
@@ -354,4 +354,4 @@ jobs:
       - name: Check CA container debug logs
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

@@ -51,7 +51,7 @@
 
 - name: Starting TKS Subsystem
   service:
-    name: pki-tomcatd@{{ topology }}-TKS.service
+    name: pki-quarkusd@{{ topology }}-TKS.service
     state: started
 
 - name: Sleep for a while to start TKS

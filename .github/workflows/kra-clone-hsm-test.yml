@@ -108,7 +108,7 @@ jobs:
           # there should be 8 certs
           echo "8" > expected
           docker exec primary pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -118,8 +118,8 @@ jobs:
           # there should be 7 certs
           echo "7" > expected
           docker exec primary pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -189,7 +189,7 @@ jobs:
       - name: Install KRA in secondary PKI container
         run: |
           # get CS.cfg from primary KRA before cloning
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.primary
+          docker cp primary:/var/lib/pki/pki-quarkus/conf/kra/CS.cfg CS.cfg.primary
 
           docker exec secondary pkispawn \
               -f /usr/share/pki/server/examples/installation/kra-clone.cfg \
@@ -215,7 +215,7 @@ jobs:
           # TODO: investigate the discrepancy
           echo "4" > expected
           docker exec secondary pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -225,8 +225,8 @@ jobs:
           # there should be 7 certs
           echo "7" > expected
           docker exec secondary pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -235,7 +235,7 @@ jobs:
       - name: Check CS.cfg in primary KRA after cloning
         run: |
           # get CS.cfg from primary KRA after cloning
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.primary.after
+          docker cp primary:/var/lib/pki/pki-quarkus/conf/kra/CS.cfg CS.cfg.primary.after
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -262,7 +262,7 @@ jobs:
       - name: Check CS.cfg in secondary KRA
         run: |
           # get CS.cfg from secondary KRA
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.secondary
+          docker cp secondary:/var/lib/pki/pki-quarkus/conf/kra/CS.cfg CS.cfg.secondary
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -298,7 +298,7 @@ jobs:
 
       - name: Check KRA admin in secondary PKI container
         run: |
-          docker exec primary cp /root/.dogtag/pki-tomcat/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
+          docker exec primary cp /root/.dogtag/pki-quarkus/ca_admin_cert.p12 ${SHARED}/ca_admin_cert.p12
 
           docker exec secondary pki nss-cert-import \
               --cert $SHARED/ca_signing.crt \
@@ -442,7 +442,7 @@ jobs:
           # TODO: investigate the discrepancy
           echo "4" > expected
           docker exec tertiary pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -452,8 +452,8 @@ jobs:
           # there should be 7 certs
           echo "7" > expected
           docker exec tertiary pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -462,7 +462,7 @@ jobs:
       - name: Check CS.cfg in secondary KRA after cloning
         run: |
           # get CS.cfg from secondary KRA after cloning
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.secondary.after
+          docker cp secondary:/var/lib/pki/pki-quarkus/conf/kra/CS.cfg CS.cfg.secondary.after
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -487,7 +487,7 @@ jobs:
       - name: Check CS.cfg in tertiary KRA
         run: |
           # get CS.cfg from tertiary KRA
-          docker cp tertiary:/var/lib/pki/pki-tomcat/conf/kra/CS.cfg CS.cfg.tertiary
+          docker cp tertiary:/var/lib/pki/pki-quarkus/conf/kra/CS.cfg CS.cfg.tertiary
 
           # normalize expected result:
           # - remove params that cannot be compared
@@ -579,47 +579,47 @@ jobs:
       - name: Check PKI server systemd journal in primary container
         if: always()
         run: |
-          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec primary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check primary CA debug log
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check primary KRA debug log
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal in secondary container
         if: always()
         run: |
-          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec secondary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check secondary CA debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check secondary KRA debug log
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check PKI server systemd journal in tertiary container
         if: always()
         run: |
-          docker exec tertiary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec tertiary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check tertiary CA debug log
         if: always()
         run: |
-          docker exec tertiary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec tertiary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check tertiary KRA debug log
         if: always()
         run: |
-          docker exec tertiary find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec tertiary find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

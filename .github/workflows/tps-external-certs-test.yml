@@ -67,7 +67,7 @@ jobs:
               ca_signing
 
           docker exec ca pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
       - name: Set up KRA DS container
@@ -92,7 +92,7 @@ jobs:
 
       - name: Install KRA in KRA container
         run: |
-          docker exec ca cp /root/.dogtag/pki-tomcat/ca_admin.cert ${SHARED}/ca_admin.cert
+          docker exec ca cp /root/.dogtag/pki-quarkus/ca_admin.cert ${SHARED}/ca_admin.cert
           docker exec kra pkispawn \
               -f /usr/share/pki/server/examples/installation/kra.cfg \
               -s KRA \
@@ -264,7 +264,7 @@ jobs:
               ca_signing
 
           docker exec tps pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/tps_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/tps_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec tps pki -n tpsadmin tps-user-show tpsadmin
 
@@ -306,12 +306,12 @@ jobs:
       - name: Check CA systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA DS server systemd journal
         if: always()
@@ -326,12 +326,12 @@ jobs:
       - name: Check KRA systemd journal
         if: always()
         run: |
-          docker exec kra journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec kra journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec kra find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec kra find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Check TKS DS server systemd journal
         if: always()
@@ -346,12 +346,12 @@ jobs:
       - name: Check TKS systemd journal
         if: always()
         run: |
-          docker exec tks journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec tks journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check TKS debug log
         if: always()
         run: |
-          docker exec tks find /var/lib/pki/pki-tomcat/logs/tks -name "debug.*" -exec cat {} \;
+          docker exec tks find /var/lib/pki/pki-quarkus/logs/tks -name "debug.*" -exec cat {} \;
 
       - name: Check TPS DS server systemd journal
         if: always()
@@ -366,12 +366,12 @@ jobs:
       - name: Check TPS systemd journal
         if: always()
         run: |
-          docker exec tps journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec tps journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check TPS debug log
         if: always()
         run: |
-          docker exec tps find /var/lib/pki/pki-tomcat/logs/tps -name "debug.*" -exec cat {} \;
+          docker exec tps find /var/lib/pki/pki-quarkus/logs/tps -name "debug.*" -exec cat {} \;
 
       - name: Upload artifacts
         if: always()

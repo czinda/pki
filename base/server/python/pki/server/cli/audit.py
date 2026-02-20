@@ -115,7 +115,7 @@ class AuditConfigShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-audit-config-show [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -205,7 +205,7 @@ class AuditConfigModifyCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-audit-config-mod [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --enabled <True|False>         Enable/disable audit logging.')
         print('      --logFile <path>               Set log file.')
         print('      --bufferSize <size>            Set buffer size (bytes).')
@@ -347,7 +347,7 @@ class AuditEventFindCLI(pki.cli.CLI):
         print('Usage: pki-server %s-audit-event-find [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       '
-              '  Instance ID (default: pki-tomcat).')
+              '  Instance ID (default: pki-quarkus).')
         print('      --enabled <True|False>         '
               '  Show events currently enabled/disabled only.')
         print('      --enabledByDefault <True|False>'
@@ -451,7 +451,7 @@ class AuditEventShowCLI(pki.cli.CLI):
         print('Usage: pki-server %s-audit-event-show [OPTIONS] <event name>'
               % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -531,7 +531,7 @@ class AuditEventEnableCLI(pki.cli.CLI):
         print('Usage: pki-server %s-audit-event-enable [OPTIONS] <event_name>'
               % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -627,7 +627,7 @@ class AuditEventUpdateCLI(pki.cli.CLI):
         print('Usage: pki-server %s-audit-event-update <event_name> '
               '[OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -f, --filter <event filter>        Event Filter (Ex: (Outcome=Failure)).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -711,7 +711,7 @@ class AuditEventDisableCLI(pki.cli.CLI):
         print('Usage: pki-server %s-audit-event-disable [OPTIONS] <event_name>'
               % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -800,7 +800,7 @@ class AuditFileFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-audit-file-find [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -881,7 +881,7 @@ class AuditFileVerifyCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-audit-file-verify [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')

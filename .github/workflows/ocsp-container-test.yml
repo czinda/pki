@@ -696,7 +696,7 @@ jobs:
       - name: Check CA debug logs
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check OCSP DS server systemd journal
         if: always()
@@ -716,7 +716,7 @@ jobs:
       - name: Check OCSP debug logs
         if: always()
         run: |
-          docker exec ocsp find /var/lib/pki/pki-tomcat/logs/ocsp -name "debug.*" -exec cat {} \;
+          docker exec ocsp find /var/lib/pki/pki-quarkus/logs/ocsp -name "debug.*" -exec cat {} \;
 
       - name: Check client container logs
         if: always()

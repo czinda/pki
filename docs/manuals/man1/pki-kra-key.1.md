@@ -214,7 +214,7 @@ It prompts for the passwords of the PKCS12 file and the NSS database.
 The third command shows the information about the imported certificate.(including the nickname)
 
 For demonstration purposes, the administrator certificate can be used to perform agent authentication.
-In a basic installation setup, the admin cert can be found at /root/.dogtag/pki-tomcat/ca_admin_cert.p12.
+In a basic installation setup, the admin cert can be found at /root/.dogtag/pki-quarkus/ca_admin_cert.p12.
 Since the installation can only be performed by a root user,
 this file must be copied to a location where other users can access it, with valid permissions.
 

@@ -12,7 +12,7 @@ Dogtag PKI is an enterprise-class open source Certificate Authority (CA) system.
 - **Python**: Server management, CLI tools, deployment and upgrade scripts
 - **C/C++**: Native utilities (pistool, setpin, tkstool, tpsclient)
 - **Build Systems**: CMake for native code, Maven for Java components
-- **Application Server**: Apache Tomcat 9.0
+- **Application Server**: Quarkus
 - **Dependencies**: NSS, NSPR, LDAP, Jackson, RESTEasy, Apache Commons
 
 ## Common Commands
@@ -92,7 +92,9 @@ pkidestroy -i <instance-id> -s <subsystem>
   - `tps/` - Token Processing System subsystem (`pki-tps.jar`)
   - `acme/` - ACME Responder subsystem (`pki-acme.jar`)
   - `est/` - EST subsystem (`pki-est.jar`)
-  - `tomcat/` and `tomcat-9.0/` - Tomcat integration layers
+  - `quarkus-common/` - Shared Quarkus runtime components
+  - `*-quarkus/` - Quarkus deployment modules per subsystem
+  - `server-core/` - Container-agnostic server core
   - `tools/` - CLI tools and native utilities
   - `console/` - Management console (optional)
 - `docs/` - Documentation organized by category
@@ -137,10 +139,10 @@ Python code is primarily in `base/server/python/pki/server/` and `base/common/py
 ### Subsystem Relationships
 
 Each PKI subsystem (CA, KRA, OCSP, TKS, TPS, ACME, EST) follows a similar structure:
-1. Java servlet-based REST API (using RESTEasy)
+1. Quarkus JAX-RS REST API (using RESTEasy)
 2. Backend services implementing PKI operations
 3. Database backend (typically LDAP/389 Directory Server)
-4. Shared server framework from `base/server` and `base/server-webapp`
+4. Shared server framework from `base/server`, `base/server-core`, and `base/quarkus-common`
 
 The CA is typically deployed first and is required by other subsystems. KRA, OCSP, and TKS can be deployed as standalone or connected to a CA. ACME and EST are lightweight responders.
 

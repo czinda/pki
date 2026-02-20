@@ -35,7 +35,7 @@ $ pkispawn \
     -D acme_realm_url=ldap://ds.example.com:3389
 ----
 
-The configuration files are available in `/var/lib/pki/pki-tomcat/conf/acme` folder.
+The configuration files are available in `/var/lib/pki/pki-quarkus/conf/acme` folder.
 
 See also xref:../../admin/acme/Configuring-ACME-Responder.adoc[Configuring ACME Responder].
 

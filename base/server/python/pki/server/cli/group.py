@@ -61,7 +61,7 @@ class GroupAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-group-add [OPTIONS] <group ID>' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --description <description>    Group decsription.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -102,7 +102,7 @@ class GroupFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-group-find [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --member <ID>                  Member ID')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -158,7 +158,7 @@ class GroupMemberFindCLI(pki.cli.CLI):
         print('Usage: pki-server %s-group-member-find [OPTIONS] <group ID>'
               % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -204,7 +204,7 @@ class GroupMemberAddCLI(pki.cli.CLI):
         print('Usage: pki-server %s-group-member-add [OPTIONS] <group ID> <member ID>'
               % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -250,7 +250,7 @@ class GroupMemberRemoveCLI(pki.cli.CLI):
         print('Usage: pki-server %s-group-member-del [OPTIONS] <group ID> <member ID>'
               % self.parent.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')

@@ -25,8 +25,8 @@ import org.dogtagpki.est.ESTRequestAuthorizerConfig;
 /**
  * EST Engine for Quarkus - manages the EST backend and authorizer.
  *
- * Uses CDI lifecycle and MicroProfile Config instead of Tomcat's
- * ServletContextListener. Delegates to real PKI EST backend classes
+ * Uses CDI lifecycle and MicroProfile Config for configuration.
+ * Delegates to real PKI EST backend classes
  * (ESTBackend, ESTRequestAuthorizer) from pki-est.
  *
  * @author Fraser Tweedale (original)

@@ -88,7 +88,7 @@ def test_pki_server_instance_externalcert_del_help_command(ansible_module):
         following output.
             Usage: pki-server instance-externalcert-del [OPTIONS]
         
-            -i, --instance <instance ID>       Instance ID (default: pki-tomcat).
+            -i, --instance <instance ID>       Instance ID (default: pki-quarkus).
             --nickname <nickname>          Nickname to be used.
             --token <token_name>           Token (default: internal).
             -v, --verbose                      Run in verbose mode.
@@ -100,7 +100,7 @@ def test_pki_server_instance_externalcert_del_help_command(ansible_module):
     for result in cmd_output.values():
         if result['rc'] == 0:
             assert "Usage: pki-server instance-externalcert-del [OPTIONS]" in result['stdout']
-            assert "-i, --instance <instance ID>       Instance ID (default: pki-tomcat)." in \
+            assert "-i, --instance <instance ID>       Instance ID (default: pki-quarkus)." in \
                    result['stdout']
             assert "--nickname <nickname>          Nickname to be used." in result['stdout']
             assert "--token <token_name>           Token (default: internal)." in \

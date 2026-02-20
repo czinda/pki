@@ -8,8 +8,8 @@ Follow this process to create a PKI server with custom NSS databases.
 
 Normally, when installing a PKI subsystem, for example CA, some NSS databases are created by default:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
-* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
+* admin NSS database: ~/.dogtag/pki-quarkus/ca/alias
 
 Under some circumstances the admin may want to use custom NSS databases, for example with trust policy.
 In those cases the installation can be done in multiple steps:
@@ -28,7 +28,7 @@ To create a basic PKI server, execute the following command:
 $ pki-server create
 ....
 
-This will create a server in /var/lib/pki/pki-tomcat with configuration files in /var/lib/pki/pki-tomcat/conf.
+This will create a server in /var/lib/pki/pki-quarkus with configuration files in /var/lib/pki/pki-quarkus/conf.
 
 See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-CLI[PKI Server CLI].
 
@@ -46,7 +46,7 @@ To enable trust policy:
 [literal]
 ....
 $ modutil \
-    -dbdir /var/lib/pki/pki-tomcat/conf/alias \
+    -dbdir /var/lib/pki/pki-quarkus/conf/alias \
     -add p11-kit-trust \
     -libfile /usr/share/pki/lib/p11-kit-trust.so
 ....
@@ -59,7 +59,7 @@ To create a custom NSS database for the admin execute the following commands:
 
 [literal]
 ....
-$ pki -d ~/.dogtag/pki-tomcat/ca/alias -c <client password> nss-create
+$ pki -d ~/.dogtag/pki-quarkus/ca/alias -c <client password> nss-create
 ....
 
 To enable trust policy:
@@ -67,7 +67,7 @@ To enable trust policy:
 [literal]
 ....
 $ modutil \
-    -dbdir ~/.dogtag/pki-tomcat/ca/alias \
+    -dbdir ~/.dogtag/pki-quarkus/ca/alias \
     -add p11-kit-trust \
     -libfile /usr/share/pki/lib/p11-kit-trust.so
 ....

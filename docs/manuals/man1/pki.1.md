@@ -207,7 +207,7 @@ The second command imports a client certificate stored in a PKCS #12 format into
 it prompts for the passwords of the PKCS12 file and the NSS database.
 The simplest example of such a client certificate is to obtain the administrator certificate
 created during the configuration portion of the basic PKI installation of the associated PKI server
-(e.g. located at */root/.dogtag/pki-tomcat/ca_admin_cert.p12* on the PKI server machine).
+(e.g. located at */root/.dogtag/pki-quarkus/ca_admin_cert.p12* on the PKI server machine).
 
 The third command shows the information about the imported client certificate (including its nickname).
 

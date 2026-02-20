@@ -7,7 +7,7 @@
          name: variable
 
     - name: Stop TPS service
-      shell: systemctl stop pki-tomcatd@{{ variable.TPS_INSTANCE_NAME}}.service
+      shell: systemctl stop pki-quarkusd@{{ variable.TPS_INSTANCE_NAME}}.service
 
     - name: Enable Pin Reset Policy in TPS.cfg
       replace:
@@ -16,4 +16,4 @@
         replace: 'tokendb.defaultPolicy=RE_ENROLL=YES;RENEW=NO;FORCE_FORMAT=NO;PIN_RESET=YES;RESET_PIN_RESET_TO_NO=NO'
 
     - name: Start TPS service
-      shell: systemctl start pki-tomcatd@{{ variable.TPS_INSTANCE_NAME}}.service
+      shell: systemctl start pki-quarkusd@{{ variable.TPS_INSTANCE_NAME}}.service

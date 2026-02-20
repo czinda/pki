@@ -65,7 +65,7 @@ jobs:
               ca_signing
 
           docker exec ca pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --password Secret.123
 
           docker exec ca pki info
@@ -159,7 +159,7 @@ jobs:
       - name: Check EST server base dir after installation
         run: |
           # check file types, owners, and permissions
-          docker exec est ls -l /var/lib/pki/pki-tomcat \
+          docker exec est ls -l /var/lib/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -167,13 +167,13 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-tomcat/conf/alias
+          lrwxrwxrwx pkiuser pkiuser alias -> /var/lib/pki/pki-quarkus/conf/alias
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxrwx--- pkiuser pkiuser common
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-quarkus
           drwxrwx--- pkiuser pkiuser est
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-quarkus
           drwxrwx--- pkiuser pkiuser temp
           drwxr-xr-x pkiuser pkiuser webapps
           drwxrwx--- pkiuser pkiuser work
@@ -184,7 +184,7 @@ jobs:
       - name: Check EST server conf dir after installation
         run: |
           # check file types, owners, and permissions
-          docker exec est ls -l /etc/pki/pki-tomcat \
+          docker exec est ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -213,7 +213,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec est ls -l /var/log/pki/pki-tomcat \
+          docker exec est ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -236,7 +236,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec est ls -l /var/log/pki/pki-tomcat \
+          docker exec est ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -256,7 +256,7 @@ jobs:
       - name: Check EST conf dir
         run: |
           # check file types, owners, and permissions
-          docker exec est ls -l /etc/pki/pki-tomcat/est \
+          docker exec est ls -l /etc/pki/pki-quarkus/est \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -348,16 +348,16 @@ jobs:
 
       - name: Remove EST
         run: |
-          docker exec est pkidestroy -i pki-tomcat -s EST -v
+          docker exec est pkidestroy -i pki-quarkus -s EST -v
 
       - name: Remove CA
         run: |
-          docker exec ca pkidestroy -i pki-tomcat -s CA -v
+          docker exec ca pkidestroy -i pki-quarkus -s CA -v
 
       - name: Check EST server base dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec est ls -l /var/lib/pki/pki-tomcat \
+          docker exec est ls -l /var/lib/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -365,8 +365,8 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-quarkus
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-quarkus
           EOF
 
           diff expected output
@@ -374,7 +374,7 @@ jobs:
       - name: Check EST server conf dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec est ls -l /etc/pki/pki-tomcat \
+          docker exec est ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -403,7 +403,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec est ls -l /var/log/pki/pki-tomcat \
+          docker exec est ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -426,7 +426,7 @@ jobs:
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec est ls -l /var/log/pki/pki-tomcat \
+          docker exec est ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -456,19 +456,19 @@ jobs:
       - name: Check CA PKI server systemd journal
         if: always()
         run: |
-          docker exec ca journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec ca journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check EST PKI server systemd journal
         if: always()
         run: |
-          docker exec est journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec est journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec ca find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec ca find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check EST debug log
         if: always()
         run: |
-          docker exec est find /var/lib/pki/pki-tomcat/logs/est -name "debug.*" -exec cat {} \;
+          docker exec est find /var/lib/pki/pki-quarkus/logs/est -name "debug.*" -exec cat {} \;

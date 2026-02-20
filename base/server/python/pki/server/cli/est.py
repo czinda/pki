@@ -62,7 +62,7 @@ class ESTCreateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server est-create [OPTIONS] [name]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --force                        Force creation.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -134,7 +134,7 @@ class ESTRemoveCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server est-remove [OPTIONS] [name]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --force                        Force removal.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')

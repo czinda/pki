@@ -23,11 +23,11 @@ It assumes that the CA is running at https://ca.example.com:8443, and the CA sig
 $ pkispawn -f kra-external-certs-step1.cfg -s KRA
 ....
 
-It installs a KRA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a KRA subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/dogtag/pki-tomcat/kra/alias
+* admin NSS database: ~/dogtag/pki-quarkus/kra/alias
 
 It also generates the system keys in the server NSS database and the CSRs in the specified paths.
 
@@ -90,7 +90,7 @@ Verify that the server NSS database contains the following certificates:
 
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -117,7 +117,7 @@ $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 [literal]
 ....
 $ pki -c Secret.123 pkcs12-import \
-    --pkcs12 ~/.dogtag/pki-tomcat/kra_admin_cert.p12 \
+    --pkcs12 ~/.dogtag/pki-quarkus/kra_admin_cert.p12 \
     --pkcs12-password Secret.123
 ....
 

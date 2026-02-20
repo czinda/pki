@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * ACME logout endpoint.
  *
  * In Quarkus (stateless), session invalidation is a no-op.
- * This endpoint exists for API compatibility with the Tomcat version.
+ * This endpoint exists for API compatibility.
  */
 @Path("logout")
 public class ACMELogoutResource {

@@ -64,9 +64,9 @@ run_pki-core-bug-verification(){
                 chown pkiuser:pkiuser $ca_config_file
                 cat $ca_config_file | grep $replace_string
                 if [ $? -eq 0 ] ; then
-			rlRun "systemctl stop pki-tomcatd@$BUGCA_TOMCAT_INSTANCE_NAME.service"
+			rlRun "systemctl stop pki-quarkusd@$BUGCA_TOMCAT_INSTANCE_NAME.service"
                         rlRun "cat /dev/null > $ca_debug_log_file"
-			rlRun "systemctl start pki-tomcatd@$BUGCA_TOMCAT_INSTANCE_NAME.service"
+			rlRun "systemctl start pki-quarkusd@$BUGCA_TOMCAT_INSTANCE_NAME.service"
 			rlRun "sleep 30"
 			debug_log_size=$(wc -c "$ca_debug_log_file" | cut -f 1 -d ' ')
 			rlAssertGreater "Debug log file size will be less than 300 bytes when debug.level=10" "300" "$debug_log_size"
@@ -93,9 +93,9 @@ run_pki-core-bug-verification(){
                 chown pkiuser:pkiuser $ca_config_file
                 cat $ca_config_file | grep $replace_string
                 if [ $? -eq 0 ] ; then
-			rlRun "systemctl stop pki-tomcatd@$BUGCA_TOMCAT_INSTANCE_NAME.service"
+			rlRun "systemctl stop pki-quarkusd@$BUGCA_TOMCAT_INSTANCE_NAME.service"
                         rlRun "cat /dev/null > $ca_debug_log_file"
-			rlRun "systemctl start pki-tomcatd@$BUGCA_TOMCAT_INSTANCE_NAME.service"
+			rlRun "systemctl start pki-quarkusd@$BUGCA_TOMCAT_INSTANCE_NAME.service"
 			rlRun "sleep 20"
 			debug_log_size=$(wc -c "$ca_debug_log_file" | cut -f 1 -d ' ')
 			rlAssertGreater "Debug log file size will be greater than 300 bytes when debug.level=1" "$debug_log_size" "300"

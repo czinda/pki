@@ -65,7 +65,7 @@ jobs:
           docker exec pki pki info
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
           docker exec pki pki -n caadmin ca-user-show caadmin
@@ -78,30 +78,30 @@ jobs:
       - name: Enable Nuxwdog
         run: |
           # add internal password into keyring
-          PASSWORD=$(docker exec pki grep '^internal=' /var/lib/pki/pki-tomcat/conf/password.conf | cut -d= -f2)
+          PASSWORD=$(docker exec pki grep '^internal=' /var/lib/pki/pki-quarkus/conf/password.conf | cut -d= -f2)
           docker exec pki runuser -u pkiuser -- \
-              keyctl add user pki-tomcat/internal $PASSWORD @u
+              keyctl add user pki-quarkus/internal $PASSWORD @u
 
           # add internal database password into keyring
-          PASSWORD=$(docker exec pki grep '^internaldb=' /var/lib/pki/pki-tomcat/conf/password.conf | cut -d= -f2)
+          PASSWORD=$(docker exec pki grep '^internaldb=' /var/lib/pki/pki-quarkus/conf/password.conf | cut -d= -f2)
           docker exec pki runuser -u pkiuser -- \
-              keyctl add user pki-tomcat/internaldb $PASSWORD @u
+              keyctl add user pki-quarkus/internaldb $PASSWORD @u
 
           # add replication database password into keyring
-          PASSWORD=$(docker exec pki grep '^replicationdb=' /var/lib/pki/pki-tomcat/conf/password.conf | cut -d= -f2)
+          PASSWORD=$(docker exec pki grep '^replicationdb=' /var/lib/pki/pki-quarkus/conf/password.conf | cut -d= -f2)
           docker exec pki runuser -u pkiuser -- \
-              keyctl add user pki-tomcat/replicationdb $PASSWORD @u
+              keyctl add user pki-quarkus/replicationdb $PASSWORD @u
 
           docker exec pki runuser -u pkiuser -- keyctl show @u
 
           # remove password.conf temporarily
-          docker exec pki mv /var/lib/pki/pki-tomcat/conf/password.conf /tmp
+          docker exec pki mv /var/lib/pki/pki-quarkus/conf/password.conf /tmp
 
           docker exec pki pki-server nuxwdog-enable
 
       - name: Start CA with Nuxwdog
         run: |
-          docker exec pki systemctl start pki-tomcatd-nuxwdog@pki-tomcat.service
+          docker exec pki systemctl start pki-quarkusd-nuxwdog@pki-quarkus.service
 
           # wait for server to start
           docker exec pki curl \
@@ -116,7 +116,7 @@ jobs:
       - name: Check systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd-nuxwdog@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd-nuxwdog@pki-quarkus.service
 
       - name: Check CA again
         run: |
@@ -125,7 +125,7 @@ jobs:
 
       - name: Stop CA with Nuxwdog
         run: |
-          docker exec pki systemctl stop pki-tomcatd-nuxwdog@pki-tomcat.service
+          docker exec pki systemctl stop pki-quarkusd-nuxwdog@pki-quarkus.service
 
       # docs/admin/Nuxwdog.md
       - name: Disable Nuxwdog
@@ -133,7 +133,7 @@ jobs:
           docker exec pki pki-server nuxwdog-disable
 
           # restore password.conf
-          docker exec pki mv /tmp/password.conf /var/lib/pki/pki-tomcat/conf
+          docker exec pki mv /tmp/password.conf /var/lib/pki/pki-quarkus/conf
 
           # remove all passwords from keyring
           docker exec pki runuser -u pkiuser -- keyctl clear @u
@@ -164,9 +164,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

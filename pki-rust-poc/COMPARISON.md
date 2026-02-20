@@ -138,11 +138,11 @@ let cache: Arc<Mutex<HashMap<String, Certificate>>> =
 dnf install dogtag-pki-est tomcat
 
 # Configuration
-vi /etc/pki/pki-tomcat/server.xml  # Tomcat config
-vi /etc/pki/pki-tomcat/conf/est/backend.conf
+vi /etc/pki/pki-quarkus/server.xml  # Tomcat config
+vi /etc/pki/pki-quarkus/conf/est/backend.conf
 
 # Start
-systemctl start pki-tomcatd@pki-tomcat
+systemctl start pki-quarkusd@pki-quarkus
 
 # Status
 ps aux | grep java  # Large process with many threads

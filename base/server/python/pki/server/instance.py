@@ -27,7 +27,6 @@ import io
 import logging
 import os
 import pathlib
-import pwd
 import re
 import shutil
 import subprocess
@@ -50,13 +49,13 @@ parser = etree.XMLParser(remove_blank_text=True)
 class PKIInstance(pki.server.PKIServer):
 
     REGISTRY_FILE = pki.server.PKIServer.SHARE_DIR + '/setup/pkidaemon_registry'
-    UNIT_FILE = pki.server.LIB_SYSTEMD_DIR + '/system/pki-tomcatd@.service'
-    TARGET_FILE = pki.server.LIB_SYSTEMD_DIR + '/system/pki-tomcatd.target'
-    TARGET_WANTS = pki.server.ETC_SYSTEMD_DIR + '/system/pki-tomcatd.target.wants'
+    UNIT_FILE = pki.server.LIB_SYSTEMD_DIR + '/system/pki-quarkusd@.service'
+    TARGET_FILE = pki.server.LIB_SYSTEMD_DIR + '/system/pki-quarkusd.target'
+    TARGET_WANTS = pki.server.ETC_SYSTEMD_DIR + '/system/pki-quarkusd.target.wants'
 
     def __init__(self,
                  name,
-                 instance_type='pki-tomcatd',
+                 instance_type='pki-quarkusd',
                  user='pkiuser',
                  group='pkiuser',
                  version=10):
@@ -74,50 +73,6 @@ class PKIInstance(pki.server.PKIServer):
         # The standard conf dir at /var/lib/pki/<instance>/logs
         # will be a link to the actual folder at /var/log/pki/<instance>.
         self._logs_dir = os.path.join(pki.server.PKIServer.LOG_DIR, self.name)
-
-        self.default_root_doc_base = os.path.join(
-            pki.SHARE_DIR,
-            'server',
-            'webapps',
-            'ROOT')
-
-        self.root_doc_base = os.path.join(self.webapps_dir, 'ROOT')
-
-        self.default_root_xml = os.path.join(
-            pki.SHARE_DIR,
-            'server',
-            'conf',
-            'Catalina',
-            'localhost',
-            'ROOT.xml')
-
-        self.root_xml = os.path.join(
-            self.conf_dir,
-            'Catalina',
-            'localhost',
-            'ROOT.xml')
-
-        self.default_pki_doc_base = os.path.join(
-            pki.SHARE_DIR,
-            'server',
-            'webapps',
-            'pki')
-
-        self.pki_doc_base = os.path.join(self.webapps_dir, 'pki')
-
-        self.default_pki_xml = os.path.join(
-            pki.SHARE_DIR,
-            'server',
-            'conf',
-            'Catalina',
-            'localhost',
-            'pki.xml')
-
-        self.pki_xml = os.path.join(
-            self.conf_dir,
-            'Catalina',
-            'localhost',
-            'pki.xml')
 
         self.with_maven_deps = False
 
@@ -169,7 +124,7 @@ class PKIInstance(pki.server.PKIServer):
 
     @property
     def registry_dir(self):
-        return os.path.join(pki.server.PKIServer.REGISTRY_DIR, 'tomcat', self.name)
+        return os.path.join(pki.server.PKIServer.REGISTRY_DIR, 'quarkus', self.name)
 
     @property
     def registry_file(self):
@@ -178,78 +133,6 @@ class PKIInstance(pki.server.PKIServer):
     @property
     def unit_file(self):
         return PKIInstance.TARGET_WANTS + '/%s.service' % self.service_name
-
-    def execute(
-            self, command,
-            as_current_user=False,
-            with_jdb=False,
-            with_gdb=False,
-            with_valgrind=False,
-            agentpath=None,
-            skip_upgrade=False,
-            skip_migration=False):
-
-        if command == 'start':
-
-            if self.type == 'pki-tomcatd':
-                instance_id = self.name
-            else:
-                instance_id = '%s@%s' % (self.type, self.name)
-
-            prefix = []
-
-            # by default run pkidaemon as systemd user
-            if not as_current_user:
-
-                current_user = pwd.getpwuid(os.getuid()).pw_name
-
-                # switch to systemd user if different from current user
-                if current_user != self.user:
-                    prefix.extend(['/usr/sbin/runuser', '-u', self.user, '--'])
-
-            if not skip_upgrade:
-                # run pki-server upgrade <instance>
-                cmd = prefix + ['/usr/sbin/pki-server', 'upgrade']
-
-                if logger.isEnabledFor(logging.DEBUG):
-                    cmd.append('--debug')
-
-                elif logger.isEnabledFor(logging.INFO):
-                    cmd.append('--verbose')
-
-                cmd.append(instance_id)
-
-                logger.debug('Command: %s', ' '.join(cmd))
-                subprocess.run(cmd, env=self.config, check=True)
-
-            if not skip_migration:
-                # run pki-server migrate <instance>
-                cmd = prefix + ['/usr/sbin/pki-server', 'migrate']
-
-                if logger.isEnabledFor(logging.DEBUG):
-                    cmd.append('--debug')
-
-                elif logger.isEnabledFor(logging.INFO):
-                    cmd.append('--verbose')
-
-                cmd.append(instance_id)
-
-                logger.debug('Command: %s', ' '.join(cmd))
-                subprocess.run(cmd, env=self.config, check=True)
-
-            # run pkidaemon start <instance>
-            cmd = prefix + ['/usr/bin/pkidaemon', 'start', instance_id]
-
-            logger.debug('Command: %s', ' '.join(cmd))
-            subprocess.run(cmd, env=self.config, check=True)
-
-        return super().execute(
-            command,
-            as_current_user=as_current_user,
-            with_jdb=with_jdb,
-            with_gdb=with_gdb,
-            with_valgrind=with_valgrind,
-            agentpath=agentpath)
 
     def create(self, force=False):
 
@@ -327,36 +210,23 @@ class PKIInstance(pki.server.PKIServer):
         # install PKI libraries in common/lib
         for filename in [
                 'jss.jar',
-                'jss-tomcat.jar',
-                'jss-tomcat-9.0.jar',
                 'ldapjdk.jar',
-                'pki-common.jar',
-                'pki-tomcat.jar',
-                'pki-tomcat-9.0.jar']:
+                'pki-common.jar']:
 
             source = os.path.join(common_lib_dir, filename)
             dest = os.path.join(self.common_lib_dir, filename)
 
             self.symlink(source, dest, exist_ok=True)
 
-    def create_logging_properties(self, exist_ok=False):
-
-        # Link /var/lib/pki/<instance>/conf/logging.properties
-        # to /usr/share/pki/server/conf/logging.properties.
-
-        logging_properties = os.path.join(
-            pki.server.PKIServer.SHARE_DIR, 'server', 'conf', 'logging.properties')
-        self.symlink(logging_properties, self.logging_properties, exist_ok=exist_ok)
-
     def create_registry(self):
 
         # Create instance registry folder at
-        # /etc/sysconfig/pki/tomcat/<instance>
+        # /etc/sysconfig/pki/quarkus/<instance>
 
         self.makedirs(self.registry_dir, exist_ok=True)
 
         # Copy /usr/share/pki/setup/pkidaemon_registry
-        # to /etc/sysconfig/pki/tomcat/<instance>/<instance>
+        # to /etc/sysconfig/pki/quarkus/<instance>/<instance>
 
         self.copyfile(
             PKIInstance.REGISTRY_FILE,
@@ -424,13 +294,13 @@ class PKIInstance(pki.server.PKIServer):
 
     def remove_registry(self, force=False):
 
-        # Remove /etc/sysconfig/pki/tomcat/<instance>/<instance>
+        # Remove /etc/sysconfig/pki/quarkus/<instance>/<instance>
 
         logger.info('Removing %s', self.registry_file)
         pki.util.remove(self.registry_file, force=force)
 
         # Remove instance registry folder at
-        # /etc/sysconfig/pki/tomcat/<instance>
+        # /etc/sysconfig/pki/quarkus/<instance>
 
         logger.info('Removing %s', self.registry_dir)
         pki.util.rmtree(self.registry_dir, force=force)
@@ -549,75 +419,6 @@ class PKIInstance(pki.server.PKIServer):
 
             finally:
                 shutil.rmtree(tmpdir)
-
-    def get_sslserver_cert_nickname(self):
-
-        nickname = super().get_sslserver_cert_nickname()
-
-        if nickname:
-            return nickname
-
-        # If not available, load SSL server cert nickname from serverCertNick.conf
-        # TODO: Remove serverCertNick.conf
-
-        logger.info('Getting serverCertNickFile from server.xml')
-
-        document = etree.parse(self.server_xml, parser)
-        server = document.getroot()
-
-        connector = server.find('Service/Connector[@secure=\'true\']')
-
-        if connector is None:
-            # no secure Connector -> no nickname
-            return None
-
-        server_cert_nick_conf = connector.get('serverCertNickFile')
-
-        if server_cert_nick_conf is None:
-            # no serverCertNick.conf -> no nickname
-            return None
-
-        logger.info('Loading %s', server_cert_nick_conf)
-
-        with open(server_cert_nick_conf, encoding='utf-8') as f:
-            return f.readline().strip()
-
-    def set_sslserver_cert_nickname(self, nickname, token=None):
-
-        super().set_sslserver_cert_nickname(nickname, token)
-
-        if pki.nssdb.internal_token(token):
-            fullname = nickname
-        else:
-            fullname = token + ':' + nickname
-
-        # Store SSL server cert nickname into serverCertNick.conf
-        # TODO: Remove serverCertNick.conf
-
-        server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
-        logger.info('Updating %s', server_cert_nick_conf)
-
-        with open(server_cert_nick_conf, 'w', encoding='utf-8') as f:
-            f.write(fullname + '\n')
-
-        self.chown(server_cert_nick_conf)
-        os.chmod(server_cert_nick_conf, pki.server.DEFAULT_FILE_MODE)
-
-        logger.info('Updating serverCertNickFile in server.xml')
-
-        document = etree.parse(self.server_xml, parser)
-        server = document.getroot()
-
-        connector = server.find('Service/Connector[@secure=\'true\']')
-
-        if connector is None:
-            # no secure Connector -> ignore
-            return
-
-        connector.set('serverCertNickFile', server_cert_nick_conf)
-
-        with open(self.server_xml, 'wb') as f:
-            document.write(f, pretty_print=True, encoding='utf-8')
 
     def banner_installed(self):
         return os.path.exists(self.banner_file)
@@ -991,137 +792,22 @@ class PKIInstance(pki.server.PKIServer):
         finally:
             nssdb.close()
 
-    def configure_ajp_connectors_secret(self):
-
-        logger.info('Configuring AJP connectors secret')
-
-        document = etree.parse(self.server_xml, parser)
-        server = document.getroot()
-
-        # replace 'requiredSecret' with 'secret' in comments
-
-        services = server.findall('Service')
-        for service in services:
-
-            children = list(service)
-            for child in children:
-
-                if not isinstance(child, etree._Comment):  # pylint: disable=protected-access
-                    # not a comment -> skip
-                    continue
-
-                if 'protocol="AJP/1.3"' not in child.text:
-                    # not an AJP connector -> skip
-                    continue
-
-                child.text = re.sub(r'requiredSecret=',
-                                    r'secret=',
-                                    child.text,
-                                    flags=re.MULTILINE)
-
-        # replace 'requiredSecret' with 'secret' in Connectors
-
-        connectors = server.findall('Service/Connector')
-        for connector in connectors:
-
-            if connector.get('protocol') != 'AJP/1.3':
-                # not an AJP connector -> skip
-                continue
-
-            # remove existing 'requiredSecret' if any
-            value = connector.attrib.pop('requiredSecret', None)
-            print('AJP connector requiredSecret: %s' % value)
-
-            if connector.get('secret'):
-                # already has a 'secret' -> skip
-                continue
-
-            if not value:
-                raise Exception('Missing AJP connector secret in %s' % self.server_xml)
-
-            # store 'secret'
-            connector.set('secret', value)
-
-        with open(self.server_xml, 'wb') as f:
-            document.write(f, pretty_print=True, encoding='utf-8')
-
-    def configure_ajp_connectors_required_secret(self):
-
-        logger.info('Configuring AJP connectors requiredSecret')
-
-        document = etree.parse(self.server_xml, parser)
-        server = document.getroot()
-
-        # replace 'secret' with 'requiredSecret' in comments
-
-        services = server.findall('Service')
-        for service in services:
-
-            children = list(service)
-            for child in children:
-
-                if not isinstance(child, etree._Comment):  # pylint: disable=protected-access
-                    # not a comment -> skip
-                    continue
-
-                if 'protocol="AJP/1.3"' not in child.text:
-                    # not an AJP connector -> skip
-                    continue
-
-                child.text = re.sub(r'secret=',
-                                    r'requiredSecret=',
-                                    child.text,
-                                    flags=re.MULTILINE)
-
-        # replace 'secret' with 'requiredSecret' in Connectors
-
-        connectors = server.findall('Service/Connector')
-        for connector in connectors:
-
-            if connector.get('protocol') != 'AJP/1.3':
-                # not an AJP connector -> skip
-                continue
-
-            # remove existing 'secret' if any
-            value = connector.attrib.pop('secret', None)
-            print('AJP connector secret: %s' % value)
-
-            if connector.get('requiredSecret'):
-                # already has a 'requiredSecret' -> skip
-                continue
-
-            if not value:
-                raise Exception('Missing AJP connector requiredSecret in %s' % self.server_xml)
-
-            # store 'requiredSecret'
-            connector.set('requiredSecret', value)
-
-        with open(self.server_xml, 'wb') as f:
-            document.write(f, pretty_print=True, encoding='utf-8')
-
-    def configure_ajp_connectors(self):
-
-        tomcat_version = pki.server.Tomcat.get_version()
-
-        if tomcat_version >= pki.util.Version('9.0.31'):
-            self.configure_ajp_connectors_secret()
-        else:
-            self.configure_ajp_connectors_required_secret()
-
     def init(self):
         super().init()
         self.validate_banner()
-        self.configure_ajp_connectors()
 
     @classmethod
     def instances(cls):
 
         instances = []
 
-        if not os.path.exists(os.path.join(pki.server.PKIServer.REGISTRY_DIR, 'tomcat')):
+        if not os.path.exists(pki.server.PKIServer.BASE_DIR):
             return instances
 
         for instance_name in os.listdir(pki.server.PKIServer.BASE_DIR):
+            instance_dir = os.path.join(pki.server.PKIServer.BASE_DIR, instance_name)
+            if not os.path.isdir(instance_dir):
+                continue
             instance = PKIInstance(instance_name)
             instance.load()
             instances.append(instance)

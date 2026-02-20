@@ -101,7 +101,7 @@ jobs:
           # there should be 5 certs
           echo "5" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -110,7 +110,7 @@ jobs:
         run: |
           echo "CT,C,C" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               ca_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -120,7 +120,7 @@ jobs:
         run: |
           echo ",," > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               ca_ocsp_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -130,7 +130,7 @@ jobs:
         run: |
           echo ",,P" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               ca_audit_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -140,7 +140,7 @@ jobs:
         run: |
           echo ",," > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               subsystem | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -150,7 +150,7 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               sslserver | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -161,7 +161,7 @@ jobs:
           echo Secret.HSM > password.txt
           echo "4" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-find | tee output
@@ -172,7 +172,7 @@ jobs:
         run: |
           echo "CTu,Cu,Cu" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-show \
@@ -184,7 +184,7 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-show \
@@ -196,7 +196,7 @@ jobs:
         run: |
           echo "u,u,Pu" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-show \
@@ -208,7 +208,7 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               -C ${SHARED}/password.txt \
               --token HSM \
               nss-cert-show \
@@ -229,7 +229,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
@@ -270,9 +270,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

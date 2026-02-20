@@ -107,7 +107,7 @@ def test_pki_ca_scep_setup(ansible_module):
 	                          line='ca.scep.hashAlgorithm=MD5')
 	
 	# Restart the server
-	ansible_module.command('systemctl restart pki-tomcatd@{}'.format(constants.CA_INSTANCE_NAME))
+	ansible_module.command('systemctl restart pki-quarkusd@{}'.format(constants.CA_INSTANCE_NAME))
 	time.sleep(8)
 	
 	# Check sscep file exist

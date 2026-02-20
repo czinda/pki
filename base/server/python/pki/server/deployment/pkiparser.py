@@ -57,7 +57,7 @@ class PKIConfigParser:
     #   (sections, param, new_section, new_param, info)
     #
     # The 'sections' is a list of sections to check for the deprecated param. None
-    # means the following sections will be checked: DEFAULT, Tomcat, and <subsystem>.
+    # means the following sections will be checked: DEFAULT, Quarkus, and <subsystem>.
     # The 'param' is the deprecated param name.
     # The 'new_section' is the proper section of the new param. None means unchanged.
     # The 'new_param' is the new param name.
@@ -581,11 +581,11 @@ class PKIConfigParser:
         for (sections, param, new_section, new_param, info) \
                 in PKIConfigParser.DEPRECATED_PARAMS:
 
-            # If list of sections is not defined, check DEFAULT, Tomcat, and <subsystem> sections.
+            # If list of sections is not defined, check DEFAULT, Quarkus, and <subsystem> sections.
             # Check DEFAULT first because params in DEFAULT will appear in all other sections.
 
             if not sections:
-                sections = ['DEFAULT', 'Tomcat', self.deployer.subsystem_type]
+                sections = ['DEFAULT', 'Quarkus', self.deployer.subsystem_type]
 
             # Find param in the listed sections.
 
@@ -696,7 +696,7 @@ class PKIConfigParser:
             # 'Subsystem Name'  Configuration name/value pairs
             # 'Token'           Configuration name/value pairs
             #
-            #     Tomcat - [CA], [KRA], [OCSP], [TKS], [TPS]
+            #     Quarkus - [CA], [KRA], [OCSP], [TKS], [TPS]
             #            - [CA Clone], [KRA Clone], [OCSP Clone], [TKS Clone],
             #              [TPS Clone]
             #            - [External CA]
@@ -790,7 +790,7 @@ class PKIConfigParser:
 
             # 'External CA' Configuration name/value pairs
             #
-            #     Tomcat - [External CA]
+            #     Quarkus - [External CA]
             #
             #     The following variables are established via the specified PKI
             #     deployment configuration file and are NOT redefined below:
@@ -821,7 +821,7 @@ class PKIConfigParser:
         instance_root = os.path.join('/var/lib/pki', instance_name)
         if not os.path.exists(instance_root):
             return data
-        deployment_root = os.path.join('/etc/sysconfig/pki/tomcat',
+        deployment_root = os.path.join('/etc/sysconfig/pki/quarkus',
                                        instance_name)
 
         for root, _dirs, names in os.walk(deployment_root):

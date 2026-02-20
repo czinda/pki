@@ -16,7 +16,7 @@ Prior to installation, please ensure that the xref:../others/installation-prereq
 [literal]
 ----
 [DEFAULT]
-pki_instance_name=pki-tomcat
+pki_instance_name=pki-quarkus
 pki_https_port=8443
 pki_http_port=8080
 pki_server_database_password=Secret.123
@@ -64,11 +64,11 @@ pki_external_step_two=False
 $ pkispawn -f ca-step1.cfg -s CA
 ....
 
-It installs a CA subsystem in a Tomcat instance (default is pki-tomcat) and creates the following NSS databases:
+It installs a CA subsystem in a Tomcat instance (default is pki-quarkus) and creates the following NSS databases:
 
-* server NSS database: /var/lib/pki/pki-tomcat/conf/alias
+* server NSS database: /var/lib/pki/pki-quarkus/conf/alias
 
-* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
+* admin NSS database: ~/.dogtag/pki-quarkus/ca/alias
 
 Since there are no CSR path parameters specified, it does not generate CA system and admin keys.
 
@@ -78,9 +78,9 @@ Since there are no CSR path parameters specified, it does not generate CA system
 +
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd -n "HSM:ca_signing" -a > ca_signing.crt
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd -n "HSM:ca_ocsp_signing" -a > ca_ocsp_signing.crt
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd -n "HSM:ca_audit_signing" -a > ca_audit_signing.crt
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -h HSM -f HSM.pwd -n "HSM:ca_signing" -a > ca_signing.crt
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -h HSM -f HSM.pwd -n "HSM:ca_ocsp_signing" -a > ca_ocsp_signing.crt
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -h HSM -f HSM.pwd -n "HSM:ca_audit_signing" -a > ca_audit_signing.crt
 ....
 
 . Export the CSRs from the existing CA with the following commands:
@@ -139,7 +139,7 @@ $ pkispawn -f ca-step2.cfg -s CA
 +
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -152,7 +152,7 @@ ca_audit_signing                                             ,,P
 +
 [literal]
 ....
-$ certutil -L -d /var/lib/pki/pki-tomcat/conf/alias -h HSM -f HSM.pwd
+$ certutil -L -d /var/lib/pki/pki-quarkus/conf/alias -h HSM -f HSM.pwd
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -178,7 +178,7 @@ $ pki nss-cert-import --cert ca_signing.crt --trust CT,C,C ca_signing
 [literal]
 ....
 $ pki -c Secret.123 pkcs12-import \
-    --pkcs12 ~/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+    --pkcs12 ~/.dogtag/pki-quarkus/ca_admin_cert.p12 \
     --pkcs12-password Secret.123
 ....
 

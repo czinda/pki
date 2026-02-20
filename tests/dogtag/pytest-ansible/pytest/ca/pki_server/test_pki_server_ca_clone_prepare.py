@@ -78,7 +78,7 @@ def test_pki_server_ca_clone_prepare_help(ansible_module):
     help_out = ansible_module.command('pki-server ca-clone-prepare --help')
     for result in help_out.values():
         if result['rc'] == 0:
-            assert "-i, --instance <instance ID>       Instance ID (default: pki-tomcat)" in \
+            assert "-i, --instance <instance ID>       Instance ID (default: pki-quarkus)" in \
                    result['stdout']
             assert "--pkcs12-file <path>           PKCS #12 file to store certificates and keys" \
                    in result['stdout']

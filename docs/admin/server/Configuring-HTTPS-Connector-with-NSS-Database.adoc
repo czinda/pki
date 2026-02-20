@@ -28,7 +28,7 @@ subjectAltName         = DNS:request_subject_cn, DNS:request_san_ext
 Then execute the following command:
 
 ----
-$ pki -d /var/lib/pki/pki-tomcat/conf/alias \
+$ pki -d /var/lib/pki/pki-quarkus/conf/alias \
     nss-cert-request \
     --subject "CN=$HOSTNAME" \
     --ext /usr/share/pki/server/certs/sslserver.conf \
@@ -38,7 +38,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias \
 To issue a self-signed certificate, execute the following command:
 
 ----
-$ pki -d /var/lib/pki/pki-tomcat/conf/alias \
+$ pki -d /var/lib/pki/pki-quarkus/conf/alias \
     nss-cert-issue \
     --csr sslserver.csr \
     --ext /usr/share/pki/server/certs/sslserver.conf \
@@ -48,7 +48,7 @@ $ pki -d /var/lib/pki/pki-tomcat/conf/alias \
 To import the certificate into the NSS database:
 
 ----
-$ pki -d /var/lib/pki/pki-tomcat/conf/alias \
+$ pki -d /var/lib/pki/pki-quarkus/conf/alias \
     nss-cert-import \
     --cert sslserver.crt \
     sslserver
@@ -65,7 +65,7 @@ $ pki-server jss-enable
 ----
 
 This command will install JSS libraries and create the initial JSS configuration
-in `/var/lib/pki/pki-tomcat/conf/jss.conf` which can be customized as needed.
+in `/var/lib/pki/pki-quarkus/conf/jss.conf` which can be customized as needed.
 
 To create an HTTPS connector, execute the following command:
 
@@ -80,7 +80,7 @@ $ pki-server http-connector-add \
     Secure
 ----
 
-This command will create a `<Connector>` and an `<SSLHost>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+This command will create a `<Connector>` and an `<SSLHost>` in `/var/lib/pki/pki-quarkus/conf/server.xml`.
 
 See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-CLI[PKI Server HTTP Connector CLI].
 
@@ -93,6 +93,6 @@ $ pki-server http-connector-cert-add \
     --keystoreProvider Mozilla-JSS
 ----
 
-This command will create a `<Certificate>` in `/var/lib/pki/pki-tomcat/conf/server.xml`.
+This command will create a `<Certificate>` in `/var/lib/pki/pki-quarkus/conf/server.xml`.
 
 See also link:https://github.com/dogtagpki/pki/wiki/PKI-Server-HTTP-Connector-Cert-CLI[PKI Server HTTP Connector Cert CLI].

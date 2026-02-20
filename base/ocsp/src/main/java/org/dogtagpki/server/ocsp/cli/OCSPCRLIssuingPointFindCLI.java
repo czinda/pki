@@ -12,7 +12,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ocsp.OCSPConfig;
 import org.dogtagpki.server.ocsp.OCSPEngineConfig;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -64,7 +63,7 @@ public class OCSPCRLIssuingPointFindCLI extends CommandCLI {
         String s = cmd.getOptionValue("size", "100");
         int size = Integer.valueOf(s);
 
-        new TomcatJSSInitializer().initialize();
+        // JSS initialization is handled by the Quarkus runtime.
 
         String instanceDir = CMS.getInstanceDir();
         String subsystem = parent.getParent().getParent().getName();

@@ -62,7 +62,7 @@ public class SubsystemUserRoleFindCLI extends ServerCommandCLI {
 
         String outputFormat = cmd.getOptionValue("output-format", "text");
 
-        initializeTomcatJSS();
+        initializeJSS();
         String subsystem = parent.getParent().getParent().getName();
         EngineConfig cs = getEngineConfig(subsystem);
         cs.load();

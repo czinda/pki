@@ -112,7 +112,7 @@ jobs:
               --ext /usr/share/pki/server/certs/admin.conf \
               --csr admin.csr
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-issue \
               --issuer ca_signing \
               --csr admin.csr \
@@ -202,36 +202,36 @@ jobs:
       - name: Import CA signing cert into CA database
         run: |
           docker exec pki pki-server ca-cert-import \
-              --cert /var/lib/pki/pki-tomcat/conf/certs/ca_signing.crt \
-              --csr /var/lib/pki/pki-tomcat/conf/certs/ca_signing.csr \
+              --cert /var/lib/pki/pki-quarkus/conf/certs/ca_signing.crt \
+              --csr /var/lib/pki/pki-quarkus/conf/certs/ca_signing.csr \
               --profile /usr/share/pki/ca/conf/caCert.profile
 
       - name: Import CA OCSP signing cert into CA database
         run: |
           docker exec pki pki-server ca-cert-import \
-              --cert /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.crt \
-              --csr /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.csr \
+              --cert /var/lib/pki/pki-quarkus/conf/certs/ca_ocsp_signing.crt \
+              --csr /var/lib/pki/pki-quarkus/conf/certs/ca_ocsp_signing.csr \
               --profile /usr/share/pki/ca/conf/caOCSPCert.profile
 
       - name: Import CA audit signing cert into CA database
         run: |
           docker exec pki pki-server ca-cert-import \
-              --cert /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.crt \
-              --csr /var/lib/pki/pki-tomcat/conf/certs/ca_audit_signing.csr \
+              --cert /var/lib/pki/pki-quarkus/conf/certs/ca_audit_signing.crt \
+              --csr /var/lib/pki/pki-quarkus/conf/certs/ca_audit_signing.csr \
               --profile /usr/share/pki/ca/conf/caAuditSigningCert.profile
 
       - name: Import subsystem cert into CA database
         run: |
           docker exec pki pki-server ca-cert-import \
-              --cert /var/lib/pki/pki-tomcat/conf/certs/subsystem.crt \
-              --csr /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr \
+              --cert /var/lib/pki/pki-quarkus/conf/certs/subsystem.crt \
+              --csr /var/lib/pki/pki-quarkus/conf/certs/subsystem.csr \
               --profile /usr/share/pki/ca/conf/rsaSubsystemCert.profile
 
       - name: Import SSL server cert into CA database
         run: |
           docker exec pki pki-server ca-cert-import \
-              --cert /var/lib/pki/pki-tomcat/conf/certs/sslserver.crt \
-              --csr /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr \
+              --cert /var/lib/pki/pki-quarkus/conf/certs/sslserver.crt \
+              --csr /var/lib/pki/pki-quarkus/conf/certs/sslserver.csr \
               --profile /usr/share/pki/ca/conf/rsaServerCert.profile
 
       - name: Import admin cert into CA database
@@ -275,7 +275,7 @@ jobs:
           docker exec pki pki-server ca-user-add \
               --full-name CA-pki.example.com-8443 \
               --type agentType \
-              --cert /var/lib/pki/pki-tomcat/conf/certs/subsystem.crt \
+              --cert /var/lib/pki/pki-quarkus/conf/certs/subsystem.crt \
               CA-pki.example.com-8443
 
       - name: Assign roles to subsystem user
@@ -380,9 +380,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

@@ -65,7 +65,7 @@ jobs:
           docker exec pki sed -i \
               -e "s/^\(policyset.userCertSet.list\)=.*$/\1=1,10,2,3,4,6,7,8,9/" \
               -e "/^policyset.userCertSet.5/d" \
-              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caUserCert.cfg
+              /var/lib/pki/pki-quarkus/conf/ca/profiles/ca/caUserCert.cfg
 
           # add CDP extension
           URI="http://pki.example.com:8080/crl/MasterCRL.crl"
@@ -78,15 +78,15 @@ jobs:
               -e "$ a policyset.userCertSet.11.default.params.crlDistPointsCritical=false" \
               -e "$ a policyset.userCertSet.11.default.params.crlDistPointsNum=1" \
               -e "$ a policyset.userCertSet.11.default.params.crlDistPointsEnable_0=true" \
-              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsIssuerName_0=cn=CA Signing Certificate,ou=pki-tomcat,o=EXAMPLE" \
+              -e "$ a policyset.userCertSet.11.default.params.crlDistPointsIssuerName_0=cn=CA Signing Certificate,ou=pki-quarkus,o=EXAMPLE" \
               -e "$ a policyset.userCertSet.11.default.params.crlDistPointsIssuerType_0=DirectoryName" \
               -e "$ a policyset.userCertSet.11.default.params.crlDistPointsPointName_0=$URI" \
               -e "$ a policyset.userCertSet.11.default.params.crlDistPointsPointType_0=URIName" \
               -e "$ a policyset.userCertSet.11.default.params.crlDistPointsReasons_0=" \
-              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caUserCert.cfg
+              /var/lib/pki/pki-quarkus/conf/ca/profiles/ca/caUserCert.cfg
 
           # check updated profile
-          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caUserCert.cfg
+          docker exec pki cat /var/lib/pki/pki-quarkus/conf/ca/profiles/ca/caUserCert.cfg
 
       - name: Configure caServerCert profile
         run: |
@@ -94,37 +94,37 @@ jobs:
           docker exec pki sed -i \
               -e "s/^\(policyset.serverCertSet.list\)=.*$/\1=1,2,3,4,6,7,8,12/" \
               -e "/^policyset.serverCertSet.5/d" \
-              /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
+              /var/lib/pki/pki-quarkus/conf/ca/profiles/ca/caServerCert.cfg
 
           # check updated profile
-          docker exec pki cat /var/lib/pki/pki-tomcat/conf/ca/profiles/ca/caServerCert.cfg
+          docker exec pki cat /var/lib/pki/pki-quarkus/conf/ca/profiles/ca/caServerCert.cfg
 
       - name: Prepare CRL publishing location
         run: |
           # create CRL folder
-          docker exec pki mkdir -p /var/lib/pki/pki-tomcat/crl
-          docker exec pki chown -R pkiuser:pkiuser /var/lib/pki/pki-tomcat/crl
+          docker exec pki mkdir -p /var/lib/pki/pki-quarkus/crl
+          docker exec pki chown -R pkiuser:pkiuser /var/lib/pki/pki-quarkus/crl
 
           # create CRL webapp config
           # use allowLinking=true since MasterCRL.crl is a link
           # use cachingAllowed=false since MasterCRL.crl is not static
           cat > crl.xml << EOF
-          <Context docBase="/var/lib/pki/pki-tomcat/crl">
+          <Context docBase="/var/lib/pki/pki-quarkus/crl">
               <Resources allowLinking="true" cachingAllowed="false" />
           </Context>
           EOF
 
           # deploy CRL webapp
-          docker cp crl.xml pki:/var/lib/pki/pki-tomcat/conf/Catalina/localhost
-          docker exec pki chown -R pkiuser:pkiuser /var/lib/pki/pki-tomcat/conf/Catalina/localhost/crl.xml
-          docker exec pki ls -l /var/lib/pki/pki-tomcat/conf/Catalina/localhost
+          docker cp crl.xml pki:/var/lib/pki/pki-quarkus/conf/Catalina/localhost
+          docker exec pki chown -R pkiuser:pkiuser /var/lib/pki/pki-quarkus/conf/Catalina/localhost/crl.xml
+          docker exec pki ls -l /var/lib/pki/pki-quarkus/conf/Catalina/localhost
 
       - name: Configure file-based CRL publishing
         run: |
           # configure file-based CRL publisher
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.pluginName FileBasedPublisher
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.crlLinkExt crl
-          docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.directory /var/lib/pki/pki-tomcat/crl
+          docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.directory /var/lib/pki/pki-quarkus/crl
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.latestCrlLink true
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.timeStamp LocalTime
           docker exec pki pki-server ca-config-set ca.publish.publisher.instance.FileBasedPublisher.zipCRLs false
@@ -179,7 +179,7 @@ jobs:
 
       - name: Check CA admin cert
         run: |
-          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+          docker exec pki openssl x509 -text -noout -in /root/.dogtag/pki-quarkus/ca_admin.cert
 
       - name: Run PKI healthcheck
         run: docker exec pki pki-healthcheck --failures-only
@@ -192,7 +192,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin ca-user-show caadmin
 
@@ -263,7 +263,7 @@ jobs:
       - name: Check initial CRL
         run: |
           # check CRL files
-          docker exec pki ls -l /var/lib/pki/pki-tomcat/crl | tee output
+          docker exec pki ls -l /var/lib/pki/pki-quarkus/crl | tee output
 
           # there should be no CRL files initially
           echo "total 0" > expected
@@ -278,7 +278,7 @@ jobs:
           sleep 10
 
           # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*.der" | tee output
+          docker exec pki find /var/lib/pki/pki-quarkus/crl -name "MasterCRL-*.der" | tee output
 
           # there should be one timestamped CRL file
           cat output | wc -l > actual
@@ -287,7 +287,7 @@ jobs:
 
           # check the latest CRL
           docker exec pki openssl crl \
-              -in /var/lib/pki/pki-tomcat/crl/MasterCRL.crl \
+              -in /var/lib/pki/pki-quarkus/crl/MasterCRL.crl \
               -inform DER \
               -text \
               -noout | tee output
@@ -399,7 +399,7 @@ jobs:
       - name: Check CRL after revocation
         run: |
           # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*.der" | sort | tee output
+          docker exec pki find /var/lib/pki/pki-quarkus/crl -name "MasterCRL-*.der" | sort | tee output
 
           # there should be two timestamped CRL files
           cat output | wc -l > actual
@@ -408,7 +408,7 @@ jobs:
 
           # check the latest CRL
           docker exec pki openssl crl \
-              -in /var/lib/pki/pki-tomcat/crl/MasterCRL.crl \
+              -in /var/lib/pki/pki-quarkus/crl/MasterCRL.crl \
               -inform DER \
               -text \
               -noout | tee output
@@ -528,7 +528,7 @@ jobs:
       - name: Check CRL after unrevocation
         run: |
           # check CRL files
-          docker exec pki find /var/lib/pki/pki-tomcat/crl -name "MasterCRL-*.der" | sort | tee output
+          docker exec pki find /var/lib/pki/pki-quarkus/crl -name "MasterCRL-*.der" | sort | tee output
 
           # there should be three timestamped CRL files
           cat output | wc -l > actual
@@ -537,7 +537,7 @@ jobs:
 
           # check the latest CRL
           docker exec pki openssl crl \
-              -in /var/lib/pki/pki-tomcat/crl/MasterCRL.crl \
+              -in /var/lib/pki/pki-quarkus/crl/MasterCRL.crl \
               -inform DER \
               -text \
               -noout | tee output
@@ -628,9 +628,9 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;

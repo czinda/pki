@@ -185,8 +185,8 @@ jobs:
           lrwxrwxrwx root root jss.jar -> ../../../lib/jss.jar
           lrwxrwxrwx root root ldapjdk.jar -> ../../../lib/ldapjdk.jar
           lrwxrwxrwx root root pki-common.jar -> ../../../lib/pki-common.jar
-          lrwxrwxrwx root root pki-tomcat-10.1.jar -> ../../../../../../usr/share/java/pki/pki-tomcat-10.1.jar
-          lrwxrwxrwx root root pki-tomcat.jar -> ../../../../../../usr/share/java/pki/pki-tomcat.jar
+          lrwxrwxrwx root root pki-quarkus-10.1.jar -> ../../../../../../usr/share/java/pki/pki-quarkus-10.1.jar
+          lrwxrwxrwx root root pki-quarkus.jar -> ../../../../../../usr/share/java/pki/pki-quarkus.jar
           lrwxrwxrwx root root resteasy-jackson2-provider.jar -> ../../../lib/resteasy-jackson2-provider.jar
           lrwxrwxrwx root root resteasy-jaxrs.jar -> ../../../lib/resteasy-jaxrs.jar
           -rw-r--r-- root root resteasy-servlet-initializer-x.y.z.Final.jar
@@ -196,11 +196,11 @@ jobs:
           # normalize actual result:
           # - replace version number with x.y.z
           # - replace jss-tomcat-9.0.jar with jss-tomcat-10.1.jar
-          # - replace pki-tomcat-9.0.jar with pki-tomcat-10.1.jar
+          # - replace pki-quarkus-9.0.jar with pki-quarkus-10.1.jar
           sed -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.jar$/-x.y.z.jar/' \
               -e 's/-[0-9]*\.[0-9]*\.[0-9]*\.Final\.jar$/-x.y.z.Final.jar/' \
               -e 's/jss-tomcat-9.0.jar/jss-tomcat-10.1.jar/g' \
-              -e 's/pki-tomcat-9.0.jar/pki-tomcat-10.1.jar/g' \
+              -e 's/pki-quarkus-9.0.jar/pki-quarkus-10.1.jar/g' \
               output > actual
 
           diff expected actual
@@ -258,18 +258,18 @@ jobs:
 
           # TODO: validate output
 
-      - name: Create pki-tomcat server
+      - name: Create pki-quarkus server
         run: |
           docker exec pki pki-server create -v
 
-      - name: Start pki-tomcat server
+      - name: Start pki-quarkus server
         run: |
           docker exec pki pki-server start --wait -v
 
-      - name: Check pki-tomcat server base dir after installation
+      - name: Check pki-quarkus server base dir after installation
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+          docker exec pki ls -l /var/lib/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -279,9 +279,9 @@ jobs:
           cat > expected << EOF
           lrwxrwxrwx pkiuser pkiuser bin -> /usr/share/tomcat/bin
           drwxr-x--- pkiuser pkiuser common
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-quarkus
           lrwxrwxrwx pkiuser pkiuser lib -> /usr/share/pki/server/lib
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-quarkus
           drwxr-x--- pkiuser pkiuser temp
           drwxr-x--- pkiuser pkiuser webapps
           drwxr-x--- pkiuser pkiuser work
@@ -289,10 +289,10 @@ jobs:
 
           diff expected output
 
-      - name: Check pki-tomcat server conf dir after installation
+      - name: Check pki-quarkus server conf dir after installation
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat \
+          docker exec pki ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -313,20 +313,20 @@ jobs:
 
           diff expected output
 
-      - name: Check pki-tomcat server.xml
+      - name: Check pki-quarkus server.xml
         if: always()
         run: |
-          docker exec pki cat /etc/pki/pki-tomcat/server.xml
+          docker exec pki cat /etc/pki/pki-quarkus/server.xml
 
-      - name: Check pki-tomcat tomcat.conf
+      - name: Check pki-quarkus tomcat.conf
         if: always()
         run: |
-          docker exec pki cat /etc/pki/pki-tomcat/tomcat.conf
+          docker exec pki cat /etc/pki/pki-quarkus/tomcat.conf
 
       - name: Check PKI server conf/Catalina/localhost dir after installation
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat/Catalina/localhost \
+          docker exec pki ls -l /etc/pki/pki-quarkus/Catalina/localhost \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -339,11 +339,11 @@ jobs:
 
           diff expected output
 
-      - name: Check pki-tomcat server logs dir after installation
+      - name: Check pki-quarkus server logs dir after installation
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -360,11 +360,11 @@ jobs:
 
           diff expected output
 
-      - name: Check pki-tomcat server logs dir after installation
+      - name: Check pki-quarkus server logs dir after installation
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -380,7 +380,7 @@ jobs:
 
           diff expected output
 
-      - name: Check pki-tomcat webapps
+      - name: Check pki-quarkus webapps
         run: |
           docker exec pki pki-server webapp-find | tee output
 
@@ -388,7 +388,7 @@ jobs:
           sed -n 's/^ *Webapp ID: *\(.*\)$/\1/p' output > actual
           diff /dev/null actual
 
-      - name: Check pki-tomcat subsystems
+      - name: Check pki-quarkus subsystems
         run: |
           docker exec pki pki-server subsystem-find | tee output
 
@@ -400,23 +400,23 @@ jobs:
           docker exec pki pki-server subsystem-show ca \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          echo "ERROR: No ca subsystem in instance pki-tomcat." > expected
+          echo "ERROR: No ca subsystem in instance pki-quarkus." > expected
           diff expected stderr
 
           # create empty CA subsystem folder
-          docker exec pki mkdir -p /var/lib/pki/pki-tomcat/ca
+          docker exec pki mkdir -p /var/lib/pki/pki-quarkus/ca
 
           # CA subsystem should not exist
           docker exec pki pki-server subsystem-show ca \
               > >(tee stdout) 2> >(tee stderr >&2) || true
 
-          echo "ERROR: No ca subsystem in instance pki-tomcat." > expected
+          echo "ERROR: No ca subsystem in instance pki-quarkus." > expected
           diff expected stderr
 
           # remove CA subsystem folder
-          docker exec pki rm -rf /var/lib/pki/pki-tomcat/ca
+          docker exec pki rm -rf /var/lib/pki/pki-quarkus/ca
 
-      - name: Check HTTP connection to pki-tomcat server
+      - name: Check HTTP connection to pki-quarkus server
         run: |
           docker exec pki curl \
               --retry 60 \
@@ -427,18 +427,18 @@ jobs:
               -o /dev/null \
               http://pki.example.com:8080
 
-      - name: Stop pki-tomcat server
+      - name: Stop pki-quarkus server
         run: |
           docker exec pki pki-server stop --wait -v
 
-      - name: Remove pki-tomcat server
+      - name: Remove pki-quarkus server
         run: |
           docker exec pki pki-server remove -v
 
-      - name: Check pki-tomcat server base dir after removal
+      - name: Check pki-quarkus server base dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/lib/pki/pki-tomcat \
+          docker exec pki ls -l /var/lib/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -446,16 +446,16 @@ jobs:
 
           # TODO: review permissions
           cat > expected << EOF
-          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-tomcat
-          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-tomcat
+          lrwxrwxrwx pkiuser pkiuser conf -> /etc/pki/pki-quarkus
+          lrwxrwxrwx pkiuser pkiuser logs -> /var/log/pki/pki-quarkus
           EOF
 
           diff expected output
 
-      - name: Check pki-tomcat server conf dir after removal
+      - name: Check pki-quarkus server conf dir after removal
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /etc/pki/pki-tomcat \
+          docker exec pki ls -l /etc/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -476,11 +476,11 @@ jobs:
 
           diff expected output
 
-      - name: Check pki-tomcat server logs dir after removal
+      - name: Check pki-quarkus server logs dir after removal
         if: ${{ fromJSON(env.FEDORA_VERSION) < 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \
@@ -497,11 +497,11 @@ jobs:
 
           diff expected output
 
-      - name: Check pki-tomcat server logs dir after removal
+      - name: Check pki-quarkus server logs dir after removal
         if: ${{ fromJSON(env.FEDORA_VERSION) >= 43 }}
         run: |
           # check file types, owners, and permissions
-          docker exec pki ls -l /var/log/pki/pki-tomcat \
+          docker exec pki ls -l /var/log/pki/pki-quarkus \
               | sed \
                   -e '/^total/d' \
                   -e 's/^\(\S*\) *\S* *\(\S*\) *\(\S*\) *\S* *\S* *\S* *\S* *\(.*\)$/\1 \2 \3 \4/' \

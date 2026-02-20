@@ -61,7 +61,7 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           # restart PKI server
           docker exec primary pki-server restart --wait
@@ -234,7 +234,7 @@ jobs:
               -t attr \
               -n "buffered" \
               -v "false" \
-              /etc/pki/pki-tomcat/server.xml
+              /etc/pki/pki-quarkus/server.xml
 
           # restart PKI server
           docker exec secondary pki-server restart --wait
@@ -566,8 +566,8 @@ jobs:
       - name: Change renewal master
         run: |
           # get CS.cfg before renewal update
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.orig
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary.orig
+          docker cp primary:/var/lib/pki/pki-quarkus/conf/ca/CS.cfg CS.cfg.primary.orig
+          docker cp secondary:/var/lib/pki/pki-quarkus/conf/ca/CS.cfg CS.cfg.secondary.orig
 
           # move renewal master to secondary server
           docker exec primary ipa config-mod \
@@ -582,22 +582,22 @@ jobs:
 
       - name: Check primary CA config
         run: |
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after-renewal-update
+          docker cp primary:/var/lib/pki/pki-quarkus/conf/ca/CS.cfg CS.cfg.primary.after-renewal-update
 
           # renewal config is maintained by IPA, so there should be no change in PKI
           diff CS.cfg.primary.orig CS.cfg.primary.after-renewal-update
 
       - name: Check secondary CA config
         run: |
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary.after-renewal-update
+          docker cp secondary:/var/lib/pki/pki-quarkus/conf/ca/CS.cfg CS.cfg.secondary.after-renewal-update
 
           # renewal config is maintained by IPA, so there should be no change in PKI
           diff CS.cfg.secondary.orig CS.cfg.secondary.after-renewal-update
 
       - name: Check CA CSR copied correctly 
         run: |
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/certs primary-certs
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/certs secondary-certs
+          docker cp primary:/var/lib/pki/pki-quarkus/conf/certs primary-certs
+          docker cp secondary:/var/lib/pki/pki-quarkus/conf/certs secondary-certs
 
           diff primary-certs/ca_audit_signing.csr secondary-certs/ca_audit_signing.csr
           diff primary-certs/ca_ocsp_signing.csr secondary-certs/ca_ocsp_signing.csr
@@ -642,7 +642,7 @@ jobs:
       - name: Check CRL generation config in primary CA
         run: |
           # get CS.cfg from primary CA after CRL generation update
-          docker cp primary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.primary.after-crl-update
+          docker cp primary:/var/lib/pki/pki-quarkus/conf/ca/CS.cfg CS.cfg.primary.after-crl-update
 
           docker exec primary pki-server ca-config-find | grep ca.crl.MasterCRL
 
@@ -669,7 +669,7 @@ jobs:
       - name: Check CRL generation config in secondary CA
         run: |
           # get CS.cfg from secondary CA after CRL generation update
-          docker cp secondary:/var/lib/pki/pki-tomcat/conf/ca/CS.cfg CS.cfg.secondary.after-crl-update
+          docker cp secondary:/var/lib/pki/pki-quarkus/conf/ca/CS.cfg CS.cfg.secondary.after-crl-update
 
           docker exec secondary pki-server ca-config-find | grep ca.crl.MasterCRL
 
@@ -824,17 +824,17 @@ jobs:
       - name: Check PKI server systemd journal in primary container
         if: always()
         run: |
-          docker exec primary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec primary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check PKI server access log in primary container
         if: always()
         run: |
-          docker exec primary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec primary find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log in primary container
         if: always()
         run: |
-          docker exec primary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec primary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Remove IPA server from primary container
         run: |
@@ -976,17 +976,17 @@ jobs:
       - name: Check PKI server systemd journal in secondary container
         if: always()
         run: |
-          docker exec secondary journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec secondary journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check PKI server access log in secondary container
         if: always()
         run: |
-          docker exec secondary find /var/log/pki/pki-tomcat -name "localhost_access_log.*" -exec cat {} \;
+          docker exec secondary find /var/log/pki/pki-quarkus -name "localhost_access_log.*" -exec cat {} \;
 
       - name: Check CA debug log in secondary container
         if: always()
         run: |
-          docker exec secondary find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec secondary find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Remove IPA server from secondary container
         run: docker exec secondary ipa-server-install --uninstall -U --ignore-last-of-role

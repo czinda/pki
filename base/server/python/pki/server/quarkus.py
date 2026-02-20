@@ -81,7 +81,7 @@ class QuarkusPKIInstance:
         Initialize a Quarkus PKI instance.
 
         Args:
-            name: Instance name (e.g., 'pki-tomcat')
+            name: Instance name (e.g., 'pki-quarkus')
             subsystem_type: Subsystem type (ca, kra, ocsp, tks, tps, acme, est)
             user: System user to run as
             group: System group to run as

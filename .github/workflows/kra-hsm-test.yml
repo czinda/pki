@@ -90,7 +90,7 @@ jobs:
           # CA should create 5 certs in internal token
           echo "5" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -100,8 +100,8 @@ jobs:
           # CA should create 4 certs in HSM
           echo "4" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -129,7 +129,7 @@ jobs:
           # KRA should create 3 additional certs in internal token
           echo "8" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
           diff expected actual
@@ -138,7 +138,7 @@ jobs:
         run: |
           echo ",," > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               kra_storage | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -148,7 +148,7 @@ jobs:
         run: |
           echo ",," > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               kra_transport | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -158,7 +158,7 @@ jobs:
         run: |
           echo ",,P" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
               nss-cert-show \
               kra_audit_signing | tee output
           sed -n 's/\s*Trust Flags:\s*\(\S\+\)\s*$/\1/p' output > actual
@@ -169,8 +169,8 @@ jobs:
           # KRA should create 3 additional certs in HSM
           echo "7" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-find | tee output
           grep "Serial Number:" output | wc -l > actual
@@ -180,8 +180,8 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:kra_storage | tee output
@@ -192,8 +192,8 @@ jobs:
         run: |
           echo "u,u,u" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:kra_transport | tee output
@@ -204,8 +204,8 @@ jobs:
         run: |
           echo "u,u,Pu" > expected
           docker exec pki pki \
-              -d /var/lib/pki/pki-tomcat/conf/alias \
-              -f /var/lib/pki/pki-tomcat/conf/password.conf \
+              -d /var/lib/pki/pki-quarkus/conf/alias \
+              -f /var/lib/pki/pki-quarkus/conf/password.conf \
               --token HSM \
               nss-cert-show \
               HSM:kra_audit_signing | tee output
@@ -225,7 +225,7 @@ jobs:
               ca_signing
 
           docker exec pki pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
           docker exec pki pki -n caadmin kra-user-show kraadmin
 
@@ -243,17 +243,17 @@ jobs:
       - name: Check PKI server systemd journal
         if: always()
         run: |
-          docker exec pki journalctl -x --no-pager -u pki-tomcatd@pki-tomcat.service
+          docker exec pki journalctl -x --no-pager -u pki-quarkusd@pki-quarkus.service
 
       - name: Check CA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/ca -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/ca -name "debug.*" -exec cat {} \;
 
       - name: Check KRA debug log
         if: always()
         run: |
-          docker exec pki find /var/lib/pki/pki-tomcat/logs/kra -name "debug.*" -exec cat {} \;
+          docker exec pki find /var/lib/pki/pki-quarkus/logs/kra -name "debug.*" -exec cat {} \;
 
       - name: Gather artifacts
         if: always()

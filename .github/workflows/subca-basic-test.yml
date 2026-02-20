@@ -71,7 +71,7 @@ jobs:
           docker exec root pki-server cert-find
 
       - name: Install banner in root container
-        run: docker exec root cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
+        run: docker exec root cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-quarkus/conf
 
       - name: Set up subordinate DS container
         run: |
@@ -118,14 +118,14 @@ jobs:
           docker exec subordinate pki-server cert-find
 
       - name: Install banner in subordinate container
-        run: docker exec subordinate cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-tomcat/conf
+        run: docker exec subordinate cp /usr/share/pki/server/examples/banner/banner.txt /var/lib/pki/pki-quarkus/conf
 
       - name: Check CA signing cert
         run: |
           docker exec subordinate pki-server cert-export ca_signing \
               --cert-file ca_signing.crt
           docker exec subordinate openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/ca_signing.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/ca_signing.csr
 
           # check sub CA signing cert extensions
           docker exec subordinate /usr/share/pki/tests/ca/bin/test-subca-signing-cert-ext.sh ca_signing.crt
@@ -135,7 +135,7 @@ jobs:
           docker exec subordinate pki-server cert-export ca_ocsp_signing \
               --cert-file ca_ocsp_signing.crt
           docker exec subordinate openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/ca_ocsp_signing.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/ca_ocsp_signing.csr
           docker exec subordinate openssl x509 -text -noout -in ca_ocsp_signing.crt
 
       - name: Check subsystem cert
@@ -143,7 +143,7 @@ jobs:
           docker exec subordinate pki-server cert-export subsystem \
               --cert-file subsystem.crt
           docker exec subordinate openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/subsystem.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/subsystem.csr
           docker exec subordinate openssl x509 -text -noout -in subsystem.crt
 
       - name: Check SSL server cert
@@ -151,12 +151,12 @@ jobs:
           docker exec subordinate pki-server cert-export sslserver \
               --cert-file sslserver.crt
           docker exec subordinate openssl req -text -noout \
-              -in /var/lib/pki/pki-tomcat/conf/certs/sslserver.csr
+              -in /var/lib/pki/pki-quarkus/conf/certs/sslserver.csr
           docker exec subordinate openssl x509 -text -noout -in sslserver.crt
 
       - name: Check CA admin cert
         run: |
-          docker exec subordinate openssl x509 -text -noout -in /root/.dogtag/pki-tomcat/ca_admin.cert
+          docker exec subordinate openssl x509 -text -noout -in /root/.dogtag/pki-quarkus/ca_admin.cert
 
       - name: Run PKI healthcheck
         run: |
@@ -183,7 +183,7 @@ jobs:
               ca_signing
 
           docker exec subordinate pki pkcs12-import \
-              --pkcs12 /root/.dogtag/pki-tomcat/ca_admin_cert.p12 \
+              --pkcs12 /root/.dogtag/pki-quarkus/ca_admin_cert.p12 \
               --pkcs12-password Secret.123
 
           docker exec subordinate pki -n caadmin --ignore-banner ca-user-show caadmin
@@ -196,11 +196,11 @@ jobs:
         run: |
           cat > expected << EOF
           Chain is good!
-          Root Certificate Subject:: "CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE"
+          Root Certificate Subject:: "CN=CA Signing Certificate,OU=pki-quarkus,O=EXAMPLE"
           Certificate 1 Subject: "CN=Subordinate CA Signing Certificate,O=EXAMPLE"
           EOF
 
-          docker exec subordinate /usr/lib64/nss/unsupported-tools/vfychain -v -d /etc/pki/pki-tomcat/alias -w Secret.123 -u 11 -a -p -p -g leaf -h requireFreshInfo -m ocsp -s failIfNoInfo ca_signing.crt 2>&1 | tee actual
+          docker exec subordinate /usr/lib64/nss/unsupported-tools/vfychain -v -d /etc/pki/pki-quarkus/alias -w Secret.123 -u 11 -a -p -p -g leaf -h requireFreshInfo -m ocsp -s failIfNoInfo ca_signing.crt 2>&1 | tee actual
           diff expected actual
 
           docker exec subordinate /usr/lib64/nss/unsupported-tools/vfychain -v -d /root/.dogtag/nssdb/ -u 11 -a -p -p -g leaf -h requireFreshInfo -m ocsp -s failIfNoInfo ca_signing.crt 2>&1 | tee actual

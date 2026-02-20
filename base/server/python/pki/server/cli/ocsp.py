@@ -100,7 +100,7 @@ class OCSPClonePrepareCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ocsp-clone-prepare [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --pkcs12-file <path>           PKCS #12 file to store certificates and keys.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
@@ -237,7 +237,7 @@ class OCSPCRLIssuingPointFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ocsp-crl-issuingpoint-find [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat)')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus)')
         print('      --size <size>                  Page size')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -278,7 +278,7 @@ class OCSPCRLIssuingPointAddCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ocsp-crl-issuingpoint-add [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-quarkus).')
         print('      --cert-chain <path>            Path to PKCS #7 certificate chain')
         print('      --cert-format <format>         Certificate format: PEM (default), DER')
         print('      --ignore-duplicate             Ignore duplicate.')

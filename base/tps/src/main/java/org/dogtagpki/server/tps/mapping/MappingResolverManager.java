@@ -64,7 +64,7 @@ public class MappingResolverManager
      * tpsMappingResolver.mappingTokenProfileResolverImpl.name=Mapping-based Token profile resolver
      *
      * CS.cfg :
-     * registry.file=/var/lib/pki/pki-tomcat/conf/tps/registry.cfg
+     * registry.file=/var/lib/pki/pki-quarkus/conf/tps/registry.cfg
      * mappingResolver.list=formatMappingResolver,enrollMappingResolver,pinResetMappingResolver
      * mappingResolver.formatMappingResolver.class_id=mappingProfileResolverImpl
      * mappingResolver.formatMappingResolver.[plugin-specific configuration]
