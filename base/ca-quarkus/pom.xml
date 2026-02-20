@@ -85,6 +85,16 @@
             </exclusions>
         </dependency>
 
+        <!-- Servlet API (compile-only, for base classes that reference HttpServletRequest) -->
+        <!-- On RHEL 9 (javax.servlet), this provides javax.servlet.http.HttpServletRequest -->
+        <!-- On Fedora 43+ (jakarta.servlet), the jakarta.servlet-api is used instead -->
+        <dependency>
+            <groupId>pki-local</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Quarkus Core -->
         <dependency>
             <groupId>io.quarkus</groupId>

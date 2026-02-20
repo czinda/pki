@@ -1581,6 +1581,17 @@ cat > $_quarkus_repo/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jax
 </project>
 POMEOF
 
+# Install the tomcat-servlet-api into the Quarkus local repo.
+# Some PKI modules reference javax.servlet.http.HttpServletRequest in method signatures,
+# so the Quarkus modules need this on the classpath even though they pass null.
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=/usr/share/java/tomcat/tomcat-servlet-api.jar \
+    -DgroupId=pki-local \
+    -DartifactId=tomcat-servlet-api \
+    -Dversion=1.0 \
+    -Dpackaging=jar \
+    -Dmaven.repo.local=$_quarkus_repo
+
 # Build and install Quarkus common into local repo so subsystem modules can depend on it
 mvn %{?_mvn_options} -f base/quarkus-common/pom.xml install -DskipTests \
     -Dmaven.repo.local=$_quarkus_repo
