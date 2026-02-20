@@ -91,11 +91,17 @@ public abstract class QuarkusACLFilter implements ContainerRequestFilter {
         try {
             getOrCreateChecker().checkACL(principal, method, path, aclName);
         } catch (ForbiddenException fe) {
-            requestContext.abortWith(
-                    Response.status(Response.Status.FORBIDDEN)
-                            .type(MediaType.APPLICATION_JSON)
-                            .entity(fe.getData().toJSON())
-                            .build());
+            try {
+                requestContext.abortWith(
+                        Response.status(Response.Status.FORBIDDEN)
+                                .type(MediaType.APPLICATION_JSON)
+                                .entity(fe.getData().toJSON())
+                                .build());
+            } catch (Exception e) {
+                logger.error("QuarkusACLFilter: Failed to serialize error response: {}", e.getMessage(), e);
+                requestContext.abortWith(
+                        Response.status(Response.Status.FORBIDDEN).build());
+            }
         }
     }
 
