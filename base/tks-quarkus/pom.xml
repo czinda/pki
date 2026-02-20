@@ -85,6 +85,15 @@
             </exclusions>
         </dependency>
 
+        <!-- Servlet API (compile-only, for TKSTokenResource which uses HttpServletRequest) -->
+        <!-- TODO: Refactor TKSTokenResource to use JAX-RS MultivaluedMap instead -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Quarkus Core -->
         <dependency>
             <groupId>io.quarkus</groupId>

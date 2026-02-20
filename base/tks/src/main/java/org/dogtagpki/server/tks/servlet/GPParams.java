@@ -33,7 +33,7 @@ public class GPParams {
     public static final String AES = "AES";
     public static final String DES3 ="DES3";
 
-    protected GPParams() {
+    public GPParams() {
     }
 
     // Diversification scheme for all keysets after 1
