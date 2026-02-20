@@ -323,18 +323,6 @@ install(
 )
 
 install(
-    DIRECTORY
-        upgrade
-    DESTINATION
-        ${DATA_INSTALL_DIR}/server
-    FILE_PERMISSIONS
-        OWNER_WRITE OWNER_READ
-        GROUP_READ
-        WORLD_READ
-    PATTERN ".gitignore" EXCLUDE
-)
-
-install(
     FILES
         scripts/pkidaemon
         scripts/pki-server-nuxwdog
