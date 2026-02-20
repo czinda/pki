@@ -1581,10 +1581,11 @@ cat > $_quarkus_repo/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jax
 </project>
 POMEOF
 
-# Build Quarkus modules (downloads Quarkus BOM from Maven Central)
-mvn %{?_mvn_options} -f base/quarkus-common/pom.xml package -DskipTests \
+# Build and install Quarkus common into local repo so subsystem modules can depend on it
+mvn %{?_mvn_options} -f base/quarkus-common/pom.xml install -DskipTests \
     -Dmaven.repo.local=$_quarkus_repo
 
+# Build Quarkus subsystem modules (downloads Quarkus BOM from Maven Central)
 for sub in est acme ocsp kra tks tps ca; do
     mvn %{?_mvn_options} -f base/${sub}-quarkus/pom.xml package -DskipTests \
         -Dmaven.repo.local=$_quarkus_repo
