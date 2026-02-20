@@ -65,17 +65,17 @@ public class CADoUnrevokeResource {
 
         RevocationProcessor processor = new RevocationProcessor("CADoUnrevokeResource", Locale.getDefault());
         processor.setCMSEngine(engine);
-        processor.init();
-
-        processor.setSerialNumber(new CertId(serialNumbers[0]));
-        processor.setRevocationReason(RevocationReason.CERTIFICATE_HOLD);
-        processor.setRequestType(RevocationProcessor.OFF_HOLD);
-        processor.setAuthority(engine.getCA());
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode result = mapper.createObjectNode();
 
         try {
+            processor.init();
+
+            processor.setSerialNumber(new CertId(serialNumbers[0]));
+            processor.setRevocationReason(RevocationReason.CERTIFICATE_HOLD);
+            processor.setRequestType(RevocationProcessor.OFF_HOLD);
+            processor.setAuthority(engine.getCA());
             StringBuilder snList = new StringBuilder();
             for (BigInteger serialNumber : serialNumbers) {
                 processor.addSerialNumberToUnrevoke(serialNumber);

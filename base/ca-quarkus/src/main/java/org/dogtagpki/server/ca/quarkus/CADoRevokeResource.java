@@ -113,20 +113,6 @@ public class CADoRevokeResource {
 
         RevocationProcessor processor = new RevocationProcessor("CADoRevokeResource", Locale.getDefault());
         processor.setCMSEngine(engine);
-        processor.init();
-
-        processor.setStartTime(new Date().getTime());
-        processor.setSerialNumber(eeSerialNumber == null ? null : new CertId(eeSerialNumber));
-
-        RevocationReason revReason = RevocationReason.valueOf(reason);
-        processor.setRevocationReason(revReason);
-        processor.setRequestType(
-                revReason == RevocationReason.CERTIFICATE_HOLD
-                        ? RevocationProcessor.ON_HOLD : RevocationProcessor.REVOKE);
-
-        processor.setInvalidityDate(invalidityDate);
-        processor.setComments(comments);
-        processor.setAuthority(engine.getCA());
 
         Hashtable<BigInteger, Long> nonceMap = new Hashtable<>();
 
@@ -144,6 +130,20 @@ public class CADoRevokeResource {
         ArrayNode certsArray = mapper.createArrayNode();
 
         try {
+            processor.init();
+
+            processor.setStartTime(new Date().getTime());
+            processor.setSerialNumber(eeSerialNumber == null ? null : new CertId(eeSerialNumber));
+
+            RevocationReason revReason = RevocationReason.valueOf(reason);
+            processor.setRevocationReason(revReason);
+            processor.setRequestType(
+                    revReason == RevocationReason.CERTIFICATE_HOLD
+                            ? RevocationProcessor.ON_HOLD : RevocationProcessor.REVOKE);
+
+            processor.setInvalidityDate(invalidityDate);
+            processor.setComments(comments);
+            processor.setAuthority(engine.getCA());
             processor.createCRLExtension();
 
             int timeLimits = 30;

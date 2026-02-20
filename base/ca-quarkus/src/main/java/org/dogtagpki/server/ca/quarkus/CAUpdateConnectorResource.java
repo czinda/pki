@@ -84,9 +84,9 @@ public class CAUpdateConnectorResource {
 
         KRAConnectorProcessor processor = new KRAConnectorProcessor(Locale.getDefault());
         processor.setCMSEngine(engine);
-        processor.init();
 
         try {
+            processor.init();
             processor.addConnector(info);
         } catch (Exception e) {
             String message = "Unable to add KRA connector for " + url + ": " + e.getMessage();
