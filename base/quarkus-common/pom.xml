@@ -39,6 +39,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- PKI server (CMSEngine, Auditor, and other core server classes) -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pki-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Quarkus Core -->
         <dependency>
             <groupId>io.quarkus</groupId>
