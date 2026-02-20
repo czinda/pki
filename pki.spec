@@ -117,6 +117,15 @@ ExcludeArch: i686
 %endif
 
 ################################################################################
+# Tomcat
+################################################################################
+
+# Use Tomcat 9 before Fedora 43 and RHEL 10, otherwise use Tomcat 10.
+
+%global           fedora_tomcat9_cutoff 43
+%global           rhel_tomcat9_cutoff 10
+
+################################################################################
 # PKI
 ################################################################################
 
@@ -173,6 +182,7 @@ ExcludeArch: i686
 %define pki_uid 17
 %define pki_groupname pkiuser
 %define pki_gid 17
+%define tomcat_groupname tomcat
 
 # Create a home directory for PKI user at /home/pkiuser
 # to store rootless Podman container.
@@ -224,6 +234,13 @@ BuildRequires:    javapackages-tools
 BuildRequires:    xmlstarlet
 %endif
 
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
+BuildRequires:    tomcat-lib >= 9.0
+%else
+BuildRequires:    tomcat-lib >= 1:10.1.36
+BuildRequires:    tomcat-jakartaee-migration
+%endif
+
 BuildRequires:    %{vendor_id}-jss >= 5.10
 
 BuildRequires:    mvn(xml-apis:xml-apis)
@@ -261,10 +278,28 @@ BuildRequires:    mvn(org.jboss.logging:jboss-logging)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
+BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+
+%endif
+
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
+
+BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 9.0.62
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
+BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 9.0.62
+BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
+
+%else
+
+BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.36
+BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %endif
 
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.10
+BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 
 # Python build dependencies
@@ -691,6 +726,18 @@ Requires:         python3-libselinux
 Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
+
+%if %{with runtime_deps}
+Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
+%else
+Provides:         bundled(resteasy-servlet-initializer)
+%endif
+
+%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
+Requires:         tomcat >= 9.0
+%else
+Requires:         tomcat >= 1:10.1.36
+%endif
 
 Requires:         systemd
 Requires(post):   systemd-units
@@ -1201,6 +1248,12 @@ This package provides test suite for %{product_name}.
 
 %autosetup -n pki-%{full_version} -p 1
 
+%if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
+# Migrate the source first because we are starting with Tomcat 9 code,
+# so we can build against either Tomcat 9 or 10.1, based on the build platform.
+/usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base
+%endif
+
 %if %{without runtime_deps}
 
 if [ ! -d base/common/lib ]
@@ -1329,11 +1382,66 @@ then
     cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
         resteasy-jackson2-provider-$RESTEASY_VERSION.jar
 
+    # Migrate necessary files being copied around to jakarta 9.0 ee, for >= f43 and rhel10
+
+    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
+
+    echo "Doing the Tomcat 10 version..."
+
+    /usr/bin/javax2jakarta -profile=EE jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jakarta.xml.bind-api-$JAXB_API_VERSION.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
+
+    /usr/bin/javax2jakarta -profile=EE jackson-annotations-$JACKSON_VERSION.jar jackson-annotations-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-core-$JACKSON_VERSION.jar jackson-core-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-databind-$JACKSON_VERSION.jar jackson-databind-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-module-jaxb-annotations-$JACKSON_VERSION.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-base-$JACKSON_VERSION.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
+
+    /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
+
+    # Now migrate the required resteasy jars, in case we are using an existing resteasy version.
+
+    /usr/bin/javax2jakarta -profile=EE resteasy-client-$RESTEASY_VERSION.jar resteasy-client-$RESTEASY_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE resteasy-jackson2-provider-$RESTEASY_VERSION.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
+    /usr/bin/javax2jakarta -profile=EE resteasy-jaxrs-$RESTEASY_VERSION.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
+
+    # Add local artifact so we can compile against the migrated jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
+    # We could have used the maven install plugin but it's not available with standard rpms.
+
+    %endif
+
+    # Create the local artifact structure for either Tomcat 9 or Tomcat 10.
+    # Tomcat 9 doesn't get the file migrated.
+
     mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
 
     # Copy over the JAX-RS API so we can compile.
     cp jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
 
+    popd
+fi
+
+if [ ! -d base/server/lib ]
+then
+    # Import server libraries from RPMs.
+
+    mkdir -p base/server/lib
+    pushd base/server/lib
+
+    RESTEASY_VERSION=$(rpm -q pki-resteasy-servlet-initializer | sed -n 's/^pki-resteasy-servlet-initializer-\([^-]*\)-.*$/\1.Final/p')
+    echo "RESTEASY_VERSION: $RESTEASY_VERSION"
+
+    cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
+        resteasy-servlet-initializer-$RESTEASY_VERSION.jar
+
+    # Migrate the resteasy servlet initializer, in case we are using an existing resteasy version.
+    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
+    /usr/bin/javax2jakarta -profile=EE resteasy-servlet-initializer-$RESTEASY_VERSION.jar resteasy-servlet-initializer-$RESTEASY_VERSION.jar
+    %endif
+
+    ls -l
     popd
 fi
 
@@ -1438,6 +1546,7 @@ fi
 cat > %{product_id}.sysusers.conf <<EOF
 g %{pki_username} %{pki_gid}
 u %{pki_groupname} %{pki_uid} 'Certificate System' %{pki_homedir} -
+m %{pki_username} %{tomcat_groupname}
 EOF
 
 %endif
