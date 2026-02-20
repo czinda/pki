@@ -1560,6 +1560,27 @@ for sub in ca kra ocsp tks tps acme est; do
         -Dmaven.repo.local=$_quarkus_repo
 done
 
+# Install the pki-local:jboss-jaxrs-api_2.0_spec artifact into the Quarkus local repo.
+# This artifact is created during %prep by copying and optionally migrating the system
+# jboss-jaxrs-2.0-api JAR. It is referenced as a dependency in pki-common's pom.xml.
+JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
+mkdir -p $_quarkus_repo/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
+cp ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+    $_quarkus_repo/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
+
+# Create a minimal POM so Maven can resolve the artifact
+cat > $_quarkus_repo/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.pom <<POMEOF
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>pki-local</groupId>
+    <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
+    <version>$JAXRS_VERSION</version>
+</project>
+POMEOF
+
 # Build Quarkus modules (downloads Quarkus BOM from Maven Central)
 mvn %{?_mvn_options} -f base/quarkus-common/pom.xml package -DskipTests \
     -Dmaven.repo.local=$_quarkus_repo
