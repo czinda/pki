@@ -1,0 +1,772 @@
+// --- BEGIN COPYRIGHT BLOCK ---
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; version 2 of the License.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License along
+// with this program; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// (C) 2012 Red Hat, Inc.
+// All rights reserved.
+// --- END COPYRIGHT BLOCK ---
+package com.netscape.cms.servlet.csadmin;
+
+import java.io.StringWriter;
+import java.net.InetAddress;
+import java.security.SecureRandom;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Vector;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.SecurityDomainSessionTable;
+import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.base.UnauthorizedException;
+import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ConfigRoleEvent;
+import com.netscape.certsrv.logging.event.RoleAssumeEvent;
+import com.netscape.certsrv.system.DomainInfo;
+import com.netscape.certsrv.system.InstallToken;
+import com.netscape.certsrv.system.SecurityDomainHost;
+import com.netscape.certsrv.system.SecurityDomainSubsystem;
+import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
+import com.netscape.cmsutil.xml.XMLObject;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+
+/**
+ * @author Endi S. Dewata
+ */
+public class SecurityDomainProcessor extends Processor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDomainProcessor.class);
+
+    public final static String[] TYPES = { "CA", "KRA", "OCSP", "TKS", "RA", "TPS" };
+    public final static String SUCCESS = "0";
+    public final static String FAILED = "1";
+
+    public SecurityDomainProcessor(Locale locale) {
+        super("securitydomain", locale);
+    }
+
+    public static String getEnterpriseGroupName(String subsystemname) {
+        return "Enterprise " + subsystemname + " Administrators";
+    }
+
+    public InstallToken getInstallToken(
+            String user,
+            String host,
+            String subsystem) throws Exception {
+
+        subsystem = subsystem.toUpperCase();
+        UGSubsystem ugSubsystem = engine.getUGSubsystem();
+
+        Auditor auditor = engine.getAuditor();
+        String group = getEnterpriseGroupName(subsystem);
+        logger.debug("SecurityDomainProcessor: group: " + group);
+
+        if (!ugSubsystem.isMemberOf(user, group)) {
+
+            auditor.log(RoleAssumeEvent.createFailureEvent(
+                    user,
+                    group));
+
+            throw new UnauthorizedException("User " + user + " is not a member of " + group + " group.");
+        }
+
+        auditor.log(RoleAssumeEvent.createSuccessEvent(
+                user,
+                group));
+
+        String ip = "";
+        try {
+            ip = InetAddress.getByName(host).getHostAddress();
+        } catch (Exception e) {
+            logger.warn("Unable to determine IP address for " + host + ": " + e.getMessage(), e);
+        }
+
+        // generate random session ID
+        // use positive number to avoid CLI issues
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+        Long num = Math.abs(random.nextLong());
+        String sessionID = num.toString();
+
+        String auditParams = "operation;;issue_token+token;;" + sessionID + "+ip;;" + ip +
+                      "+uid;;" + user + "+groupname;;" + group;
+
+        SecurityDomainSessionTable ctable = engine.getSecurityDomainSessionTable();
+        try {
+            ctable.addEntry(sessionID, ip, user, group);
+
+            String message = CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    user,
+                    ILogger.SUCCESS,
+                    auditParams);
+            auditor.log(message);
+
+        } catch (Exception e) {
+            String message = CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    user,
+                    ILogger.FAILURE,
+                    auditParams);
+            auditor.log(message);
+
+            throw new PKIException("Unable to create session: " + e.getMessage(), e);
+        }
+
+
+        return new InstallToken(sessionID);
+    }
+
+    public DomainInfo getDomainInfo() throws EBaseException {
+
+        logger.info("SecurityDomainProcessor: Getting domain info");
+        EngineConfig cs = engine.getConfig();
+
+        LdapBoundConnFactory connFactory = null;
+        LDAPConnection conn = null;
+
+        try {
+            LDAPSearchConstraints cons = null;
+            String[] attrs = null;
+
+            LDAPConfig ldapConfig = cs.getInternalDBConfig();
+            connFactory = engine.createLdapBoundConnFactory("SecurityDomainProcessor", ldapConfig);
+
+            conn = connFactory.getConn();
+
+            String dn = "ou=Security Domain," + ldapConfig.getBaseDN();
+            String name = conn.read(dn).getAttribute("name").getStringValues().nextElement();
+            logger.info("SecurityDomainProcessor: - name: " + name);
+
+            DomainInfo domain = new DomainInfo();
+            domain.setName(name);
+
+            // this should return CAList, KRAList etc.
+            LDAPSearchResults res = conn.search(
+                    dn,
+                    LDAPConnection.SCOPE_ONE,
+                    "objectclass=pkiSecurityGroup",
+                    attrs,
+                    true,
+                    cons);
+
+            while (res.hasMoreElements()) {
+                dn = res.next().getDN();
+                String listName = dn.substring(3, dn.indexOf(","));
+                String subType = listName.substring(0, listName.indexOf("List"));
+                logger.info("SecurityDomainProcessor: - " + subType + " subsystems:");
+
+                LDAPSearchResults res2 = conn.search(
+                        dn,
+                        LDAPConnection.SCOPE_ONE,
+                        "objectclass=pkiSubsystem",
+                        attrs,
+                        false,
+                        cons);
+
+                while (res2.hasMoreElements()) {
+                    LDAPEntry entry = res2.next();
+                    logger.info("SecurityDomainProcessor:   - " + entry.getDN());
+
+                    SecurityDomainHost host = new SecurityDomainHost();
+
+                    LDAPAttributeSet entryAttrs = entry.getAttributeSet();
+
+                    Enumeration<LDAPAttribute> attrsInSet = entryAttrs.getAttributes();
+                    while (attrsInSet.hasMoreElements()) {
+                        LDAPAttribute nextAttr = attrsInSet.nextElement();
+                        String attrName = nextAttr.getName();
+                        String attrValue = nextAttr.getStringValues().nextElement();
+                        logger.info("SecurityDomainProcessor:     - " + attrName + ": " + attrValue);
+
+                        if ("Host".equalsIgnoreCase(attrName)) {
+                            host.setHostname(attrValue);
+
+                        } else if ("UnSecurePort".equalsIgnoreCase(attrName)) {
+                            host.setPort(attrValue);
+
+                        } else if ("SecurePort".equalsIgnoreCase(attrName)) {
+                            host.setSecurePort(attrValue);
+
+                        } else if ("SecureEEClientAuthPort".equalsIgnoreCase(attrName)) {
+                            host.setSecureEEClientAuthPort(attrValue);
+
+                        } else if ("SecureAgentPort".equalsIgnoreCase(attrName)) {
+                            host.setSecureAgentPort(attrValue);
+
+                        } else if ("SecureAdminPort".equalsIgnoreCase(attrName)) {
+                            host.setSecureAdminPort(attrValue);
+
+                        } else if ("Clone".equalsIgnoreCase(attrName)) {
+                            host.setClone(attrValue);
+
+                        } else if ("SubsystemName".equalsIgnoreCase(attrName)) {
+                            host.setSubsystemName(attrValue);
+
+                        } else if ("DomainManager".equalsIgnoreCase(attrName)) {
+                            host.setDomainManager(attrValue);
+                        }
+                    }
+
+                    String port = host.getSecurePort();
+                    if (port == null) port = host.getSecureEEClientAuthPort();
+                    host.setId(subType + " " + host.getHostname() + " " + port);
+
+                    domain.addHost(subType, host);
+                }
+            }
+
+            return domain;
+
+        } catch (Exception e) {
+            logger.error("SecurityDomainProcessor: Unable to get domain info: " + e.getMessage(), e);
+            throw new EBaseException(e.getMessage(), e);
+
+        } finally {
+            if (conn != null && connFactory != null) {
+                connFactory.returnConn(conn);
+            }
+        }
+    }
+
+    public XMLObject getDomainXML() throws EBaseException, ParserConfigurationException {
+        return convertDomainInfoToXMLObject(getDomainInfo());
+    }
+
+    public static XMLObject convertDomainInfoToXMLObject(DomainInfo domain) throws ParserConfigurationException {
+
+        XMLObject xmlObject = new XMLObject();
+
+        Node domainInfo = xmlObject.createRoot("DomainInfo");
+        xmlObject.addItemToContainer(domainInfo, "Name", domain.getName());
+
+        for (String subType : TYPES) {
+            SecurityDomainSubsystem subsystem = domain.getSubsystem(subType);
+            Node listNode = xmlObject.createContainer(domainInfo, subType+"List");
+
+            int counter;
+            if (subsystem == null) {
+                counter = 0;
+
+            } else {
+                counter = subsystem.getHostArray().length;
+
+                for (SecurityDomainHost host : subsystem.getHostArray()) {
+                    Node node = xmlObject.createContainer(listNode, subType);
+
+                    String value = host.getHostname();
+                    if (value != null) xmlObject.addItemToContainer(node, "Host", value);
+
+                    value = host.getPort();
+                    if (value != null) xmlObject.addItemToContainer(node, "UnSecurePort", value);
+
+                    value = host.getSecurePort();
+                    if (value != null) xmlObject.addItemToContainer(node, "SecurePort", value);
+
+                    value = host.getSecureEEClientAuthPort();
+                    if (value != null) xmlObject.addItemToContainer(node, "SecureEEClientAuthPort", value);
+
+                    value = host.getSecureAgentPort();
+                    if (value != null) xmlObject.addItemToContainer(node, "SecureAgentPort", value);
+
+                    value = host.getSecureAdminPort();
+                    if (value != null) xmlObject.addItemToContainer(node, "SecureAdminPort", value);
+
+                    value = host.getClone();
+                    if (value != null) xmlObject.addItemToContainer(node, "Clone", value);
+
+                    value = host.getSubsystemName();
+                    if (value != null) xmlObject.addItemToContainer(node, "SubsystemName", value);
+
+                    value = host.getDomainManager();
+                    if (value != null) xmlObject.addItemToContainer(node, "DomainManager", value);
+                }
+            }
+
+            xmlObject.addItemToContainer(
+                    listNode, "SubsystemCount", Integer.toString(counter));
+        }
+
+        return xmlObject;
+    }
+
+    public static DomainInfo convertXMLObjectToDomainInfo(XMLObject xmlObject) {
+
+        DomainInfo domain = new DomainInfo();
+        Document doc = xmlObject.getDocument();
+        Node rootNode = doc.getFirstChild();
+
+        Vector<String> values = xmlObject.getValuesFromContainer(rootNode, "Name");
+        if (!values.isEmpty()) domain.setName(values.firstElement());
+
+        for (String type : TYPES) {
+            NodeList hosts = doc.getElementsByTagName(type);
+            for (int j=0; j<hosts.getLength(); j++) {
+                Node hostNode = hosts.item(j);
+                SecurityDomainHost host = new SecurityDomainHost();
+
+                values = xmlObject.getValuesFromContainer(hostNode, "Host");
+                if (!values.isEmpty()) host.setHostname(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "UnSecurePort");
+                if (!values.isEmpty()) host.setPort(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "SecurePort");
+                if (!values.isEmpty()) host.setSecurePort(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "SecureEEClientAuthPort");
+                if (!values.isEmpty()) host.setSecureEEClientAuthPort(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "SecureAgentPort");
+                if (!values.isEmpty()) host.setSecureAgentPort(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "SecureAdminPort");
+                if (!values.isEmpty()) host.setSecureAdminPort(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "Clone");
+                if (!values.isEmpty()) host.setClone(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "SubsystemName");
+                if (!values.isEmpty()) host.setSubsystemName(values.firstElement());
+
+                values = xmlObject.getValuesFromContainer(hostNode, "DomainManager");
+                if (!values.isEmpty()) host.setDomainManager(values.firstElement());
+
+                String port = host.getSecurePort();
+                if (port == null) port = host.getSecureEEClientAuthPort();
+                host.setId(type+" "+host.getHostname()+" "+port);
+
+                domain.addHost(type, host);
+            }
+        }
+
+        return domain;
+    }
+
+    public String removeHost(
+            String name,
+            String type,
+            String hostname,
+            String securePort)
+            throws EBaseException {
+
+        EngineConfig cs = engine.getConfig();
+
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
+        String baseDN = ldapConfig.getBaseDN();
+
+        String listName = type + "List";
+        String cn = hostname + ":" + securePort;
+
+        String hostDN = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + baseDN;
+        logger.info("SecurityDomainProcessor: Removing host " + hostDN);
+
+        Auditor auditor = engine.getAuditor();
+        String auditSubjectID = auditSubjectID();
+        String domainAuditParams = "host;;" + hostname + "+name;;" + name + "+sport;;" + securePort +
+                "+type;;" + type + "+operation;;remove";
+
+        String status = removeEntry(hostDN);
+
+        if (!status.equals(SUCCESS)) {
+
+            auditor.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    domainAuditParams));
+
+            return status;
+        }
+
+        String adminDN = "uid=" + type + "-" + hostname + "-" + securePort + ",ou=People," + baseDN;
+        logger.info("SecurityDomainProcessor: Removing admin " + adminDN);
+
+        String usersAuditParams = "Scope;;users+Operation;;OP_DELETE+source;;SecurityDomainProcessor" +
+                                     "+resource;;" + adminDN;
+
+        status = removeEntry(adminDN);
+
+        if (!status.equals(SUCCESS)) {
+
+            auditor.log(new ConfigRoleEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    usersAuditParams));
+
+            auditor.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    domainAuditParams));
+
+            return status;
+        }
+
+        auditor.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               usersAuditParams));
+
+        String groupDN = "cn=Subsystem Group, ou=groups," + baseDN;
+        logger.info("SecurityDomainProcessor: Removing admin from group " + groupDN);
+
+        String groupsAuditParams = "Scope;;groups+Operation;;OP_DELETE_USER" +
+                              "+source;;SecurityDomainProcessor" +
+                              "+resource;;Subsystem Group+user;;" + adminDN;
+
+        LDAPModification mod = new LDAPModification(
+                LDAPModification.DELETE,
+                new LDAPAttribute("uniqueMember", adminDN));
+
+        status = modifyEntry(groupDN, mod);
+
+        if (!status.equals(SUCCESS)) {
+            auditor.log(new ConfigRoleEvent(
+                                   auditSubjectID,
+                                   ILogger.FAILURE,
+                                   groupsAuditParams));
+
+            auditor.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    domainAuditParams));
+
+            return status;
+        }
+
+        auditor.log(new ConfigRoleEvent(
+                auditSubjectID,
+                ILogger.SUCCESS,
+                groupsAuditParams));
+
+        auditor.log(CMS.getLogMessage(
+                AuditEvent.SECURITY_DOMAIN_UPDATE,
+                auditSubjectID,
+                ILogger.SUCCESS,
+                domainAuditParams));
+
+        return SUCCESS;
+    }
+
+    public String addHost(
+            String name,
+            String type,
+            String hostname,
+            String securePort,
+            String unsecurePort,
+            String eeCAPort,
+            String adminSecurePort,
+            String agentSecurePort,
+            String domainManager,
+            String clone) throws EBaseException {
+
+        EngineConfig cs = engine.getConfig();
+
+        LDAPConfig ldapConfig = cs.getInternalDBConfig();
+        String baseDN = ldapConfig.getBaseDN();
+
+        String listName = type + "List";
+        String hostID = hostname + ":" + securePort;
+
+        String dn = "cn=" + hostID + ",cn=" + listName + ",ou=Security Domain," + baseDN;
+        logger.info("SecurityDomainProcessor: Adding entry " + dn);
+
+        LDAPAttributeSet attrs = new LDAPAttributeSet();
+        attrs.add(new LDAPAttribute("objectclass", "top"));
+        attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
+
+        logger.info("SecurityDomainProcessor: - cn: " + hostID);
+        attrs.add(new LDAPAttribute("cn", hostID));
+
+        logger.info("SecurityDomainProcessor: - Host: " + hostname);
+        attrs.add(new LDAPAttribute("Host", hostname));
+
+        logger.info("SecurityDomainProcessor: - SecurePort: " + securePort);
+        attrs.add(new LDAPAttribute("SecurePort", securePort));
+
+        if (StringUtils.isNotEmpty(agentSecurePort)) {
+            logger.info("SecurityDomainProcessor: - SecureAgentPort: " + agentSecurePort);
+            attrs.add(new LDAPAttribute("SecureAgentPort", agentSecurePort));
+        }
+
+        if (StringUtils.isNotEmpty(adminSecurePort)) {
+            logger.info("SecurityDomainProcessor: - SecureAdminPort: " + adminSecurePort);
+            attrs.add(new LDAPAttribute("SecureAdminPort", adminSecurePort));
+        }
+
+        if (StringUtils.isNotEmpty(unsecurePort)) {
+            logger.info("SecurityDomainProcessor: - UnSecurePort: " + unsecurePort);
+            attrs.add(new LDAPAttribute("UnSecurePort", unsecurePort));
+        }
+
+        if (StringUtils.isNotEmpty(eeCAPort)) {
+            logger.info("SecurityDomainProcessor: - SecureEEClientAuthPort: " + eeCAPort);
+            attrs.add(new LDAPAttribute("SecureEEClientAuthPort", eeCAPort));
+        }
+
+        if (StringUtils.isNotEmpty(domainManager)) {
+            domainManager = domainManager.toUpperCase();
+            logger.info("SecurityDomainProcessor: - DomainManager: " + domainManager);
+            attrs.add(new LDAPAttribute("DomainManager", domainManager));
+        }
+
+        clone = clone.toUpperCase();
+        logger.info("SecurityDomainProcessor: - clone: " + clone);
+        attrs.add(new LDAPAttribute("clone", clone));
+
+        logger.info("SecurityDomainProcessor: - SubsystemName: " + name);
+        attrs.add(new LDAPAttribute("SubsystemName", name));
+
+        LDAPEntry entry = new LDAPEntry(dn, attrs);
+
+        Auditor auditor = engine.getAuditor();
+        String auditSubjectID = auditSubjectID();
+        String auditParams = "host;;" + hostname + "+name;;" + name + "+sport;;" + securePort +
+                "+clone;;" + clone + "+type;;" + type + "+operation;;add";
+
+        LdapBoundConnFactory connFactory = null;
+        LDAPConnection conn = null;
+
+        try {
+            connFactory = engine.createLdapBoundConnFactory("UpdateDomainXML", ldapConfig);
+
+            conn = connFactory.getConn();
+            conn.add(entry);
+
+            auditor.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    auditParams));
+
+            return SUCCESS;
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
+                logger.error("SecurityDomainProcessor: Unable to add entry: " + e.getMessage(), e);
+                return FAILED;
+            }
+
+            logger.warn("SecurityDomainProcessor: Entry already exists");
+            try {
+                conn.delete(entry.getDN());
+                conn.add(entry);
+
+                auditor.log(CMS.getLogMessage(
+                        AuditEvent.SECURITY_DOMAIN_UPDATE,
+                        auditSubjectID,
+                        ILogger.SUCCESS,
+                        auditParams));
+
+                return SUCCESS;
+
+            } catch (LDAPException ee) {
+                logger.error("SecurityDomainProcessor: Unable to replace entry: " + ee.getMessage(), ee);
+                return FAILED;
+            }
+
+        } catch (Exception e) {
+            logger.warn("SecurityDomainProcessor: Unable to add entry: " + e.getMessage(), e);
+
+            auditor.log(CMS.getLogMessage(
+                    AuditEvent.SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID,
+                    ILogger.SUCCESS,
+                    auditParams));
+
+            return SUCCESS;
+
+        } finally {
+            try {
+                if (conn != null && connFactory != null) {
+                    logger.debug("SecurityDomainProcessor: Releasing LDAP connection");
+                    connFactory.returnConn(conn);
+                }
+
+            } catch (Exception e) {
+                logger.warn("SecurityDomainProcessor: Unable to release LDAP connection: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    public String modifyEntry(String dn, LDAPModification mod) {
+
+        logger.info("SecurityDomainProcessor: Modifying entry " + dn);
+
+        String status = SUCCESS;
+        LdapBoundConnFactory connFactory = null;
+        LDAPConnection conn = null;
+
+        EngineConfig cs = engine.getConfig();
+
+        try {
+            LDAPConfig ldapConfig = cs.getInternalDBConfig();
+            connFactory = engine.createLdapBoundConnFactory("UpdateDomainXML", ldapConfig);
+
+            conn = connFactory.getConn();
+            conn.modify(dn, mod);
+
+        } catch (LDAPException e) {
+            int resultCode = e.getLDAPResultCode();
+            if (resultCode != LDAPException.NO_SUCH_OBJECT && resultCode != LDAPException.NO_SUCH_ATTRIBUTE) {
+                logger.error("SecurityDomainProcessor: Unable to modify entry: " + e.getMessage(), e);
+                status = FAILED;
+            }
+
+        } catch (Exception e) {
+            logger.warn("SecurityDomainProcessor: Unable to modify entry: " + e.getMessage(), e);
+
+        } finally {
+            try {
+                if (conn != null && connFactory != null) {
+                    logger.debug("SecurityDomainProcessor: Releasing LDAP connection");
+                    connFactory.returnConn(conn);
+                }
+
+            } catch (Exception e) {
+                logger.warn("SecurityDomainProcessor: Unable to release LDAP connection: " + e.getMessage(), e);
+            }
+        }
+
+        return status;
+    }
+
+    public String removeEntry(String dn) {
+
+        logger.info("SecurityDomainProcessor: Removing entry " + dn);
+
+        String status = SUCCESS;
+        LdapBoundConnFactory connFactory = null;
+        LDAPConnection conn = null;
+
+        EngineConfig cs = engine.getConfig();
+
+        try {
+            LDAPConfig ldapConfig = cs.getInternalDBConfig();
+            connFactory = engine.createLdapBoundConnFactory("UpdateDomainXML", ldapConfig);
+
+            conn = connFactory.getConn();
+            conn.delete(dn);
+
+        } catch (LDAPException e) {
+            int resultCode = e.getLDAPResultCode();
+            if (resultCode != LDAPException.NO_SUCH_OBJECT) {
+                status = FAILED;
+                logger.error("SecurityDomainProcessor: Unable to delete entry: " + e.getMessage(), e);
+            }
+
+        } catch (Exception e) {
+            logger.warn("SecurityDomainProcessor: Unable to delete entry: " + e.getMessage(), e);
+
+        } finally {
+            try {
+                if (conn != null && connFactory != null) {
+                    logger.debug("SecurityDomainProcessor: Releasing LDAP connection");
+                    connFactory.returnConn(conn);
+                }
+
+            } catch (Exception e) {
+                logger.warn("SecurityDomainProcessor: Unable to release LDAP connection: " + e.getMessage(), e);
+            }
+        }
+
+        return status;
+    }
+
+    protected String auditSubjectID() {
+
+        SessionContext auditContext = SessionContext.getExistingContext();
+
+        if (auditContext == null) {
+            return ILogger.UNIDENTIFIED;
+        }
+
+        String subjectID = (String) auditContext.get(SessionContext.USER_ID);
+
+        if (subjectID == null) {
+            return ILogger.NONROLEUSER;
+        }
+
+        return subjectID.trim();
+    }
+
+    public static void main(String args[]) throws Exception {
+
+        DomainInfo before = new DomainInfo();
+        before.setName("EXAMPLE");
+
+        SecurityDomainHost host = new SecurityDomainHost();
+        host.setId("CA localhost 8443");
+        host.setHostname("localhost");
+        host.setPort("8080");
+        host.setSecurePort("8443");
+        host.setDomainManager("TRUE");
+
+        before.addHost("CA", host);
+
+        System.out.println("Before:");
+        System.out.println(before);
+
+        XMLObject xmlObject = convertDomainInfoToXMLObject(before);
+        Document document = xmlObject.getDocument();
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+        StringWriter sw = new StringWriter();
+        transformer.transform(new DOMSource(document), new StreamResult(sw));
+
+        System.out.println("Domain XML:");
+        System.out.println(sw);
+
+        DomainInfo after = convertXMLObjectToDomainInfo(xmlObject);
+
+        System.out.println("After:");
+        System.out.println(after);
+    }
+}

@@ -19,6 +19,7 @@ javac(pki-ca-classes
         ${JACKSON_DATABIND_JAR}
         ${JSS_JAR}
         ${LDAPJDK_JAR}
+        ${SERVLET_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}

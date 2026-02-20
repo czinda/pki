@@ -8,6 +8,16 @@ execute_process(
 
 find_program(XMVN_RESOLVE /bin/xmvn-resolve)
 
+find_file(SERVLET_JAR
+    NAMES
+        servlet.jar
+        servlet-api-3.1.jar
+        tomcat-servlet-api.jar
+        tomcat9-servlet-api.jar
+    PATHS
+        /usr/share/java
+)
+
 if (EXISTS "${CMAKE_SOURCE_DIR}/base/common/lib")
     execute_process(
         COMMAND ls ${CMAKE_SOURCE_DIR}/base/common/lib

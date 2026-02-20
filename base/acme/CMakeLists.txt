@@ -4,6 +4,7 @@ javac(pki-acme-classes
     SOURCES
         src/main/java/*.java
     CLASSPATH
+        ${SERVLET_JAR}
         ${JAXB_API_JAR}
         ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG3_JAR}

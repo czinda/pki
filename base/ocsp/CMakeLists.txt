@@ -11,6 +11,7 @@ javac(pki-ocsp-classes
         ${COMMONS_CLI_JAR}
         ${COMMONS_CODEC_JAR}
         ${COMMONS_IO_JAR}
+        ${SERVLET_JAR}
         ${JAXRS_API_JAR}
         ${JSS_JAR}
         ${LDAPJDK_JAR}

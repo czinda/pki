@@ -68,7 +68,7 @@ if(RUN_TESTS)
             src/test/java/*.java
         CLASSPATH
             ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
-            ${LDAPJDK_JAR}
+            ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${JSS_JAR}
             ${HAMCREST_JAR} ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
             ${JACKSON_ANNOTATIONS_JAR}
@@ -91,7 +91,7 @@ if(RUN_TESTS)
         CLASSPATH
             ${SLF4J_API_JAR} ${SLF4J_JDK14_JAR}
             ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
-            ${LDAPJDK_JAR}
+            ${LDAPJDK_JAR} ${SERVLET_JAR}
             ${COMMONS_CODEC_JAR} ${COMMONS_LANG3_JAR}
             ${JSS_JAR}
             ${JACKSON_ANNOTATIONS_JAR}

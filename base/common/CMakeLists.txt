@@ -142,6 +142,7 @@ add_custom_command(
     COMMAND ln -sf ../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tools.jar lib/pki-tools.jar
     COMMAND ln -sf ${RESTEASY_JACKSON_PROVIDER_LINK} lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ${RESTEASY_JAXRS_LINK} lib/resteasy-jaxrs.jar
+    COMMAND ln -sf ../../../..${SERVLET_JAR} lib/servlet.jar
     COMMAND ln -sf ${SLF4J_API_LINK} lib/slf4j-api.jar
     COMMAND ln -sf ${SLF4J_JDK14_LINK} lib/slf4j-jdk14.jar
 )

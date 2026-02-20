@@ -261,7 +261,10 @@ BuildRequires:    mvn(org.jboss.logging:jboss-logging)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
+BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
 %endif
+
+BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
 
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.10
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0

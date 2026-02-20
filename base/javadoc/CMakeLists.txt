@@ -74,6 +74,7 @@ javadoc(pki-javadoc
         ${COMMONS_CLI_JAR} ${COMMONS_LANG3_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_IO_JAR}
         ${LDAPJDK_JAR}
+        ${SERVLET_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
         ${JAXRS_API_JAR}
         ${JACKSON_CORE_JAR}
