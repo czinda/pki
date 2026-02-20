@@ -19,7 +19,7 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.ca.CRLIssuingPoint;
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CRLRepository;
 
@@ -56,7 +56,7 @@ public class CAGetCRLResource {
         CAEngine engine = engineQuarkus.getEngine();
 
         if (crlIssuingPointId == null || crlIssuingPointId.isEmpty()) {
-            crlIssuingPointId = CRLIssuingPoint.PROP_MASTER_CRL;
+            crlIssuingPointId = CertificateAuthority.PROP_MASTER_CRL;
         }
 
         CRLRepository crlRepository = engine.getCRLRepository();

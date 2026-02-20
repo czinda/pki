@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 
@@ -90,7 +91,13 @@ public class CAListCertsResource {
                 certNode.put("serialNumber", cert.getSerialNumber().toString(16));
                 certNode.put("subjectDN", cert.getSubjectName().toString());
                 certNode.put("status", certRecord.getStatus());
-                certNode.put("type", certRecord.getType());
+                MetaInfo metaInfo = certRecord.getMetaInfo();
+                if (metaInfo != null) {
+                    String certType = (String) metaInfo.get(CertRecord.META_CERT_TYPE);
+                    if (certType != null) {
+                        certNode.put("type", certType);
+                    }
+                }
                 certNode.put("notBefore", cert.getNotBefore().getTime());
                 certNode.put("notAfter", cert.getNotAfter().getTime());
                 certsArray.add(certNode);

@@ -217,7 +217,7 @@ public class CAProcessCertReqResource {
 
                 case "assign":
                     if (agentID != null) {
-                        request.setExtData(Request.ASSIGNED_AGENT, agentID);
+                        request.setExtData("assignedTo", agentID);
                     }
                     requestRepository.updateRequest(request);
                     result.put("Status", "0");
@@ -226,7 +226,7 @@ public class CAProcessCertReqResource {
                     break;
 
                 case "unassign":
-                    request.deleteExtData(Request.ASSIGNED_AGENT);
+                    request.deleteExtData("assignedTo");
                     requestRepository.updateRequest(request);
                     result.put("Status", "0");
                     result.put("requestStatus", request.getRequestStatus().toString());

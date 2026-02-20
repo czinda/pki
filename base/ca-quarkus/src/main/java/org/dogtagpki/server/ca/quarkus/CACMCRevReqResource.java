@@ -136,22 +136,6 @@ public class CACMCRevReqResource {
 
         RevocationProcessor processor = new RevocationProcessor("CACMCRevReqResource", Locale.getDefault());
         processor.setCMSEngine(engine);
-        processor.init();
-
-        processor.setSerialNumber(new CertId(serialNoArray[0]));
-        processor.setRevocationReason(revReason);
-
-        // Determine if this is a revoke or unrevoke (remove from CRL)
-        if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
-            processor.setRequestType(RevocationProcessor.OFF_HOLD);
-        } else if (reasonCode == ON_HOLD_REASON) {
-            processor.setRequestType(RevocationProcessor.ON_HOLD);
-        } else {
-            processor.setRequestType(RevocationProcessor.REVOKE);
-        }
-
-        processor.setComments(comments);
-        processor.setAuthority(engine.getCA());
 
         result.put("totalRecordCount", serialNoArray.length);
         result.put("verifiedRecordCount", serialNoArray.length);
@@ -163,6 +147,22 @@ public class CACMCRevReqResource {
         ArrayNode certsArray = mapper.createArrayNode();
 
         try {
+            processor.init();
+
+            processor.setSerialNumber(new CertId(serialNoArray[0]));
+            processor.setRevocationReason(revReason);
+
+            // Determine if this is a revoke or unrevoke (remove from CRL)
+            if (revReason != null && revReason == RevocationReason.REMOVE_FROM_CRL) {
+                processor.setRequestType(RevocationProcessor.OFF_HOLD);
+            } else if (reasonCode == ON_HOLD_REASON) {
+                processor.setRequestType(RevocationProcessor.ON_HOLD);
+            } else {
+                processor.setRequestType(RevocationProcessor.REVOKE);
+            }
+
+            processor.setComments(comments);
+            processor.setAuthority(engine.getCA());
             // Look up and validate each certificate
             X509CertImpl[] certs = new X509CertImpl[serialNoArray.length];
             for (int i = 0; i < serialNoArray.length; i++) {
