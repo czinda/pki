@@ -169,7 +169,7 @@ public class CAUpdateDirResource {
             CRLRepository crlRepository,
             CAPublisherProcessor publisherProcessor,
             String crlIssuingPointId,
-            boolean isClonedCA) {
+            boolean isClonedCA) throws EBaseException {
 
         // Validate CRL issuing point ID
         if (crlIssuingPointId != null) {
@@ -314,7 +314,7 @@ public class CAUpdateDirResource {
             CAPublisherProcessor publisherProcessor,
             String validFrom,
             String validTo,
-            boolean checkFlag) {
+            boolean checkFlag) throws EBaseException {
 
         if (certRepo == null) {
             result.put("validCertsPublished", "Failure");
@@ -395,7 +395,7 @@ public class CAUpdateDirResource {
             String type,
             String from,
             String to,
-            boolean checkFlag) {
+            boolean checkFlag) throws EBaseException {
 
         if (certRepo == null) {
             result.put(type + "CertsUnpublished", "Failure");
