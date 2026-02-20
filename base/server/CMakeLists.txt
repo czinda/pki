@@ -15,21 +15,17 @@ javac(pki-server-classes
         ${JACKSON_CORE_JAR}
         ${JACKSON_DATABIND_JAR}
         ${JACKSON_MODULE_JAXB_ANNOTATIONS_JAR}
-        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${JSS_JAR}
-        ${JSS_TOMCAT_JAR}
-        ${JSS_TOMCAT_9_0_JAR}
         ${LDAPJDK_JAR}
         ${JAKARTA_ANNOTATION_API_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR}
-        ${PKI_TOMCAT_JAR}
-        ${PKI_TOMCAT_IMPL_JAR}
+        ${PKI_SERVER_CORE_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
-        pki-common-jar pki-tools-jar pki-tomcat-jar pki-${APP_SERVER}-jar
+        pki-common-jar pki-tools-jar pki-server-core-jar
 )
 
 add_dependencies(java pki-server-classes)
@@ -125,6 +121,10 @@ add_custom_target(pki-server-lib ALL
 add_custom_command(
     TARGET pki-server-lib POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory lib
+    COMMAND ln -sf ../../lib/commons-lang3.jar lib/commons-lang3.jar
+    COMMAND ln -sf ../../lib/jss.jar lib/jss.jar
+    COMMAND ln -sf ../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat.jar lib/jss-tomcat.jar
+    COMMAND ln -sf ../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat-9.0.jar lib/jss-tomcat-9.0.jar
     COMMAND ln -sf ../../lib/slf4j-api.jar lib/slf4j-api.jar
     COMMAND ln -sf ../../lib/slf4j-jdk14.jar lib/slf4j-jdk14.jar
 )
@@ -133,19 +133,6 @@ add_custom_command(
 
 add_custom_target(pki-server-common-lib ALL
     COMMENT "Creating links for PKI server common library")
-
-if ($ENV{APP_SERVER_CM} STREQUAL "tomcat-9.0")
-    set(jssTomcatJar "jss-tomcat-9.0.jar")
-    set(pkiTomcatJar  "pki-tomcat-9.0.jar")
-    set(jssTomcatVerJar ${JSS_TOMCAT_9_0_JAR})
-elseif($ENV{APP_SERVER_CM} STREQUAL "tomcat-10.1")
-    set(jssTomcatJar "jss-tomcat-10.1.jar")
-    set(pkiTomcatJar "pki-tomcat-10.1.jar")
-    set(jssTomcatVerJar ${JSS_TOMCAT_10_1_JAR})
-else()
-    message(FATAL_ERROR "Can't determine App Server Value!"  $ENV{APP_SERVER_CM})
-endif()
-
 
 add_custom_command(
     TARGET pki-server-common-lib POST_BUILD
@@ -170,15 +157,13 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/jboss-jaxrs-api_2.0_spec.jar common/lib/jboss-jaxrs-api_2.0_spec.jar
     COMMAND ln -sf ../../../lib/jboss-logging.jar common/lib/jboss-logging.jar
     COMMAND ln -sf ../../../lib/jss.jar common/lib/jss.jar
-    COMMAND ln -sf ../../../../../..${JSS_TOMCAT_JAR} common/lib/jss-tomcat.jar
-    COMMAND ln -sf ../../../../../..${jssTomcatVerJar} common/lib/${jssTomcatJar}
+    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat.jar common/lib/jss-tomcat.jar
+    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/jss/jss-tomcat-9.0.jar common/lib/jss-tomcat-9.0.jar
     COMMAND ln -sf ../../../lib/ldapjdk.jar common/lib/ldapjdk.jar
     COMMAND ln -sf ../../../lib/pki-common.jar common/lib/pki-common.jar
-    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tomcat.jar common/lib/pki-tomcat.jar
-    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/${pkiTomcatJar} common/lib/${pkiTomcatJar}
+    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server-core.jar common/lib/pki-server-core.jar
     COMMAND ln -sf ../../../lib/resteasy-jackson2-provider.jar common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../lib/resteasy-jaxrs.jar common/lib/resteasy-jaxrs.jar
-    COMMAND ln -sf ${RESTEASY_SERVLET_INITIALIZER_LINK} common/lib/resteasy-servlet-initializer.jar
 )
 
 add_custom_target(pki-server-man ALL
@@ -210,12 +195,6 @@ add_custom_command(
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pkidestroy.8.md -out man/man8/pkidestroy.8
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pkispawn.8.md -out man/man8/pkispawn.8
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-healthcheck.8.md -out man/man8/pki-healthcheck.8
-)
-
-# Customize default tomcat.conf.
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/tomcat.conf
-    ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
 )
 
 if(WITH_JAVA)
@@ -257,13 +236,6 @@ install(
         examples/
     DESTINATION
         ${DATA_INSTALL_DIR}/server/examples
-)
-
-install(
-    FILES
-         ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
-    DESTINATION
-        ${DATA_INSTALL_DIR}/etc
 )
 
 install(

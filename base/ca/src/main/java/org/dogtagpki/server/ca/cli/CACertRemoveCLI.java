@@ -11,7 +11,7 @@ import java.security.SecureRandom;
 import org.apache.commons.cli.CommandLine;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +58,7 @@ public class CACertRemoveCLI extends CommandCLI {
 
         String instanceDir = CMS.getInstanceDir();
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        new TomcatJSSInitializer().initialize();
 
         String subsystem = parent.getParent().getName();
         String confDir = instanceDir + File.separator + subsystem + File.separator + "conf";

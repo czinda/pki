@@ -16,7 +16,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.io.IOUtils;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.cert.CertUtil;
 import org.slf4j.Logger;
@@ -91,9 +91,7 @@ public class CACertRequestImportCLI extends CommandCLI {
 
         String instanceDir = CMS.getInstanceDir();
 
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        new TomcatJSSInitializer().initialize();
 
         String[] cmdArgs = cmd.getArgs();
 

@@ -48,7 +48,7 @@ import com.netscape.certsrv.logging.event.SecurityDataRecoveryProcessedEvent;
 import com.netscape.certsrv.logging.event.SecurityDataStatusChangeEvent;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -450,10 +450,10 @@ public class KeyProcessor {
     }
 
     private AuthToken getAuthToken(Principal principal) {
-        if (principal instanceof PKIPrincipal pkiprincipal) {
-            return pkiprincipal.getAuthToken();
+        if (principal instanceof PKIPrincipalCore pkiprincipal) {
+            return (AuthToken) pkiprincipal.getAuthToken();
         }
-        throw new PKIException("Unable to access realm: principal not instance of PKIPrincipal");
+        throw new PKIException("Unable to access realm: principal not instance of PKIPrincipalCore");
     }
 
     private String createSearchFilter(String status, String clientKeyID, String realm, String ownerName) {

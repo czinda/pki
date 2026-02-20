@@ -45,8 +45,8 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.profile.common.Profile;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cms.servlet.processors.CAProcessor;
-import com.netscape.cms.tomcat.ExternalPrincipal;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ConfigStore;
 import com.netscape.cmscore.logging.Auditor;
@@ -148,13 +148,12 @@ public class CertProcessor extends CAProcessor {
             }
         }
 
-        // special processing of ExternalAuthToken / ExternalPrincipal
+        // special processing of ExternalAuthToken / PKIPrincipalCore
         if (authToken instanceof ExternalAuthToken) {
             Principal principal =
                 ((ExternalAuthToken) authToken).getPrincipal();
-            if (principal instanceof ExternalPrincipal) {
-                HashMap<String, Object> m =
-                    ((ExternalPrincipal) principal).getAttributes();
+            if (principal instanceof PKIPrincipalCore pkiPrincipal) {
+                Map<String, Object> m = pkiPrincipal.getAttributes();
                 for (String k : m.keySet()) {
                     req.setExtData(
                         Request.AUTH_TOKEN_PREFIX

@@ -5,10 +5,20 @@
 //
 package org.dogtagpki.acme.realm;
 
-import com.netscape.cms.realm.RealmCommon;
+import com.netscape.cms.realm.PKIPrincipalCore;
+import com.netscape.cms.realm.PKIRealmCore;
 
 /**
  * @author Endi S. Dewata
  */
-public class ACMERealm extends RealmCommon{
+public class ACMERealm extends PKIRealmCore {
+
+    @Override
+    public PKIPrincipalCore authenticate(String username, String password) {
+        return null;
+    }
+
+    @Override
+    public void init() throws Exception {
+    }
 }

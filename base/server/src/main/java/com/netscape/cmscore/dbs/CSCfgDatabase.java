@@ -21,8 +21,9 @@ package com.netscape.cmscore.dbs;
 import java.security.Principal;
 import java.util.Arrays;
 
-import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang3.StringUtils;
+
+import com.netscape.cms.realm.PKIPrincipalCore;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.Constants;
@@ -58,13 +59,13 @@ public class CSCfgDatabase<E extends CSCfgRecord> extends Database<E> {
     }
 
     public boolean canApprove(Principal principal) {
-        if (!(principal instanceof GenericPrincipal)) {
+        if (!(principal instanceof PKIPrincipalCore corePrincipal)) {
             return false;
         }
 
         // TODO remove hardcoded role name and consult authzmgr
         // (so that we can handle externally-authenticated principals)
-        return ((GenericPrincipal) principal).hasRole("TPS Agents");
+        return corePrincipal.getRolesList().contains("TPS Agents");
     }
 
     public String getRecordStatus(String recordID) throws EBaseException {

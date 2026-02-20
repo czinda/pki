@@ -1,0 +1,29 @@
+# Rust build artifacts
+target/
+Cargo.lock
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Configuration files with secrets
+*.conf.local
+*.conf.secret
+
+# Test artifacts
+*.key
+*.csr
+*.crt
+*.pem
+*.p12
+*.jks
+
+# Logs
+*.log

@@ -1,7 +1,6 @@
 project(tps Java)
 
 add_subdirectory(shared/conf)
-add_subdirectory(${APP_SERVER})
 
 # build pki-tps
 javac(pki-tps-classes
@@ -20,7 +19,7 @@ javac(pki-tps-classes
         ${JSS_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
-        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${SERVLET_JAR}
         ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
@@ -68,7 +67,6 @@ add_custom_command(
     COMMAND ln -sf ../../../../../lib/slf4j-jdk14.jar webapp/lib/slf4j-jdk14.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar webapp/lib/pki-server.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tps.jar webapp/lib/pki-tps.jar
-    COMMAND ln -sf ../../../../../server/common/lib/resteasy-servlet-initializer.jar webapp/lib/resteasy-servlet-initializer.jar
 )
 
 add_custom_target(pki-tps-man ALL

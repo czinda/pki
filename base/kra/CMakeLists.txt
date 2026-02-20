@@ -1,7 +1,6 @@
 project(kra NONE)
 
 add_subdirectory(shared/conf)
-add_subdirectory(${APP_SERVER})
 
 # build pki-kra
 javac(pki-kra-classes
@@ -21,7 +20,7 @@ javac(pki-kra-classes
         ${SERVLET_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
-        ${PKI_COMMON_JAR} ${PKI_SERVER_JAR} ${TOMCAT_CATALINA_JAR}
+        ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
@@ -70,7 +69,6 @@ add_custom_command(
     COMMAND ln -sf ../../../../../lib/slf4j-jdk14.jar webapp/lib/slf4j-jdk14.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar webapp/lib/pki-server.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-kra.jar webapp/lib/pki-kra.jar
-    COMMAND ln -sf ../../../../../server/common/lib/resteasy-servlet-initializer.jar webapp/lib/resteasy-servlet-initializer.jar
 )
 
 if(WITH_JAVA)

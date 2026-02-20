@@ -16,7 +16,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.io.IOUtils;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
-import org.dogtagpki.jss.tomcat.TomcatJSS;
+import com.netscape.cmscore.apps.TomcatJSSInitializer;
 import org.dogtagpki.server.ca.CAEngineConfig;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.util.Cert;
@@ -133,9 +133,7 @@ public class CACertImportCLI extends CommandCLI {
         boolean adjustValidity = Boolean.parseBoolean(value);
 
         // initialize JSS in pki-server CLI
-        TomcatJSS tomcatjss = TomcatJSS.getInstance();
-        tomcatjss.loadConfig();
-        tomcatjss.init();
+        new TomcatJSSInitializer().initialize();
 
         // load CSR if provided
         byte[] csrBytes = null;

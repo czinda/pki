@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PKI Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@patternfly/patternfly@4/patternfly.min.css">
+    <style>
+        :root {
+            --pf-global--primary-color--100: #0066cc;
+            --pf-global--success-color--100: #3e8635;
+            --pf-global--warning-color--100: #f0ab00;
+            --pf-global--danger-color--100: #c9190b;
+        }
+
+        body {
+            font-family: 'RedHatText', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #0066cc 0%, #004080 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-menu .username {
+            font-weight: 500;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-card .stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .stat-card.success .stat-value { color: var(--pf-global--success-color--100); }
+        .stat-card.warning .stat-value { color: var(--pf-global--warning-color--100); }
+        .stat-card.danger .stat-value { color: var(--pf-global--danger-color--100); }
+        .stat-card.info .stat-value { color: var(--pf-global--primary-color--100); }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: #fafafa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--pf-global--primary-color--100);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #004080;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .cert-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cert-table th,
+        .cert-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .cert-table th {
+            background: #fafafa;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .cert-table tr:hover {
+            background: #f8f8f8;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-valid {
+            background: #e6f4ea;
+            color: #137333;
+        }
+
+        .status-warning {
+            background: #fef7e0;
+            color: #b06000;
+        }
+
+        .status-expired, .status-revoked {
+            background: #fce8e6;
+            color: #c5221f;
+        }
+
+        .status-pending {
+            background: #e8f0fe;
+            color: #1967d2;
+        }
+
+        .device-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .device-icon::before {
+            font-size: 1.2rem;
+        }
+
+        .device-server::before { content: ""; }
+        .device-iot::before { content: ""; }
+        .device-mobile::before { content: ""; }
+        .device-container::before { content: ""; }
+        .device-workstation::before { content: ""; }
+
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            background: transparent;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 0.25rem;
+        }
+
+        .action-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .activity-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .activity-icon.success { background: #e6f4ea; color: #137333; }
+        .activity-icon.warning { background: #fef7e0; color: #b06000; }
+        .activity-icon.danger { background: #fce8e6; color: #c5221f; }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-details .title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-details .time {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .expiry-timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .timeline-bar {
+            height: 8px;
+            background: linear-gradient(to right, #c9190b 0%, #f0ab00 30%, #3e8635 100%);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .timeline-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-top-color: var(--pf-global--primary-color--100);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="dashboard-header">
+        <h1>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.4 0 2.8 1.1 2.8 2.5V11c.6.3 1 .9 1 1.5v3c0 1-.8 1.8-1.8 1.8h-4c-1 0-1.8-.8-1.8-1.8v-3c0-.6.4-1.2 1-1.5V9.5C9.2 8.1 10.6 7 12 7z"/>
+            </svg>
+            PKI Dashboard
+        </h1>
+        <div class="user-menu">
+            <span id="notification-badge" title="Notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
+                <span id="notification-count">0</span>
+            </span>
+            <span class="username" id="current-user">Loading...</span>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- Stats Cards -->
+        <section class="stats-grid" id="stats-container">
+            <div class="stat-card success">
+                <span class="stat-icon">&#x2713;</span>
+                <span class="stat-value" id="stat-active">-</span>
+                <span class="stat-label">Active Certificates</span>
+            </div>
+            <div class="stat-card warning">
+                <span class="stat-icon">&#x23F0;</span>
+                <span class="stat-value" id="stat-expiring">-</span>
+                <span class="stat-label">Expiring Soon</span>
+            </div>
+            <div class="stat-card info">
+                <span class="stat-icon">&#x231B;</span>
+                <span class="stat-value" id="stat-pending">-</span>
+                <span class="stat-label">Pending Requests</span>
+            </div>
+            <div class="stat-card danger">
+                <span class="stat-icon">&#x2717;</span>
+                <span class="stat-value" id="stat-revoked">-</span>
+                <span class="stat-label">Revoked</span>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="content-grid">
+            <!-- Certificates Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>My Certificates</h2>
+                    <button class="btn btn-primary" onclick="requestNewCert()">
+                        + Request New
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="filter-bar">
+                        <select id="filter-status" onchange="filterCertificates()">
+                            <option value="all">All Status</option>
+                            <option value="valid">Valid</option>
+                            <option value="expired">Expired</option>
+                            <option value="revoked">Revoked</option>
+                        </select>
+                        <select id="filter-device" onchange="filterCertificates()">
+                            <option value="all">All Device Types</option>
+                            <option value="server">Server</option>
+                            <option value="iot">IoT</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="container">Container</option>
+                            <option value="workstation">Workstation</option>
+                        </select>
+                        <input type="search" id="filter-search" placeholder="Search..." onkeyup="filterCertificates()">
+                    </div>
+                    <div id="certificates-container">
+                        <div class="loading">Loading certificates...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <!-- Pending Requests -->
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div class="card-header">
+                        <h2>Pending Requests</h2>
+                    </div>
+                    <div class="card-body" id="pending-container">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Recent Activity</h2>
+                    </div>
+                    <div class="card-body" id="activity-container">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Expiration Timeline -->
+        <section class="card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+                <h2>Expiration Timeline</h2>
+            </div>
+            <div class="card-body">
+                <div class="expiry-timeline">
+                    <div class="timeline-bar"></div>
+                    <div class="timeline-markers">
+                        <span>Today</span>
+                        <span id="exp-7days">7 days (0)</span>
+                        <span id="exp-30days">30 days (0)</span>
+                        <span id="exp-90days">90 days (0)</span>
+                        <span id="exp-180days">180 days (0)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Dashboard Application
+        const Dashboard = {
+            apiBase: '/ca/v2/dashboard',
+            certificates: [],
+            requests: [],
+            overview: null,
+
+            async init() {
+                try {
+                    await this.loadOverview();
+                    await this.loadCertificates();
+                    await this.loadRequests();
+                    await this.loadActivity();
+                    this.updateExpirationTimeline();
+                } catch (error) {
+                    console.error('Failed to initialize dashboard:', error);
+                    this.showError('Failed to load dashboard data');
+                }
+            },
+
+            async fetchApi(endpoint) {
+                const response = await fetch(this.apiBase + endpoint, {
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/ca/ee/login';
+                        return null;
+                    }
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                return response.json();
+            },
+
+            async loadOverview() {
+                const data = await this.fetchApi('/overview');
+                if (!data) return;
+
+                this.overview = data;
+                document.getElementById('current-user').textContent = data.userId || 'User';
+                document.getElementById('stat-active').textContent = data.activeCertificates || 0;
+                document.getElementById('stat-expiring').textContent = data.expiringSoonCertificates || 0;
+                document.getElementById('stat-pending').textContent = data.pendingRequests || 0;
+                document.getElementById('stat-revoked').textContent = data.revokedCertificates || 0;
+
+                // Update notification badge
+                const notifications = data.expiringSoonCertificates + data.pendingRequests;
+                document.getElementById('notification-count').textContent = notifications;
+            },
+
+            async loadCertificates() {
+                const data = await this.fetchApi('/certificates');
+                if (!data) return;
+
+                this.certificates = data;
+                this.renderCertificates(data);
+            },
+
+            async loadRequests() {
+                const data = await this.fetchApi('/requests?status=pending');
+                if (!data) return;
+
+                this.requests = data;
+                this.renderPendingRequests(data);
+            },
+
+            async loadActivity() {
+                const data = await this.fetchApi('/activity?limit=5');
+                if (!data) return;
+
+                this.renderActivity(data);
+            },
+
+            renderCertificates(certs) {
+                const container = document.getElementById('certificates-container');
+
+                if (!certs || certs.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">&#x1F4DC;</div>
+                            <p>No certificates found</p>
+                            <button class="btn btn-primary" onclick="requestNewCert()">Request Your First Certificate</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const html = `
+                    <table class="cert-table">
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Subject</th>
+                                <th>Expires</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${certs.map(cert => this.renderCertRow(cert)).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = html;
+            },
+
+            renderCertRow(cert) {
+                const statusClass = this.getStatusClass(cert.status, cert.daysUntilExpiry);
+                const statusLabel = this.getStatusLabel(cert.status, cert.daysUntilExpiry);
+                const deviceIcon = this.getDeviceIcon(cert.deviceType);
+
+                return `
+                    <tr>
+                        <td>
+                            <span class="device-icon device-${cert.deviceType || 'server'}">
+                                ${deviceIcon} ${cert.deviceType || 'server'}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>${this.extractCN(cert.subjectDN)}</strong>
+                            <br><small style="color:#666">${cert.serialNumberHex}</small>
+                        </td>
+                        <td>
+                            ${cert.daysUntilExpiry > 0 ? cert.daysUntilExpiry + ' days' : 'Expired'}
+                        </td>
+                        <td>
+                            <span class="status-badge status-${statusClass}">${statusLabel}</span>
+                        </td>
+                        <td>
+                            <button class="action-btn" onclick="viewCert('${cert.serialNumber}')" title="View Details">&#x1F441;</button>
+                            <button class="action-btn" onclick="downloadCert('${cert.serialNumber}')" title="Download">&#x2B07;</button>
+                            <button class="action-btn" onclick="renewCert('${cert.serialNumber}')" title="Renew">&#x1F504;</button>
+                        </td>
+                    </tr>
+                `;
+            },
+
+            renderPendingRequests(requests) {
+                const container = document.getElementById('pending-container');
+
+                if (!requests || requests.length === 0) {
+                    container.innerHTML = '<p style="color:#666;text-align:center">No pending requests</p>';
+                    return;
+                }
+
+                const html = requests.map(req => `
+                    <div style="padding: 0.75rem 0; border-bottom: 1px solid #f0f0f0;">
+                        <strong>${req.profileId || req.requestType}</strong>
+                        <br><small style="color:#666">Request #${req.requestId}</small>
+                        <br><span class="status-badge status-pending">${req.status}</span>
+                    </div>
+                `).join('');
+
+                container.innerHTML = html;
+            },
+
+            renderActivity(activities) {
+                const container = document.getElementById('activity-container');
+
+                if (!activities || activities.length === 0) {
+                    container.innerHTML = '<p style="color:#666;text-align:center">No recent activity</p>';
+                    return;
+                }
+
+                const html = `
+                    <ul class="activity-list">
+                        ${activities.map(act => `
+                            <li class="activity-item">
+                                <div class="activity-icon ${this.getActivityClass(act.action)}">
+                                    ${this.getActivityIcon(act.action)}
+                                </div>
+                                <div class="activity-details">
+                                    <div class="title">${act.action}: ${act.resourceId}</div>
+                                    <div class="time">${act.details}</div>
+                                </div>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+
+                container.innerHTML = html;
+            },
+
+            updateExpirationTimeline() {
+                // Count certificates expiring in different windows
+                let exp7 = 0, exp30 = 0, exp90 = 0, exp180 = 0;
+
+                this.certificates.forEach(cert => {
+                    if (cert.status === 'VALID' && cert.daysUntilExpiry > 0) {
+                        if (cert.daysUntilExpiry <= 7) exp7++;
+                        if (cert.daysUntilExpiry <= 30) exp30++;
+                        if (cert.daysUntilExpiry <= 90) exp90++;
+                        if (cert.daysUntilExpiry <= 180) exp180++;
+                    }
+                });
+
+                document.getElementById('exp-7days').textContent = `7 days (${exp7})`;
+                document.getElementById('exp-30days').textContent = `30 days (${exp30})`;
+                document.getElementById('exp-90days').textContent = `90 days (${exp90})`;
+                document.getElementById('exp-180days').textContent = `180 days (${exp180})`;
+            },
+
+            getStatusClass(status, daysUntilExpiry) {
+                if (status === 'REVOKED' || status === 'REVOKED_EXPIRED') return 'revoked';
+                if (status === 'EXPIRED') return 'expired';
+                if (status === 'VALID' && daysUntilExpiry <= 30) return 'warning';
+                return 'valid';
+            },
+
+            getStatusLabel(status, daysUntilExpiry) {
+                if (status === 'REVOKED' || status === 'REVOKED_EXPIRED') return 'Revoked';
+                if (status === 'EXPIRED') return 'Expired';
+                if (status === 'VALID' && daysUntilExpiry <= 30) return 'Expiring';
+                return 'Valid';
+            },
+
+            getDeviceIcon(deviceType) {
+                const icons = {
+                    server: '&#x1F5A5;',
+                    iot: '&#x1F4E1;',
+                    mobile: '&#x1F4F1;',
+                    container: '&#x1F4E6;',
+                    workstation: '&#x1F4BB;',
+                    network: '&#x1F310;',
+                    service: '&#x2699;'
+                };
+                return icons[deviceType] || '&#x1F4DC;';
+            },
+
+            getActivityClass(action) {
+                if (action === 'issued' || action === 'renewed') return 'success';
+                if (action === 'revoked') return 'danger';
+                return 'warning';
+            },
+
+            getActivityIcon(action) {
+                if (action === 'issued') return '&#x2713;';
+                if (action === 'renewed') return '&#x1F504;';
+                if (action === 'revoked') return '&#x2717;';
+                return '&#x2139;';
+            },
+
+            extractCN(dn) {
+                if (!dn) return 'Unknown';
+                const match = dn.match(/CN=([^,]+)/i);
+                return match ? match[1] : dn;
+            },
+
+            showError(message) {
+                alert(message);
+            }
+        };
+
+        // Global functions for button handlers
+        function filterCertificates() {
+            const status = document.getElementById('filter-status').value;
+            const device = document.getElementById('filter-device').value;
+            const search = document.getElementById('filter-search').value.toLowerCase();
+
+            const filtered = Dashboard.certificates.filter(cert => {
+                if (status !== 'all' && cert.status.toLowerCase() !== status) return false;
+                if (device !== 'all' && (cert.deviceType || 'server') !== device) return false;
+                if (search && !cert.subjectDN.toLowerCase().includes(search)) return false;
+                return true;
+            });
+
+            Dashboard.renderCertificates(filtered);
+        }
+
+        function requestNewCert() {
+            window.location.href = '/ca/ee/request';
+        }
+
+        function viewCert(serialNumber) {
+            window.location.href = '/ca/ee/cert?serialNumber=' + serialNumber;
+        }
+
+        function downloadCert(serialNumber) {
+            window.location.href = '/ca/v2/certs/' + serialNumber + '/chain?format=pem';
+        }
+
+        function renewCert(serialNumber) {
+            window.location.href = '/ca/ee/renew?serialNumber=' + serialNumber;
+        }
+
+        function logout() {
+            window.location.href = '/ca/ee/logout';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            Dashboard.init();
+        });
+    </script>
+</body>
+</html>

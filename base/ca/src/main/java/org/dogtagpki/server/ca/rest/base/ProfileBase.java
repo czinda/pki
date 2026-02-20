@@ -21,7 +21,7 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.catalina.realm.GenericPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.CAEngineConfig;
@@ -105,10 +105,10 @@ public class ProfileBase {
         // TODO remove hardcoded role names and consult authzmgr
         // (so that we can handle externally-authenticated principals)
         Principal principal = servletRequest.getUserPrincipal();
-        if (principal != null && principal instanceof GenericPrincipal) {
-            GenericPrincipal genPrincipal = (GenericPrincipal) principal;
-            if (genPrincipal.hasRole("Certificate Manager Agents") ||
-                genPrincipal.hasRole("Certificate Manager Administrators"))
+        if (principal != null && principal instanceof PKIPrincipalCore) {
+            PKIPrincipalCore pkiPrincipal = (PKIPrincipalCore) principal;
+            if (pkiPrincipal.hasRole("Certificate Manager Agents") ||
+                pkiPrincipal.hasRole("Certificate Manager Administrators"))
                     visibleOnly = false;
         }
 
@@ -708,10 +708,10 @@ public class ProfileBase {
 
         // TODO remove hardcoded role names and consult authzmgr
         // (so that we can handle externally-authenticated principals)
-        if (principal != null && principal instanceof GenericPrincipal) {
-            GenericPrincipal genPrincipal = (GenericPrincipal) principal;
-            if (genPrincipal.hasRole("Certificate Manager Agents") ||
-                genPrincipal.hasRole("Certificate Manager Administrators"))
+        if (principal != null && principal instanceof PKIPrincipalCore) {
+            PKIPrincipalCore pkiPrincipal = (PKIPrincipalCore) principal;
+            if (pkiPrincipal.hasRole("Certificate Manager Agents") ||
+                pkiPrincipal.hasRole("Certificate Manager Administrators"))
                     visibleOnly = false;
         }
 
@@ -733,7 +733,7 @@ public class ProfileBase {
         return profile;
     }
 
-    private ProfileInput createProfileInput(Profile profile, String inputId, Locale locale) throws EBaseException {
+    public static ProfileInput createProfileInput(Profile profile, String inputId, Locale locale) throws EBaseException {
         com.netscape.cms.profile.common.ProfileInput profileInput = profile.getProfileInput(inputId);
         if (profileInput == null)
             return null;

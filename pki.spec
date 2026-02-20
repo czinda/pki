@@ -116,15 +116,6 @@ ExcludeArch: i686
 
 %endif
 
-###############################################################################
-# Tomcat
-################################################################################
-
-# Use Tomcat 9 before Fedora 43 and RHEL 10, otherwise use Tomcat 10.
-
-%global           fedora_tomcat9_cutoff 43
-%global           rhel_tomcat9_cutoff 10
-
 ################################################################################
 # PKI
 ################################################################################
@@ -161,6 +152,9 @@ ExcludeArch: i686
 
 # Don't build console unless --with console is specified.
 %bcond_with console
+
+# Don't build Quarkus modules unless --with quarkus is specified.
+%bcond_with quarkus
 
 %if ! %{with debug}
 %define debug_package %{nil}
@@ -230,13 +224,6 @@ BuildRequires:    javapackages-tools
 BuildRequires:    xmlstarlet
 %endif
 
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-BuildRequires:    tomcat-lib >= 9.0
-%else
-BuildRequires:    tomcat-lib >= 1:10.1.36
-BuildRequires:    tomcat-jakartaee-migration
-%endif
-
 BuildRequires:    %{vendor_id}-jss >= 5.10
 
 BuildRequires:    mvn(xml-apis:xml-apis)
@@ -274,28 +261,10 @@ BuildRequires:    mvn(org.jboss.logging:jboss-logging)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jaxrs)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-client)
 BuildRequires:    mvn(org.jboss.resteasy:resteasy-jackson2-provider)
-BuildRequires:    mvn(org.jboss.resteasy:resteasy-servlet-initializer)
-
-%endif
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 9.0.62
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 9.0.62
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 9.0.62
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 9.0.62
-
-%else
-
-BuildRequires:    mvn(org.apache.tomcat:tomcat-catalina) >= 10.1.36
-BuildRequires:    mvn(org.apache.tomcat:tomcat-servlet-api) >= 10.1.36
-BuildRequires:    mvn(org.apache.tomcat:tomcat-jaspic-api) >= 10.1.36
-BuildRequires:    mvn(org.apache.tomcat:tomcat-util-scan) >= 10.0.36
 
 %endif
 
 BuildRequires:    mvn(org.dogtagpki.jss:jss-base) >= 5.10
-BuildRequires:    mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10
 BuildRequires:    mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 
 # Python build dependencies
@@ -654,6 +623,7 @@ Provides:         bundled(resteasy-jackson2-provider)
 %endif
 
 Requires:         mvn(org.dogtagpki.jss:jss-base) >= 5.10.0
+Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
 Requires:         mvn(org.dogtagpki.ldap-sdk:ldapjdk) >= 5.6.0
 Requires:         %{product_id}-base = %{version}-%{release}
 
@@ -721,20 +691,6 @@ Requires:         python3-libselinux
 Requires:         python3-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
-
-%if %{with runtime_deps}
-Requires:         mvn(org.jboss.resteasy:resteasy-servlet-initializer)
-%else
-Provides:         bundled(resteasy-servlet-initializer)
-%endif
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-Requires:         tomcat >= 9.0
-%else
-Requires:         tomcat >= 1:10.1.36
-%endif
-
-Requires:         mvn(org.dogtagpki.jss:jss-tomcat) >= 5.10.0
 
 Requires:         systemd
 Requires(post):   systemd-units
@@ -839,6 +795,135 @@ Requires:         %{product_id}-server = %{version}-%{release}
 Secure Transport (RFC 7030) service.
 
 # with est
+%endif
+
+%if %{with quarkus}
+
+################################################################################
+%package -n       %{product_id}-quarkus-common
+################################################################################
+
+Summary:          %{product_name} Quarkus Common Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+
+%description -n   %{product_id}-quarkus-common
+Common systemd units and shared files for Quarkus-based %{product_name} subsystems.
+
+################################################################################
+%package -n       %{product_id}-ca-quarkus
+################################################################################
+
+Summary:          %{product_name} CA Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-ca-quarkus
+Quarkus-based deployment of the %{product_name} Certificate Authority (CA).
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-est-quarkus
+################################################################################
+
+Summary:          %{product_name} EST Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-est-quarkus
+Quarkus-based deployment of the %{product_name} EST subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-acme-quarkus
+################################################################################
+
+Summary:          %{product_name} ACME Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-acme-quarkus
+Quarkus-based deployment of the %{product_name} ACME subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-ocsp-quarkus
+################################################################################
+
+Summary:          %{product_name} OCSP Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-ocsp-quarkus
+Quarkus-based deployment of the %{product_name} OCSP subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-kra-quarkus
+################################################################################
+
+Summary:          %{product_name} KRA Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-kra-quarkus
+Quarkus-based deployment of the %{product_name} KRA subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-tks-quarkus
+################################################################################
+
+Summary:          %{product_name} TKS Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-tks-quarkus
+Quarkus-based deployment of the %{product_name} TKS subsystem.
+Runs as a standalone process without Tomcat.
+
+################################################################################
+%package -n       %{product_id}-tps-quarkus
+################################################################################
+
+Summary:          %{product_name} TPS Quarkus Package
+BuildArch:        noarch
+
+Requires:         %{java_headless}
+Requires:         %{product_id}-quarkus-common = %{version}-%{release}
+Requires(post):   systemd-units
+Requires(postun): systemd-units
+
+%description -n   %{product_id}-tps-quarkus
+Quarkus-based deployment of the %{product_name} TPS subsystem.
+Runs as a standalone process without Tomcat.
+
+# with quarkus
 %endif
 
 %if %{with kra}
@@ -1116,12 +1201,6 @@ This package provides test suite for %{product_name}.
 
 %autosetup -n pki-%{full_version} -p 1
 
-%if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
-# Migrate the source first because we are starting with Tomcat 9 code,
-# so we can build against either Tomcat 9 or 10.1, based on the build platform.
-/usr/bin/javax2jakarta -profile=EE -exclude=./base/tomcat-9.0 ./base ./base
-%endif
-
 %if %{without runtime_deps}
 
 if [ ! -d base/common/lib ]
@@ -1250,38 +1329,6 @@ then
     cp /usr/share/java/resteasy/resteasy-jackson2-provider.jar \
         resteasy-jackson2-provider-$RESTEASY_VERSION.jar
 
-    # Migrate necessary files being copied around to jakarta 9.0 ee, for >= f43 and rhel10
-
-    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
-
-    echo "Doing the Tomcat 10 version..."
-
-    /usr/bin/javax2jakarta -profile=EE jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar jakarta.activation-api-$JAKARTA_ACTIVATION_API_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar jakarta.annotation-api-$JAKARTA_ANNOTATION_API_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jakarta.xml.bind-api-$JAXB_API_VERSION.jar jakarta.xml.bind-api-$JAXB_API_VERSION.jar
-
-    /usr/bin/javax2jakarta -profile=EE jackson-annotations-$JACKSON_VERSION.jar jackson-annotations-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-core-$JACKSON_VERSION.jar jackson-core-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-databind-$JACKSON_VERSION.jar jackson-databind-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-module-jaxb-annotations-$JACKSON_VERSION.jar jackson-module-jaxb-annotations-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-base-$JACKSON_VERSION.jar jackson-jaxrs-base-$JACKSON_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE jackson-jaxrs-json-provider-$JACKSON_VERSION.jar jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
-
-    /usr/bin/javax2jakarta -profile=EE jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
-
-    # Now migrate the required resteasy jars, in case we are using an existing resteasy version.
-
-    /usr/bin/javax2jakarta -profile=EE resteasy-client-$RESTEASY_VERSION.jar resteasy-client-$RESTEASY_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE resteasy-jackson2-provider-$RESTEASY_VERSION.jar resteasy-jackson2-provider-$RESTEASY_VERSION.jar
-    /usr/bin/javax2jakarta -profile=EE resteasy-jaxrs-$RESTEASY_VERSION.jar resteasy-jaxrs-$RESTEASY_VERSION.jar
-
-    # Add local artifact so we can compile against the migrated jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
-    # We could have used the maven install plugin but it's not available with standard rpms.
-
-    %endif
-
-    # Create the local artifact structure for either Tomcat 9 or Tomcat 10.
-    # Tomcat 9 doesn't get the file migrated.
     mkdir -p ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
 
     # Copy over the JAX-RS API so we can compile.
@@ -1290,27 +1337,6 @@ then
     popd
 fi
 
-if [ ! -d base/server/lib ]
-then
-    # Import server libraries from RPMs.
-
-    mkdir -p base/server/lib
-    pushd base/server/lib
-
-    RESTEASY_VERSION=$(rpm -q pki-resteasy-servlet-initializer | sed -n 's/^pki-resteasy-servlet-initializer-\([^-]*\)-.*$/\1.Final/p')
-    echo "RESTEASY_VERSION: $RESTEASY_VERSION"
-
-    cp /usr/share/java/resteasy/resteasy-servlet-initializer.jar \
-        resteasy-servlet-initializer-$RESTEASY_VERSION.jar
-
-    # Migrate the resteasy servlet initializer, in case we are using an existing resteasy version.
-    %if 0%{?fedora} >= %{fedora_tomcat9_cutoff} || 0%{?rhel} >= %{rhel_tomcat9_cutoff}
-    /usr/bin/javax2jakarta -profile=EE resteasy-servlet-initializer-$RESTEASY_VERSION.jar resteasy-servlet-initializer-$RESTEASY_VERSION.jar
-    %endif
-
-    ls -l
-    popd
-fi
 %endif
 
 %if ! %{with base}
@@ -1319,15 +1345,8 @@ fi
 %endif
 
 %if ! %{with server}
-%pom_disable_module tomcat base
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%pom_disable_module tomcat-9.0 base
-%else
-%pom_disable_module tomcat-10.1 base
-%endif
-
+%pom_disable_module server-core base
 %pom_disable_module server base
-%pom_disable_module server-webapp base
 %endif
 
 %if ! %{with ca}
@@ -1362,6 +1381,18 @@ fi
 %pom_disable_module console base
 %endif
 
+# Quarkus modules are built separately via direct Maven (not RPM).
+# They require online access to resolve Quarkus BOM/plugins which
+# are not available in the offline xmvn environment used by rpmbuild.
+%pom_disable_module quarkus-common base
+%pom_disable_module est-quarkus base
+%pom_disable_module acme-quarkus base
+%pom_disable_module ocsp-quarkus base
+%pom_disable_module kra-quarkus base
+%pom_disable_module tks-quarkus base
+%pom_disable_module tps-quarkus base
+%pom_disable_module ca-quarkus base
+
 # remove plugins not needed to build RPM
 %pom_remove_plugin org.codehaus.mojo:flatten-maven-plugin
 %pom_remove_plugin org.apache.maven.plugins:maven-deploy-plugin
@@ -1370,16 +1401,8 @@ fi
 # specify Maven artifact locations
 %mvn_file org.dogtagpki.pki:pki-common            pki/pki-common
 %mvn_file org.dogtagpki.pki:pki-tools             pki/pki-tools
+%mvn_file org.dogtagpki.pki:pki-server-core        pki/pki-server-core
 %mvn_file org.dogtagpki.pki:pki-server            pki/pki-server
-%mvn_file org.dogtagpki.pki:pki-server-webapp     pki/pki-server-webapp
-%mvn_file org.dogtagpki.pki:pki-tomcat            pki/pki-tomcat
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%mvn_file org.dogtagpki.pki:pki-tomcat-9.0        pki/pki-tomcat-9.0
-%else
-%mvn_file org.dogtagpki.pki:pki-tomcat-10.1       pki/pki-tomcat-10.1
-%endif
-
 %mvn_file org.dogtagpki.pki:pki-ca                pki/pki-ca
 %mvn_file org.dogtagpki.pki:pki-kra               pki/pki-kra
 %mvn_file org.dogtagpki.pki:pki-ocsp              pki/pki-ocsp
@@ -1395,17 +1418,8 @@ fi
 # specify Maven artifact packages
 %mvn_package org.dogtagpki.pki:pki-common         pki-java
 %mvn_package org.dogtagpki.pki:pki-tools          pki-tools
+%mvn_package org.dogtagpki.pki:pki-server-core    pki-server
 %mvn_package org.dogtagpki.pki:pki-server         pki-server
-%mvn_package org.dogtagpki.pki:pki-server-webapp  pki-server
-%mvn_package org.dogtagpki.pki:pki-tomcat         pki-server
-
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%mvn_package org.dogtagpki.pki:pki-tomcat-9.0     pki-server
-%else
-%mvn_package org.dogtagpki.pki:pki-tomcat-10.1    pki-server
-%endif
-
 %mvn_package org.dogtagpki.pki:pki-ca             pki-ca
 %mvn_package org.dogtagpki.pki:pki-kra            pki-kra
 %mvn_package org.dogtagpki.pki:pki-ocsp           pki-ocsp
@@ -1441,14 +1455,6 @@ export JAVA_HOME=%{java_home}
 %if %{with maven}
 # build Java binaries and run unit tests with Maven
 
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%pom_disable_module tomcat-10.1 base
-%pom_remove_dep :pki-tomcat-10.1 base/server
-%else
-%pom_disable_module tomcat-9.0 base
-%pom_remove_dep :pki-tomcat-9.0 base/server
-%endif
-
 %mvn_build %{!?with_test:-f} -j
 
 # create links to Maven-built JAR files for CMake
@@ -1461,16 +1467,8 @@ ln -sf ../../base/tools/target/pki-tools.jar
 %endif
 
 %if %{with server}
-ln -sf ../../base/tomcat/target/pki-tomcat.jar
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-ln -sf ../../base/tomcat-9.0/target/pki-tomcat-9.0.jar
-%else
-ln -sf ../../base/tomcat-10.1/target/pki-tomcat-10.1.jar
-%endif
-
+ln -sf ../../base/server-core/target/pki-server-core.jar
 ln -sf ../../base/server/target/pki-server.jar
-ln -sf ../../base/server-webapp/target/pki-server-webapp.jar
 %endif
 
 %if %{with ca}
@@ -1508,6 +1506,50 @@ ln -sf ../../base/console/target/pki-console.jar
 popd
 
 # with maven
+%endif
+
+%if %{with quarkus}
+# Phase 2: Build Quarkus modules with standard Maven (xmvn cannot resolve Quarkus BOM).
+# First install xmvn-built artifacts into a local repo so Quarkus modules can depend on them.
+_quarkus_repo=%{_builddir}/.m2/repository
+
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=base/common/target/pki-common.jar \
+    -DpomFile=base/common/pom.xml \
+    -Dmaven.repo.local=$_quarkus_repo
+
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=base/tools/target/pki-tools.jar \
+    -DpomFile=base/tools/pom.xml \
+    -Dmaven.repo.local=$_quarkus_repo
+
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=base/server-core/target/pki-server-core.jar \
+    -DpomFile=base/server-core/pom.xml \
+    -Dmaven.repo.local=$_quarkus_repo
+
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=base/server/target/pki-server.jar \
+    -DpomFile=base/server/pom.xml \
+    -Dmaven.repo.local=$_quarkus_repo
+
+for sub in ca kra ocsp tks tps acme est; do
+    mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+        -Dfile=base/$sub/target/pki-$sub.jar \
+        -DpomFile=base/$sub/pom.xml \
+        -Dmaven.repo.local=$_quarkus_repo
+done
+
+# Build Quarkus modules (downloads Quarkus BOM from Maven Central)
+mvn %{?_mvn_options} -f base/quarkus-common/pom.xml package -DskipTests \
+    -Dmaven.repo.local=$_quarkus_repo
+
+for sub in est acme ocsp kra tks tps ca; do
+    mvn %{?_mvn_options} -f base/${sub}-quarkus/pom.xml package -DskipTests \
+        -Dmaven.repo.local=$_quarkus_repo
+done
+
+# with quarkus
 %endif
 
 # Remove all symbol table and relocation information from the executable.
@@ -1582,6 +1624,28 @@ fi
 
 # with maven
 %endif
+
+%if %{with quarkus}
+# Install Quarkus subsystem artifacts
+for sub in est acme ocsp kra tks tps ca; do
+    install -dm 755 %{buildroot}%{_datadir}/pki/${sub}-quarkus/quarkus-app
+    cp -rp base/${sub}-quarkus/target/quarkus-app/* \
+        %{buildroot}%{_datadir}/pki/${sub}-quarkus/quarkus-app/
+done
+
+# Install systemd units for Quarkus
+install -dm 755 %{buildroot}%{_unitdir}
+install -pm 644 base/server/share/lib/systemd/system/pki-quarkusd@.service \
+    %{buildroot}%{_unitdir}/pki-quarkusd@.service
+install -pm 644 base/server/share/lib/systemd/system/pki-quarkusd.target \
+    %{buildroot}%{_unitdir}/pki-quarkusd.target
+
+# with quarkus
+%endif
+
+# Create systemd target wants directories for Tomcat
+install -dm 755 %{buildroot}%{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
+install -dm 755 %{buildroot}%{_sysconfdir}/systemd/system/pki-tomcatd-nuxwdog.target.wants
 
 # install PKI console, Javadoc, and native binaries
 ./build.sh \
@@ -2107,7 +2171,6 @@ fi
 %license base/server/LICENSE
 %doc base/server/README
 %attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki
-%attr(755,-,-) %dir %{_sysconfdir}/sysconfig/pki/tomcat
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
@@ -2116,7 +2179,6 @@ fi
 %{python3_sitelib}/pkihealthcheck-*.egg-info/
 %config(noreplace) %{_sysconfdir}/pki/healthcheck.conf
 
-%{_datadir}/pki/etc/tomcat.conf
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
 %{_datadir}/pki/scripts/operations
@@ -2156,15 +2218,8 @@ fi
 %{_sysusersdir}/%{product_id}.conf
 %endif
 %if %{without maven}
+%{_datadir}/java/pki/pki-server-core.jar
 %{_datadir}/java/pki/pki-server.jar
-%{_datadir}/java/pki/pki-server-webapp.jar
-%{_datadir}/java/pki/pki-tomcat.jar
-
-%if 0%{?fedora} && 0%{?fedora} < %{fedora_tomcat9_cutoff} || 0%{?rhel} && 0%{?rhel} < %{rhel_tomcat9_cutoff}
-%{_datadir}/java/pki/pki-tomcat-9.0.jar
-%else
-%{_datadir}/java/pki/pki-tomcat-10.1.jar
-%endif
 
 #without maven
 %endif
@@ -2213,6 +2268,60 @@ fi
 %endif
 
 # with est
+%endif
+
+%if %{with quarkus}
+
+################################################################################
+%files -n %{product_id}-quarkus-common
+################################################################################
+
+%{_unitdir}/pki-quarkusd@.service
+%{_unitdir}/pki-quarkusd.target
+
+################################################################################
+%files -n %{product_id}-ca-quarkus
+################################################################################
+
+%{_datadir}/pki/ca-quarkus/
+
+################################################################################
+%files -n %{product_id}-est-quarkus
+################################################################################
+
+%{_datadir}/pki/est-quarkus/
+
+################################################################################
+%files -n %{product_id}-acme-quarkus
+################################################################################
+
+%{_datadir}/pki/acme-quarkus/
+
+################################################################################
+%files -n %{product_id}-ocsp-quarkus
+################################################################################
+
+%{_datadir}/pki/ocsp-quarkus/
+
+################################################################################
+%files -n %{product_id}-kra-quarkus
+################################################################################
+
+%{_datadir}/pki/kra-quarkus/
+
+################################################################################
+%files -n %{product_id}-tks-quarkus
+################################################################################
+
+%{_datadir}/pki/tks-quarkus/
+
+################################################################################
+%files -n %{product_id}-tps-quarkus
+################################################################################
+
+%{_datadir}/pki/tps-quarkus/
+
+# with quarkus
 %endif
 
 %if %{with kra}

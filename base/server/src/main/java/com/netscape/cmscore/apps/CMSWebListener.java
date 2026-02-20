@@ -10,8 +10,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.cms.realm.PKIRealm;
-import com.netscape.cms.tomcat.ProxyRealm;
 
 public abstract class CMSWebListener implements ServletContextListener {
 
@@ -47,12 +45,6 @@ public abstract class CMSWebListener implements ServletContextListener {
             engine.shutdown();
             throw new PKIException("Unable to start " + name + " engine: " + e.getMessage(), e);
         }
-
-        // Register realm for this subsystem
-        PKIRealm realm = new PKIRealm();
-        realm.setCMSEngine(engine);
-
-        ProxyRealm.registerRealm(id, realm);
     }
 
     @Override

@@ -51,6 +51,7 @@ DIST=
 
 WITH_JAVA=true
 WITH_CONSOLE=
+WITH_QUARKUS=
 RUN_TESTS=true
 
 PKG_LIST="base, server, ca, kra, ocsp, tks, tps, acme, est, javadoc, theme, meta, tests, debug"
@@ -92,6 +93,8 @@ usage() {
     echo "    --dist=<name>          Distribution name (e.g. fc28)."
     echo "    --without-java         Do not build Java binaries."
     echo "    --with-console         Build console package."
+    echo "    --with-quarkus         Build Quarkus modules."
+    echo "    --without-quarkus      Do not build Quarkus modules."
     echo "    --with-pkgs=<list>     Build packages specified in comma-separated list only."
     echo "    --without-pkgs=<list>  Build everything except packages specified in comma-separated list."
     echo "    --without-test         Do not run unit tests."
@@ -163,62 +166,6 @@ generate_rpm_sources() {
         .
 }
 
-get_tomcat_app_server() {
-    release_file="/etc/os-release"   
-    fedora_cutoff=$1
-    rhel_cutoff=$2
-    app_server_9=tomcat-9.0
-    app_server_10=tomcat-10.1
-    app_server=""
-    distro=""
-    ver=""
-    ID=""
-    VERSION_ID=""
-
-    ID=$(sed -n  's/^ID=//p;' $release_file | tr -d '"')
-    # Get only the OS major version. No tomcat change in minor versions are expected
-    VERSION_ID=$(sed -n  's/^VERSION_ID="\?\([0-9]*\).*/\1/p;' $release_file)
-
-    case "$ID" in
-         "rhel")
-             distro="rhel"
-             ver=$VERSION_ID
-             ;;
-         "fedora")
-             distro="fedora"
-             ver=$VERSION_ID
-             ;;
-         "centos")
-             distro="rhel"
-             ver=$VERSION_ID
-             ;;
-         "rocky")
-             distro="rhel"
-             ver=$VERSION_ID
-             ;;
-         *)
-             echo $def_app_server 
-             return
-             ;;
-     esac      
-
-     if [ "$distro" = "fedora" ]; then
-         if [ $ver -ge $fedora_cutoff ]; then
-             app_server=$app_server_10
-         else
-             app_server=$app_server_9
-         fi
-     else
-	 if [ $ver -ge $rhel_cutoff ]; then
-             app_server=$app_server_10
-         else
-             app_server=$app_server_9
-         fi
-     fi
-
-     echo $app_server
-}
-
 generate_patch() {
 
     PATCH="pki-$FULL_VERSION.patch"
@@ -274,6 +221,11 @@ generate_rpm_spec() {
     if [ "$WITH_CONSOLE" = true ] ; then
         # convert bcond_with into bcond_without to build console by default
         sed -i "s/%bcond_with *console\$/%bcond_without console/g" "$SPEC_FILE"
+    fi
+
+    if [ "$WITH_QUARKUS" = true ] ; then
+        # convert bcond_with into bcond_without to build quarkus by default
+        sed -i "s/%bcond_with *quarkus\$/%bcond_without quarkus/g" "$SPEC_FILE"
     fi
 
     # hard-code packages to build
@@ -382,6 +334,12 @@ while getopts v-: arg ; do
             ;;
         with-console)
             WITH_CONSOLE=true
+            ;;
+        with-quarkus)
+            WITH_QUARKUS=true
+            ;;
+        without-quarkus)
+            WITH_QUARKUS=false
             ;;
         with-pkgs=?*)
             if [ "$WITHOUT_PKGS" != "" ]; then
@@ -642,15 +600,6 @@ if [ "$DEBUG" = true ] ; then
     echo "P11_KIT_TRUST: $P11_KIT_TRUST"
 fi
 
-#First arg is fedora cutoff, second is rhel cutoff.
-APP_SERVER=$(get_tomcat_app_server 43 10)
-
-export APP_SERVER_CM=$APP_SERVER
-
-if [ "$DEBUG" = true ] ; then
-    echo "APP_SERVER: $APP_SERVER"
-fi
-
 ################################################################################
 # Build PKI
 ################################################################################
@@ -709,7 +658,6 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
     fi
 
     OPTIONS+=(-DJAVA_LIB_INSTALL_DIR=$JNI_DIR)
-    OPTIONS+=(-DAPP_SERVER=$APP_SERVER)
 
     if [ "$PYTHON" != "" ] ; then
         OPTIONS+=(-DPYTHON_EXECUTABLE=$PYTHON)
@@ -739,6 +687,10 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
 
     if [ "$WITH_CONSOLE" = true ] ; then
         OPTIONS+=(-DWITH_CONSOLE:BOOL=ON)
+    fi
+
+    if [ "$WITH_QUARKUS" = true ] ; then
+        OPTIONS+=(-DWITH_QUARKUS:BOOL=ON)
     fi
 
     if [ "$RUN_TESTS" = false ] ; then
@@ -788,10 +740,7 @@ if [ "$BUILD_TARGET" = "dist" ] ; then
             echo "    $WORK_DIR/dist/pki-tools.jar"
         fi
         if [[ " ${PKGS_TO_BUILD[*]} " =~ " server " ]]; then
-            echo "    $WORK_DIR/dist/pki-tomcat.jar"
-            echo "    $WORK_DIR/dist/pki-tomcat-9.0.jar"
             echo "    $WORK_DIR/dist/pki-server.jar"
-            echo "    $WORK_DIR/dist/pki-server-webapp.jar"
         fi
         if [[ " ${PKGS_TO_BUILD[*]} " =~ " ca " ]]; then
             echo "    $WORK_DIR/dist/pki-ca.jar"

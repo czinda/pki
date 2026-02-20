@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.account.Account;
 import com.netscape.certsrv.base.WebAction;
-import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import com.netscape.cmscore.usrgrp.User;
 
 /**
@@ -79,9 +79,9 @@ public class ACMELoginServlet extends ACMEServlet {
         Account account = new Account();
         account.setID(username);
 
-        if (principal instanceof PKIPrincipal pkiPrincipal) {
+        if (principal instanceof PKIPrincipalCore pkiPrincipal) {
 
-            User user = pkiPrincipal.getUser();
+            User user = (User) pkiPrincipal.getUser();
             account.setFullName(user.getFullName());
             account.setEmail(user.getEmail());
 

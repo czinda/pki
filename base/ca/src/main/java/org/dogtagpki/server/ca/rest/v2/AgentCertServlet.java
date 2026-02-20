@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.realm.GenericPrincipal;
+import com.netscape.cms.realm.PKIPrincipalCore;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.util.cert.CertUtil;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
@@ -359,8 +359,8 @@ public class AgentCertServlet extends CAServlet{
 
             // TODO remove hardcoded role names and consult authzmgr
             // (so that we can handle externally-authenticated principals)
-            GenericPrincipal principal =
-                (GenericPrincipal) servletRequest.getUserPrincipal();
+            PKIPrincipalCore principal =
+                (PKIPrincipalCore) servletRequest.getUserPrincipal();
             String subjectDN = principal.hasRole("Certificate Manager Agents") ?
                     null : clientSubjectDN;
 

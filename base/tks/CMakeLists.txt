@@ -1,7 +1,6 @@
 project(tks NONE)
 
 add_subdirectory(shared/conf)
-add_subdirectory(${APP_SERVER})
 
 # build pki-tks
 javac(pki-tks-classes
@@ -18,7 +17,7 @@ javac(pki-tks-classes
         ${JACKSON_DATABIND_JAR}
         ${LDAPJDK_JAR}
         ${JSS_JAR}
-        ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR}
+        ${SERVLET_JAR}
         ${JAXRS_API_JAR}
         ${RESTEASY_JAXRS_JAR}
         ${PKI_COMMON_JAR} ${PKI_SERVER_JAR}
@@ -70,7 +69,6 @@ add_custom_command(
     COMMAND ln -sf ../../../../../lib/slf4j-jdk14.jar webapp/lib/slf4j-jdk14.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar webapp/lib/pki-server.jar
     COMMAND ln -sf ../../../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-tks.jar webapp/lib/pki-tks.jar
-    COMMAND ln -sf ../../../../../server/common/lib/resteasy-servlet-initializer.jar webapp/lib/resteasy-servlet-initializer.jar
 )
 
 if(WITH_JAVA)
