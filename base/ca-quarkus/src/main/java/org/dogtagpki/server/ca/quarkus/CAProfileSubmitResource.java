@@ -28,7 +28,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
 
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.ISSLClientCertProvider;
@@ -47,7 +46,6 @@ import com.netscape.cmscore.profile.ProfileSubsystem;
 import com.netscape.cmscore.request.Request;
 import com.netscape.cmscore.request.RequestNotifier;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * JAX-RS resource that replaces the legacy ProfileSubmitServlet for Quarkus.
@@ -493,39 +491,26 @@ public class CAProfileSubmitResource {
 
     /**
      * Build XML success response matching the format expected by CACertClient.
-     * The response format is:
-     * <pre>{@code
-     * <XMLResponse>
-     *   <Status>0</Status>
-     *   <Requests>
-     *     <Request>
-     *       <Id>requestId</Id>
-     *       <SubjectDN>subject</SubjectDN>
-     *       <serialno>hexSerial</serialno>
-     *       <b64>base64Cert</b64>
-     *       <pkcs7>base64Chain</pkcs7>
-     *     </Request>
-     *   </Requests>
-     * </XMLResponse>
-     * }</pre>
+     * Uses string building to avoid dependency on XMLObject/Xerces.
      */
     private Response buildXmlResponse(Profile profile, Locale locale, Request[] reqs) {
         try {
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
-            xmlObj.addItemToContainer(root, "Status", "0");
-            Node requestsNode = xmlObj.createContainer(root, "Requests");
+            StringBuilder xml = new StringBuilder();
+            xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            xml.append("<XMLResponse>");
+            xml.append("<Status>0</Status>");
+            xml.append("<Requests>");
 
             for (Request req : reqs) {
-                Node reqNode = xmlObj.createContainer(requestsNode, "Request");
-                xmlObj.addItemToContainer(reqNode, "Id", req.getRequestId().toString());
+                xml.append("<Request>");
+                xml.append("<Id>").append(escapeXml(req.getRequestId().toString())).append("</Id>");
 
                 // Add subject DN from cert info
                 X509CertInfo certInfo = req.getExtDataInCertInfo(Request.REQUEST_CERTINFO);
                 if (certInfo != null) {
                     try {
                         String subjectDN = certInfo.get(X509CertInfo.SUBJECT).toString();
-                        xmlObj.addItemToContainer(reqNode, "SubjectDN", subjectDN);
+                        xml.append("<SubjectDN>").append(escapeXml(subjectDN)).append("</SubjectDN>");
                     } catch (Exception e) {
                         logger.warn("CAProfileSubmitResource: Could not get subject DN: {}", e.getMessage());
                     }
@@ -553,12 +538,13 @@ public class CAProfileSubmitResource {
                                         outputValue = Cert.stripBrackets(normalized);
                                         byte[] bcode = Utils.base64decode(outputValue);
                                         X509CertImpl impl = new X509CertImpl(bcode);
-                                        xmlObj.addItemToContainer(reqNode, "serialno",
-                                                impl.getSerialNumber().toString(16));
-                                        xmlObj.addItemToContainer(reqNode, "b64", outputValue);
+                                        xml.append("<serialno>")
+                                                .append(impl.getSerialNumber().toString(16))
+                                                .append("</serialno>");
+                                        xml.append("<b64>").append(outputValue).append("</b64>");
                                     } else if (outputName.equals("pkcs7")) {
                                         String normalized = Cert.normalizeCertStrAndReq(outputValue);
-                                        xmlObj.addItemToContainer(reqNode, "pkcs7", normalized);
+                                        xml.append("<pkcs7>").append(normalized).append("</pkcs7>");
                                     }
                                 } catch (EProfileException e) {
                                     logger.warn("CAProfileSubmitResource: Output error: {}", e.getMessage());
@@ -567,10 +553,14 @@ public class CAProfileSubmitResource {
                         }
                     }
                 }
+
+                xml.append("</Request>");
             }
 
-            byte[] xmlBytes = xmlObj.toByteArray();
-            return Response.ok(new String(xmlBytes), MediaType.APPLICATION_XML).build();
+            xml.append("</Requests>");
+            xml.append("</XMLResponse>");
+
+            return Response.ok(xml.toString(), MediaType.APPLICATION_XML).build();
 
         } catch (Exception e) {
             logger.error("CAProfileSubmitResource: Failed to build XML response: {}", e.getMessage(), e);
@@ -582,18 +572,22 @@ public class CAProfileSubmitResource {
      * Build XML error response matching the format expected by CACertClient.
      */
     private Response buildErrorResponse(String status, String error) {
-        try {
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
-            xmlObj.addItemToContainer(root, "Status", status);
-            xmlObj.addItemToContainer(root, "Error", error != null ? error : "Unknown error");
-            byte[] xmlBytes = xmlObj.toByteArray();
-            return Response.ok(new String(xmlBytes), MediaType.APPLICATION_XML).build();
-        } catch (Exception e) {
-            logger.error("CAProfileSubmitResource: Failed to build error response", e);
-            return Response.serverError().entity(
-                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><XMLResponse><Status>1</Status><Error>Internal error</Error></XMLResponse>")
-                    .type(MediaType.APPLICATION_XML).build();
-        }
+        String safeError = escapeXml(error != null ? error : "Unknown error");
+        return Response.ok(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?><XMLResponse><Status>" +
+                        status + "</Status><Error>" + safeError + "</Error></XMLResponse>",
+                MediaType.APPLICATION_XML).build();
+    }
+
+    /**
+     * Escape special XML characters in a string.
+     */
+    private static String escapeXml(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
 }
