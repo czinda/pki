@@ -295,8 +295,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.configure_est_realm(subsystem)
 
         # Generate application.yaml for Quarkus deployments
-        if hasattr(instance, 'generate_application_yaml'):
-            instance.generate_application_yaml()
+        instance.generate_application_yaml(subsystem_name=subsystem_name)
 
         instance.load()
 

@@ -188,6 +188,54 @@ class PKIInstance(pki.server.PKIServer):
 
         return QuarkusServerConfig(http_port=http_port, https_port=https_port)
 
+    def generate_application_yaml(self, subsystem_name=None, http_port=8080, https_port=8443):
+        """
+        Generate a default application.yaml for a Quarkus subsystem.
+
+        Args:
+            subsystem_name: Subsystem name (ca, kra, etc.). If not specified,
+                uses the first loaded subsystem.
+            http_port: HTTP port (default 8080)
+            https_port: HTTPS port (default 8443)
+        """
+        import yaml
+
+        if not subsystem_name:
+            subsystems = self.get_subsystems()
+            if subsystems:
+                subsystem_name = subsystems[0].name
+            else:
+                raise ValueError('No subsystem name specified and no subsystems loaded')
+
+        config = {
+            'quarkus': {
+                'application': {
+                    'name': 'pki-%s-quarkus' % subsystem_name,
+                },
+                'http': {
+                    'port': http_port,
+                    'ssl-port': https_port,
+                    'insecure-requests': 'enabled',
+                },
+                'log': {
+                    'level': 'INFO',
+                    'console': {
+                        'enable': True,
+                        'format': '%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c{3.}] (%t) %s%e%n',
+                    },
+                },
+            }
+        }
+
+        subsystem_conf_dir = os.path.join(self.conf_dir, subsystem_name)
+        os.makedirs(subsystem_conf_dir, exist_ok=True)
+
+        yaml_path = os.path.join(subsystem_conf_dir, 'application.yaml')
+        with open(yaml_path, 'w', encoding='utf-8') as f:
+            yaml.dump(config, f, default_flow_style=False)
+
+        logger.info('Generated %s', yaml_path)
+
     @property
     def banner_file(self):
         return os.path.join(self.conf_dir, 'banner.txt')
