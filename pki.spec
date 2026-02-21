@@ -1533,6 +1533,19 @@ popd
 # First install xmvn-built artifacts into a local repo so Quarkus modules can depend on them.
 _quarkus_repo=%{_builddir}/.m2/repository
 
+# Install parent POMs so Maven can resolve the parent chain for installed artifact POMs.
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=pom.xml \
+    -DpomFile=pom.xml \
+    -Dpackaging=pom \
+    -Dmaven.repo.local=$_quarkus_repo
+
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=base/pom.xml \
+    -DpomFile=base/pom.xml \
+    -Dpackaging=pom \
+    -Dmaven.repo.local=$_quarkus_repo
+
 mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
     -Dfile=base/common/target/pki-common.jar \
     -DpomFile=base/common/pom.xml \
