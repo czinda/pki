@@ -1564,22 +1564,13 @@ done
 # This artifact is created during %prep by copying and optionally migrating the system
 # jboss-jaxrs-2.0-api JAR. It is referenced as a dependency in pki-common's pom.xml.
 JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
-mkdir -p $_quarkus_repo/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION
-cp ~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
-    $_quarkus_repo/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar
-
-# Create a minimal POM so Maven can resolve the artifact
-cat > $_quarkus_repo/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.pom <<POMEOF
-<?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>pki-local</groupId>
-    <artifactId>jboss-jaxrs-api_2.0_spec</artifactId>
-    <version>$JAXRS_VERSION</version>
-</project>
-POMEOF
+mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    -Dfile=~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+    -DgroupId=pki-local \
+    -DartifactId=jboss-jaxrs-api_2.0_spec \
+    -Dversion=$JAXRS_VERSION \
+    -Dpackaging=jar \
+    -Dmaven.repo.local=$_quarkus_repo
 
 # Install the tomcat-servlet-api into the Quarkus local repo.
 # Some PKI modules reference javax.servlet.http.HttpServletRequest in method signatures,
