@@ -18,94 +18,74 @@ quarkus:
     # Security Constraints (replaces web.xml)
     auth:
       basic: true
-      # Account services: require authentication
       permission:
+        # Account services: require authentication
         account:
           paths: /v2/account/*
           policy: authenticated
-
-      # Admin services (groups, users): require authentication
-      permission:
+        # Admin services (groups, users): require authentication
         admin:
           paths: /v2/admin/*
           policy: authenticated
-
-      # Audit: require authentication
-      permission:
+        # Audit: require authentication
         audit:
           paths: /v2/audit/*
           policy: authenticated
-
-      # Agent cert operations: require authentication
-      permission:
+        # Agent cert operations: require authentication
         agent-certs:
           paths: /v2/agent/certs/*
           policy: authenticated
-
-      # Agent cert request operations: require authentication
-      permission:
+        # Agent cert request operations: require authentication
         agent-certrequests:
           paths: /v2/agent/certrequests/*
           policy: authenticated
-
-      # Authorities (sub-CAs): require authentication
-      permission:
+        # Authorities (sub-CAs): require authentication
         authorities:
           paths: /v2/authorities/*
           policy: authenticated
-
-      # Certificates: public (read-only listing and retrieval)
-      permission:
+        # Certificates: public (read-only listing and retrieval)
         certs:
           paths: /v2/certs/*
           policy: permit
-
-      # Certificate requests: public (enrollment endpoints)
-      permission:
+        # Certificate requests: public (enrollment endpoints)
         certrequests:
           paths: /v2/certrequests/*
           policy: permit
-
-      # Profiles: require authentication for management
-      permission:
+        # Profiles: require authentication for management
         profiles:
           paths: /v2/profiles/*
           policy: authenticated
-
-      # System config: require authentication
-      permission:
+        # System config: require authentication
         config:
           paths: /v2/config/*
           policy: authenticated
-
-      # Self tests: require authentication
-      permission:
+        # Self tests: require authentication
         selftests:
           paths: /v2/selftests/*
           policy: authenticated
-
-      # Jobs: require authentication
-      permission:
+        # Jobs: require authentication
         jobs:
           paths: /v2/jobs/*
           policy: authenticated
-
-      # CA info: public
-      permission:
+        # CA info: public
         info:
           paths: /v2/info
           policy: permit
-
-      # Security domain install token: require authentication
-      permission:
+        # Security domain install token: require authentication
         security-domain-install:
           paths: /v2/securityDomain/installToken
           policy: authenticated
-
-      # Security domain info: public
-      permission:
+        # Security domain info: public
         security-domain-info:
           paths: /v2/securityDomain/domainInfo,/v2/securityDomain/hosts,/v2/securityDomain/hosts/*
+          policy: permit
+        # EE enrollment (profileSubmit): public (auth handled internally by profile authenticator)
+        ee-enrollment:
+          paths: /ee/ca/profileSubmit
+          policy: permit
+        # Token authenticate endpoints: public (validates install tokens internally)
+        token-auth:
+          paths: /ee/ca/tokenAuthenticate,/admin/ca/tokenAuthenticate
           policy: permit
 
   # Security
