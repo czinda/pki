@@ -352,9 +352,9 @@ class PKIInstance(pki.server.PKIServer):
             if os.path.exists(p12_tmp):
                 os.unlink(p12_tmp)
 
-        pki.util.chown(cert_path, 'pkiuser', 'pkiuser')
+        pki.util.chown(cert_path, self.uid, self.gid)
         os.chmod(cert_path, 0o640)
-        pki.util.chown(key_path, 'pkiuser', 'pkiuser')
+        pki.util.chown(key_path, self.uid, self.gid)
         os.chmod(key_path, 0o600)
 
     @property
