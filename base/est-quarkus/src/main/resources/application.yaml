@@ -8,6 +8,7 @@ quarkus:
 
   # HTTP Configuration
   http:
+    root-path: /est
     port: 8080
     ssl-port: 8443
 
