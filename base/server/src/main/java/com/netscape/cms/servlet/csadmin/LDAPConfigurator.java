@@ -449,7 +449,16 @@ public class LDAPConfigurator {
         attrs.add(new LDAPAttribute(name, value));
 
         LDAPEntry entry = new LDAPEntry(baseDN, attrs);
-        connection.add(entry);
+
+        try {
+            connection.add(entry);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
+                logger.info("Base entry already exists: " + baseDN);
+            } else {
+                throw e;
+            }
+        }
     }
 
     public void customizeFile(File file, File tmpFile, Map<String, String> params) throws Exception {
