@@ -18,7 +18,9 @@
 
 package org.dogtagpki.server.cli;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 
 import javax.ws.rs.ProcessingException;
 
@@ -32,6 +34,8 @@ import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.LogLevel;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,9 +152,62 @@ public class PKIServerCLI extends CLI {
             logger.debug("Initializing JSS with NSS database: {}", certdbDir);
             InitializationValues iv = new InitializationValues(certdbDir);
             CryptoManager.initialize(iv);
+
+            // Login to internal token using password from password.conf
+            loginInternalToken(instanceDir);
+
         } catch (Exception e) {
             logger.warn("Failed to initialize JSS: {}", e.getMessage());
         }
+    }
+
+    private void loginInternalToken(String instanceDir) {
+        try {
+            String passwordFile = instanceDir + File.separator + "conf"
+                    + File.separator + "password.conf";
+            if (!new File(passwordFile).exists()) {
+                logger.debug("password.conf not found, skipping token login");
+                return;
+            }
+
+            String internalPassword = readPassword(passwordFile, "internal");
+            if (internalPassword == null) {
+                logger.debug("No internal token password found in password.conf");
+                return;
+            }
+
+            CryptoManager cm = CryptoManager.getInstance();
+            CryptoToken token = cm.getInternalKeyStorageToken();
+            Password password = new Password(internalPassword.toCharArray());
+            try {
+                token.login(password);
+                logger.debug("Logged into internal token");
+            } finally {
+                password.clear();
+            }
+        } catch (Exception e) {
+            logger.debug("Token login skipped: {}", e.getMessage());
+        }
+    }
+
+    private String readPassword(String passwordFile, String tag) throws Exception {
+        try (BufferedReader reader = new BufferedReader(new FileReader(passwordFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                int pos = line.indexOf('=');
+                if (pos < 0) continue;
+                String key = line.substring(0, pos).trim();
+                String value = line.substring(pos + 1).trim();
+                if (key.equals(tag)) {
+                    return value;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
