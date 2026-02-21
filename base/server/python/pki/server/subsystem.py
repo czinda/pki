@@ -571,6 +571,10 @@ class PKISubsystem(object):
 
     def is_ready(self, secure_connection=True, timeout=None):
 
+        # Quarkus instances use HTTP and the /q/health endpoint
+        if self.instance.type.startswith('pki-quarkusd'):
+            return self._is_ready_quarkus(timeout=timeout)
+
         if secure_connection:
             protocol = 'https'
             port = str(pki.server.DEFAULT_HTTPS_PORT)
@@ -596,6 +600,29 @@ class PKISubsystem(object):
 
         logger.info('Subsystem status: %s', status)
         return status == 'running'
+
+    def _is_ready_quarkus(self, timeout=None):
+        """Check if a Quarkus subsystem is ready using the info endpoint."""
+
+        import requests as req
+
+        port = self.instance.config.get('http_port', pki.server.DEFAULT_HTTP_PORT)
+
+        # Try /q/health first (if Quarkus health extension is available),
+        # otherwise fall back to /v2/info which all subsystems provide.
+        for path in ['/q/health', '/v2/info']:
+            url = 'http://localhost:%s%s' % (port, path)
+            try:
+                response = req.get(url, timeout=timeout)
+                if response.status_code == 200:
+                    logger.info('Quarkus subsystem ready at %s', path)
+                    return True
+            except req.exceptions.ConnectionError:
+                raise  # Re-raise connection errors for retry logic
+            except Exception:
+                continue
+
+        return False
 
     def wait_for_startup(self, startup_timeout=None, request_timeout=None):
         """
