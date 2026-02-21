@@ -10,13 +10,14 @@ import java.io.File;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.cli.CommandCLI;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.apps.ServerConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStorage;
 import com.netscape.cmscore.ldapconn.LDAPAuthenticationConfig;
@@ -31,7 +32,6 @@ import com.netscape.cmsutil.password.PasswordStore;
 public abstract class ServerCommandCLI extends CommandCLI {
 
     public static final Logger logger = LoggerFactory.getLogger(ServerCommandCLI.class);
-    private static final String SERVER_XML = "server.xml";
 
     protected ServerCommandCLI(String name, String description, CLI parent) {
         super(name, description, parent);
@@ -48,7 +48,21 @@ public abstract class ServerCommandCLI extends CommandCLI {
     }
 
     protected void initializeJSS() throws Exception {
-        // No-op: JSS initialization is handled by the Quarkus runtime.
+        String instanceDir = CMS.getInstanceDir();
+        if (instanceDir == null) {
+            return;
+        }
+        String certdbDir = instanceDir + File.separator + "alias";
+        if (!new File(certdbDir).exists()) {
+            certdbDir = instanceDir + File.separator + "conf" + File.separator + "alias";
+        }
+        if (!new File(certdbDir).exists()) {
+            logger.debug("NSS database not found, skipping JSS initialization");
+            return;
+        }
+        logger.debug("Initializing JSS with NSS database: {}", certdbDir);
+        InitializationValues iv = new InitializationValues(certdbDir);
+        CryptoManager.initialize(iv);
     }
 
     protected EngineConfig getEngineConfig(String subsystem) throws Exception {
@@ -77,10 +91,7 @@ public abstract class ServerCommandCLI extends CommandCLI {
 
     protected String getSecurePort(EngineConfig config) throws Exception {
 
-        String path = CMS.getInstanceDir() + File.separator + "conf" + File.separator + SERVER_XML;
-
-        ServerConfig serverConfig = ServerConfig.load(path);
-        String securePort = serverConfig.getSecurePort();
+        String securePort = config.getString("service.securePort", "8443");
 
         String port = config.getString("proxy.securePort", "");
         if (!port.equals("")) {

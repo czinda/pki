@@ -2447,7 +2447,8 @@ class PKISubsystem(object):
             pki.server.PKIServer.SHARE_DIR + '/' +
             self.name + '/lib/*',
             self.instance.common_lib_dir + '/*',
-            pki.server.PKIServer.SHARE_DIR + '/lib/*'
+            pki.server.PKIServer.SHARE_DIR + '/lib/*',
+            pki.server.PKIServer.JAVA_DIR + '/pki/*',
         ]
 
         cmd = []

@@ -45,6 +45,24 @@ logger = logging.getLogger(__name__)
 parser = etree.XMLParser(remove_blank_text=True)
 
 
+class QuarkusServerConfig:
+    """
+    Lightweight server configuration for Quarkus instances.
+    Provides get_http_port() and get_https_port() methods
+    to replace Tomcat's ServerConfig (server.xml).
+    """
+
+    def __init__(self, http_port=None, https_port=None):
+        self.http_port = http_port or str(pki.server.DEFAULT_HTTP_PORT)
+        self.https_port = https_port or str(pki.server.DEFAULT_HTTPS_PORT)
+
+    def get_http_port(self):
+        return self.http_port
+
+    def get_https_port(self):
+        return self.https_port
+
+
 @functools.total_ordering
 class PKIInstance(pki.server.PKIServer):
 
@@ -113,6 +131,62 @@ class PKIInstance(pki.server.PKIServer):
             'been deprecated (https://github.com/dogtagpki/pki/wiki/PKI-10.9-Python-Changes).',
             inspect.stack()[1].filename, inspect.stack()[1].lineno)
         return os.path.join(self.conf_dir, 'serverCertNick.conf')
+
+    def get_sslserver_cert_nickname(self):
+        """
+        Get the SSL server cert nickname from serverCertNick.conf.
+        """
+        server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
+        if not os.path.exists(server_cert_nick_conf):
+            return None
+        with open(server_cert_nick_conf, 'r', encoding='utf-8') as f:
+            return f.read().strip()
+
+    def set_sslserver_cert_nickname(self, nickname, token=None):
+        """
+        Store the SSL server cert nickname in serverCertNick.conf.
+        """
+        if pki.nssdb.internal_token(token):
+            fullname = nickname
+        else:
+            fullname = token + ':' + nickname
+
+        server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
+        logger.info('Updating %s', server_cert_nick_conf)
+
+        with open(server_cert_nick_conf, 'w', encoding='utf-8') as f:
+            f.write(fullname + '\n')
+
+        self.chown(server_cert_nick_conf)
+        os.chmod(server_cert_nick_conf, pki.server.DEFAULT_FILE_MODE)
+
+    def get_server_config(self):
+        """
+        Return a QuarkusServerConfig with HTTP/HTTPS ports.
+
+        Reads ports from the instance's CS.cfg or defaults.
+        """
+        http_port = str(pki.server.DEFAULT_HTTP_PORT)
+        https_port = str(pki.server.DEFAULT_HTTPS_PORT)
+
+        # Try to read ports from subsystem CS.cfg
+        for subsystem in self.get_subsystems():
+            port = subsystem.config.get('proxy.unsecurePort')
+            if port:
+                http_port = port
+            port = subsystem.config.get('proxy.securePort')
+            if port:
+                https_port = port
+            # Also check the standard port settings
+            port = subsystem.config.get('service.unsecurePort')
+            if port:
+                http_port = port
+            port = subsystem.config.get('service.securePort')
+            if port:
+                https_port = port
+            break  # use first subsystem
+
+        return QuarkusServerConfig(http_port=http_port, https_port=https_port)
 
     @property
     def banner_file(self):

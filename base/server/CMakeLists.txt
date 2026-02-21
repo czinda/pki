@@ -158,6 +158,7 @@ add_custom_command(
     COMMAND ln -sf ../../../lib/ldapjdk.jar common/lib/ldapjdk.jar
     COMMAND ln -sf ../../../lib/pki-common.jar common/lib/pki-common.jar
     COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server-core.jar common/lib/pki-server-core.jar
+    COMMAND ln -sf ../../../../../..${JAVA_JAR_INSTALL_DIR}/pki/pki-server.jar common/lib/pki-server.jar
     COMMAND ln -sf ../../../lib/resteasy-jackson2-provider.jar common/lib/resteasy-jackson2-provider.jar
     COMMAND ln -sf ../../../lib/resteasy-jaxrs.jar common/lib/resteasy-jaxrs.jar
 )

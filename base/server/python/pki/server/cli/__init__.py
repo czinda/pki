@@ -229,9 +229,11 @@ class PKIServerCLI(pki.cli.CLI):
 
         # configure classpath
         # include all PKI libraries
+        java_jar_dir = os.environ.get('JNI_JAR_DIR', '/usr/lib/java')
         classpath = [
             pki.server.PKIServer.SHARE_DIR + '/lib/*',
             pki.server.PKIServer.SHARE_DIR + '/server/common/lib/*',
+            pki.server.PKIServer.JAVA_DIR + '/pki/*',
             pki.server.PKIServer.SHARE_DIR + '/ca/lib/*',
             pki.server.PKIServer.SHARE_DIR + '/kra/lib/*',
             pki.server.PKIServer.SHARE_DIR + '/ocsp/lib/*',
@@ -244,6 +246,9 @@ class PKIServerCLI(pki.cli.CLI):
         cmd.extend([
             '-classpath', os.pathsep.join(classpath),
         ])
+
+        # set instance directory for Java CLI
+        cmd.append('-Dpki.instance.dir=' + instance.base_dir)
 
         # suppress JNI warnings
         cmd.append('--enable-native-access=ALL-UNNAMED')

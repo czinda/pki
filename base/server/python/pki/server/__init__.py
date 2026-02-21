@@ -99,6 +99,7 @@ class PKIServer(object):
     CONFIG_DIR = '/etc/pki'
     LOG_DIR = '/var/log/pki'
     SHARE_DIR = '/usr/share/pki'
+    JAVA_DIR = '/usr/share/java'
     REGISTRY_DIR = SYSCONFIG_DIR + '/pki'
 
     def __init__(self,
