@@ -63,14 +63,26 @@ public class FileConfigStorage extends ConfigStorage {
     @Override
     public void load(ConfigStore config) throws Exception {
 
-        if (!mFile.exists()) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE", mFile.getPath()));
+        // Retry up to 3 times with 1-second delay. The config file path
+        // may traverse multiple symlinks (e.g., ca/conf -> conf/ca and
+        // conf -> /etc/pki/<instance>), and File.exists() can transiently
+        // return false on some systems after a prior process writes to
+        // the file via these symlinks.
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            if (mFile.exists()) {
+                try (FileInputStream fi = new FileInputStream(mFile);
+                        BufferedInputStream bis = new BufferedInputStream(fi)) {
+                    config.load(bis);
+                }
+                return;
+            }
+            if (attempt < 3) {
+                logger.warn("Config file not found (attempt {}): {}", attempt, mFile.getPath());
+                Thread.sleep(1000);
+            }
         }
 
-        try (FileInputStream fi = new FileInputStream(mFile);
-                BufferedInputStream bis = new BufferedInputStream(fi)) {
-            config.load(bis);
-        }
+        throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE", mFile.getPath()));
     }
 
     /**
