@@ -68,18 +68,40 @@ public class FileConfigStorage extends ConfigStorage {
         // first. File.exists() can transiently return false on systems
         // where the path traverses symlinks (e.g., conf -> /etc/pki/<instance>).
         // Directly opening the file avoids this race condition.
+        //
+        // Try the original path first (lets the kernel resolve symlinks),
+        // then fall back to canonical path resolution.
 
-        for (int attempt = 1; attempt <= 5; attempt++) {
-            try (FileInputStream fi = new FileInputStream(mFile.getCanonicalPath());
+        for (int attempt = 1; attempt <= 10; attempt++) {
+
+            // First try: use the original path (kernel resolves symlinks)
+            try (FileInputStream fi = new FileInputStream(mFile);
                     BufferedInputStream bis = new BufferedInputStream(fi)) {
                 config.load(bis);
                 return;
             } catch (FileNotFoundException e) {
-                if (attempt < 5) {
-                    logger.warn("Config file not found (attempt {}): {} (canonical: {})",
-                            attempt, mFile.getPath(), getSafeCanonicalPath());
-                    Thread.sleep(2000);
+                logger.warn("Config file not found via original path (attempt {}): {} - {}",
+                        attempt, mFile.getPath(), e.getMessage());
+            }
+
+            // Second try: use canonical (resolved) path
+            try {
+                String canonicalPath = mFile.getCanonicalPath();
+                try (FileInputStream fi = new FileInputStream(canonicalPath);
+                        BufferedInputStream bis = new BufferedInputStream(fi)) {
+                    config.load(bis);
+                    return;
+                } catch (FileNotFoundException e) {
+                    logger.warn("Config file not found via canonical path (attempt {}): {} - {}",
+                            attempt, canonicalPath, e.getMessage());
                 }
+            } catch (Exception e) {
+                logger.warn("Cannot resolve canonical path (attempt {}): {} - {}",
+                        attempt, mFile.getPath(), e.getMessage());
+            }
+
+            if (attempt < 10) {
+                Thread.sleep(2000);
             }
         }
 
