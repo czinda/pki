@@ -26,7 +26,7 @@ Environment=PKI_INSTANCE_DIR=/var/lib/pki
 Environment=PKI_SHARE_DIR=/usr/share/pki
 
 # JVM options
-Environment=JAVA_OPTS=-Xms256m -Xmx1024m
+Environment="JAVA_OPTS=-Xms256m -Xmx1024m"
 
 # Working directory
 WorkingDirectory=/var/lib/pki

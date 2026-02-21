@@ -385,6 +385,10 @@ def load_properties(filename, properties):
                 if not line or line.startswith('#'):
                     continue
 
+                # skip shell export statements
+                if line.startswith('export ') and '=' not in line:
+                    continue
+
                 parts = line.split('=', 1)
                 if len(parts) < 2:
                     raise Exception('Missing delimiter in %s line %d' %
