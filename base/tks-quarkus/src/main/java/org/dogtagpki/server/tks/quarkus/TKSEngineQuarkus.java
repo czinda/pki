@@ -5,6 +5,9 @@
 //
 package org.dogtagpki.server.tks.quarkus;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,6 +16,10 @@ import jakarta.enterprise.event.Observes;
 import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.quarkus.QuarkusSocketListenerRegistry;
 import org.dogtagpki.server.tks.TKSEngine;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,20 +79,110 @@ public class TKSEngineQuarkus {
         logger.info("TKSEngineQuarkus: Starting TKS engine");
 
         // Configure instance directory for Quarkus
-        // (sets pki.instance.dir for instance discovery)
         CMS.setInstanceConfig(new QuarkusInstanceConfig());
+
+        // Pre-initialize JSS/CryptoManager so native library is loaded
+        // before JssSubsystem static initialization references SSLCipher.
+        // In Tomcat, TomcatJSS handles this; in Quarkus we do it here.
+        initJSS();
 
         // Create the real TKS engine
         engine = new TKSEngine();
 
         // Set Quarkus socket listener registry
-        // (uses direct JSS initialization)
         engine.setSocketListenerRegistry(new QuarkusSocketListenerRegistry());
 
         // Start the engine (loads CS.cfg, initializes all subsystems)
         engine.start();
 
         logger.info("TKSEngineQuarkus: TKS engine started successfully");
+    }
+
+    /**
+     * Pre-initialize JSS with the NSS database and login to the
+     * internal token. In Tomcat, TomcatJSS handles JSS initialization
+     * and token login; in Quarkus we do it here before the engine starts.
+     */
+    private void initJSS() {
+        try {
+            String instanceDir = CMS.getInstanceDir();
+            if (instanceDir == null) {
+                logger.warn("TKSEngineQuarkus: Instance directory not set, skipping JSS init");
+                return;
+            }
+
+            String certdbDir = instanceDir + File.separator + "conf"
+                    + File.separator + "alias";
+            if (!new File(certdbDir).exists()) {
+                certdbDir = instanceDir + File.separator + "alias";
+            }
+            if (!new File(certdbDir).exists()) {
+                logger.warn("TKSEngineQuarkus: NSS database not found, skipping JSS init");
+                return;
+            }
+
+            logger.info("TKSEngineQuarkus: Pre-initializing JSS with NSS database: {}", certdbDir);
+            InitializationValues iv = new InitializationValues(certdbDir);
+            iv.removeSunProvider = false;
+            iv.installJSSProvider = true;
+            CryptoManager.initialize(iv);
+            logger.info("TKSEngineQuarkus: JSS initialized successfully");
+
+            // Login to internal token using password from password.conf
+            loginInternalToken(instanceDir);
+
+        } catch (Exception e) {
+            logger.error("TKSEngineQuarkus: Failed to pre-initialize JSS", e);
+        }
+    }
+
+    private void loginInternalToken(String instanceDir) {
+        try {
+            String passwordFile = instanceDir + File.separator + "conf"
+                    + File.separator + "password.conf";
+            if (!new File(passwordFile).exists()) {
+                logger.debug("TKSEngineQuarkus: password.conf not found, skipping token login");
+                return;
+            }
+
+            String internalPassword = readPassword(passwordFile, "internal");
+            if (internalPassword == null) {
+                logger.debug("TKSEngineQuarkus: No internal token password found");
+                return;
+            }
+
+            CryptoManager cm = CryptoManager.getInstance();
+            CryptoToken token = cm.getInternalKeyStorageToken();
+            Password password = new Password(internalPassword.toCharArray());
+            try {
+                token.login(password);
+                logger.info("TKSEngineQuarkus: Logged into internal token");
+            } finally {
+                password.clear();
+            }
+        } catch (Exception e) {
+            logger.debug("TKSEngineQuarkus: Token login skipped: {}", e.getMessage());
+        }
+    }
+
+    private String readPassword(String passwordFile, String tag) throws Exception {
+        try (BufferedReader reader = new BufferedReader(new FileReader(passwordFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                int pos = line.indexOf('=');
+                if (pos < 0) continue;
+                String key = line.substring(0, pos).trim();
+                String value = line.substring(pos + 1).trim();
+                if (key.equals(tag)) {
+                    return value;
+                }
+            }
+        }
+        return null;
     }
 
     public void stop() throws Exception {

@@ -10,7 +10,6 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 
-import org.dogtagpki.server.authentication.AuthToken;
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.quarkus.QuarkusSocketListenerRegistry;
 import org.slf4j.Logger;
@@ -75,6 +74,11 @@ public class CAEngineQuarkus {
         // Configure instance directory for Quarkus
         CMS.setInstanceConfig(new QuarkusInstanceConfig());
 
+        // Pre-initialize JSS/CryptoManager so native library is loaded
+        // before JssSubsystem static initialization references SSLCipher.
+        // In Tomcat, TomcatJSS handles this; in Quarkus we do it here.
+        initJSS();
+
         // Create the real CA engine
         engine = new CAEngine();
 
@@ -85,6 +89,36 @@ public class CAEngineQuarkus {
         engine.start();
 
         logger.info("CAEngineQuarkus: CA engine started successfully");
+    }
+
+    /**
+     * Pre-load the JSS native library so that SSLCipher static
+     * initialization (which uses native methods) works when
+     * JssSubsystem class is first loaded. In Tomcat, TomcatJSS
+     * handles this; in Quarkus we load the library explicitly.
+     *
+     * We use System.load() with an absolute path rather than
+     * System.loadLibrary() because the Quarkus bootstrap runner
+     * may override java.library.path. We do NOT call
+     * CryptoManager.initialize() here because JssSubsystem.init()
+     * does that later during engine.start().
+     */
+    private void initJSS() {
+        String jssLibPath = System.getProperty(
+                "pki.jss.library", "/usr/lib64/jss/libjss.so");
+        try {
+            logger.info("CAEngineQuarkus: Loading JSS native library from {}", jssLibPath);
+            System.load(jssLibPath);
+            logger.info("CAEngineQuarkus: JSS native library loaded");
+        } catch (UnsatisfiedLinkError e) {
+            // Library might already be loaded
+            if (e.getMessage() != null && e.getMessage().contains("already loaded")) {
+                logger.debug("CAEngineQuarkus: JSS native library already loaded");
+            } else {
+                logger.error("CAEngineQuarkus: Failed to load JSS native library: {}", e.getMessage());
+                throw e;
+            }
+        }
     }
 
     public void stop() throws Exception {
