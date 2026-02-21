@@ -8,6 +8,8 @@ package org.dogtagpki.server.ca.quarkus;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.security.Provider;
+import java.security.Security;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -164,6 +166,22 @@ public class CAEngineQuarkus {
         } catch (Exception e) {
             logger.error("CAEngineQuarkus: Failed to initialize CryptoManager", e);
             throw new RuntimeException("CryptoManager initialization failed", e);
+        }
+
+        // JSS CryptoManager.initialize() inserts the Mozilla-JSS provider at
+        // position 1 (highest priority). This causes Vert.x TLS to fail because
+        // JSS-backed keys return null from getFormat(), which triggers a
+        // NullPointerException in PKCS12KeyStore.setKeyEntry().
+        //
+        // Move JSS to the end of the provider list so that standard JCA/JSSE
+        // providers (SunRsaSign, SunJSSE, SunJCE) are used by default for TLS
+        // operations. JSS remains available for explicit use by PKI code that
+        // requests the "Mozilla-JSS" provider by name.
+        Provider jssProvider = Security.getProvider("Mozilla-JSS");
+        if (jssProvider != null) {
+            Security.removeProvider("Mozilla-JSS");
+            Security.addProvider(jssProvider);
+            logger.info("CAEngineQuarkus: Moved Mozilla-JSS provider to end of provider list");
         }
 
         // Step 3: Login to internal token using password from password.conf

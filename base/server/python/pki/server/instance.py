@@ -192,6 +192,9 @@ class PKIInstance(pki.server.PKIServer):
         """
         Generate a default application.yaml for a Quarkus subsystem.
 
+        Exports the SSL server certificate and key from the NSS database
+        as PEM files and configures the Quarkus TLS Registry to use them.
+
         Args:
             subsystem_name: Subsystem name (ca, kra, etc.). If not specified,
                 uses the first loaded subsystem.
@@ -207,10 +210,28 @@ class PKIInstance(pki.server.PKIServer):
             else:
                 raise ValueError('No subsystem name specified and no subsystems loaded')
 
+        subsystem_conf_dir = os.path.join(self.conf_dir, subsystem_name)
+        os.makedirs(subsystem_conf_dir, exist_ok=True)
+
+        # Export server cert and key from NSS database as PEM files
+        cert_path = os.path.join(self.conf_dir, 'server-cert.pem')
+        key_path = os.path.join(self.conf_dir, 'server-key.pem')
+        self.export_server_cert_to_pem(cert_path, key_path)
+
         config = {
             'quarkus': {
                 'application': {
                     'name': 'pki-%s-quarkus' % subsystem_name,
+                },
+                'tls': {
+                    'key-store': {
+                        'pem': {
+                            '0': {
+                                'cert': cert_path,
+                                'key': key_path,
+                            },
+                        },
+                    },
                 },
                 'http': {
                     'port': http_port,
@@ -227,14 +248,114 @@ class PKIInstance(pki.server.PKIServer):
             }
         }
 
-        subsystem_conf_dir = os.path.join(self.conf_dir, subsystem_name)
-        os.makedirs(subsystem_conf_dir, exist_ok=True)
-
         yaml_path = os.path.join(subsystem_conf_dir, 'application.yaml')
         with open(yaml_path, 'w', encoding='utf-8') as f:
             yaml.dump(config, f, default_flow_style=False)
 
         logger.info('Generated %s', yaml_path)
+
+    def export_server_cert_to_pem(self, cert_path, key_path):
+        """
+        Export the SSL server certificate chain and private key from
+        the NSS database as PEM files for use by Quarkus TLS.
+
+        The cert PEM contains the server certificate followed by the
+        CA signing certificate (leaf-first order).
+
+        Args:
+            cert_path: Path to write the certificate chain PEM file.
+            key_path: Path to write the private key PEM file.
+        """
+
+        nss_db = os.path.join(self.conf_dir, 'alias')
+
+        # Find the server cert nickname from the NSS database
+        nickname = None
+        result = subprocess.run(
+            ['certutil', '-L', '-d', nss_db],
+            capture_output=True, text=True, check=True
+        )
+        for line in result.stdout.splitlines():
+            if 'Server-Cert' in line:
+                nickname = line.rsplit(None, 1)[0].strip()
+                break
+
+        if not nickname:
+            raise ValueError('Server certificate not found in NSS database %s' % nss_db)
+
+        # Find the CA signing cert nickname
+        ca_nickname = None
+        for line in result.stdout.splitlines():
+            if 'caSigningCert' in line:
+                ca_nickname = line.rsplit(None, 1)[0].strip()
+                break
+
+        logger.info('Exporting %s to PEM files', nickname)
+
+        # Export server cert (leaf first), then CA cert
+        server_cert = subprocess.run(
+            ['certutil', '-L', '-d', nss_db, '-n', nickname, '-a'],
+            capture_output=True, text=True, check=True
+        )
+
+        with open(cert_path, 'w', encoding='utf-8') as f:
+            f.write(server_cert.stdout)
+            if ca_nickname:
+                ca_cert = subprocess.run(
+                    ['certutil', '-L', '-d', nss_db, '-n', ca_nickname, '-a'],
+                    capture_output=True, text=True, check=True
+                )
+                f.write(ca_cert.stdout)
+
+        # Read the NSS internal token password from password.conf
+        password_conf = os.path.join(self.conf_dir, 'password.conf')
+        nss_password = None
+        with open(password_conf, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith('internal='):
+                    nss_password = line.split('=', 1)[1]
+                    break
+
+        if not nss_password:
+            raise ValueError('Internal token password not found in %s' % password_conf)
+
+        # Export key via pk12util + openssl (NSS has no direct key export)
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as pw_file:
+            pw_file.write(nss_password)
+            pw_file_path = pw_file.name
+
+        p12_tmp = cert_path + '.tmp.p12'
+        try:
+            subprocess.run(
+                ['pk12util', '-o', p12_tmp, '-d', nss_db,
+                 '-n', nickname, '-k', pw_file_path, '-w', pw_file_path],
+                check=True
+            )
+            # Extract private key as clean PEM using openssl
+            extract = subprocess.run(
+                ['openssl', 'pkcs12', '-in', p12_tmp,
+                 '-passin', 'pass:' + nss_password,
+                 '-nocerts', '-nodes'],
+                capture_output=True, text=True, check=True
+            )
+            # Pipe through openssl rsa to strip Bag Attributes
+            clean = subprocess.run(
+                ['openssl', 'rsa'],
+                input=extract.stdout,
+                capture_output=True, text=True, check=True
+            )
+            with open(key_path, 'w', encoding='utf-8') as f:
+                f.write(clean.stdout)
+        finally:
+            os.unlink(pw_file_path)
+            if os.path.exists(p12_tmp):
+                os.unlink(p12_tmp)
+
+        pki.util.chown(cert_path, 'pkiuser', 'pkiuser')
+        os.chmod(cert_path, 0o640)
+        pki.util.chown(key_path, 'pkiuser', 'pkiuser')
+        os.chmod(key_path, 0o600)
 
     @property
     def banner_file(self):
