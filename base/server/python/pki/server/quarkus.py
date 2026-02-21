@@ -140,7 +140,8 @@ class QuarkusPKIInstance:
         return os.path.join(
             self.SHARE_DIR,
             '%s-quarkus' % self.subsystem_type,
-            'pki-%s-quarkus-runner.jar' % self.subsystem_type
+            'quarkus-app',
+            'quarkus-run.jar'
         )
 
     @property

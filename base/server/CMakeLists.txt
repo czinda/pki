@@ -338,6 +338,7 @@ install(
 install(
     FILES
         scripts/operations
+        scripts/pki-quarkus-start
     DESTINATION
         ${DATA_INSTALL_DIR}/scripts
     PERMISSIONS

@@ -2234,6 +2234,7 @@ fi
 %dir %{_datadir}/pki/deployment
 %{_datadir}/pki/deployment/config/
 %{_datadir}/pki/scripts/operations
+%{_datadir}/pki/scripts/pki-quarkus-start
 %dir %{_sysconfdir}/systemd/system/pki-quarkusd.target.wants
 %attr(644,-,-) %{_unitdir}/pki-quarkusd@.service
 %attr(644,-,-) %{_unitdir}/pki-quarkusd.target

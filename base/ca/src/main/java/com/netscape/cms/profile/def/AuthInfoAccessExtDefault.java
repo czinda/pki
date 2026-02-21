@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -40,7 +39,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.cms.profile.common.PolicyDefaultConfig;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.ServerConfig;
 import com.netscape.cmscore.request.Request;
 
 /**
@@ -449,13 +447,9 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
             return port;
         }
 
-        // otherwise, get the port from server.xml
-        String instanceDir = CMS.getInstanceDir();
-        String path = instanceDir + File.separator + "conf" + File.separator + "server.xml";
-
-        ServerConfig serverConfig = ServerConfig.load(path);
-        port = serverConfig.getUnsecurePort();
-        logger.debug("AuthInfoAccessExtDefault: server.xml port: " + port);
+        // otherwise, get the HTTP port from CS.cfg
+        port = engineConfig.getString("http.port", "8080");
+        logger.debug("AuthInfoAccessExtDefault: http.port: " + port);
 
         return port;
     }

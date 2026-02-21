@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# Startup script for Quarkus-based PKI subsystems.
+#
+# Called by pki-quarkusd@.service with the systemd instance parameter.
+#
+# Instance parameter format: <instance>-<subsystem>
+# Example: pki-quarkus-ca → instance=pki-quarkus, subsystem=ca
+#
+
+PARAM="$1"
+
+if [ -z "$PARAM" ]; then
+    echo "Usage: pki-quarkus-start <instance-subsystem>" >&2
+    exit 1
+fi
+
+# Extract subsystem (last component after last hyphen)
+SUBSYSTEM="${PARAM##*-}"
+
+# Extract instance name (everything before the last hyphen)
+INSTANCE="${PARAM%-*}"
+
+INSTANCE_DIR="/var/lib/pki/${INSTANCE}"
+CONF_DIR="${INSTANCE_DIR}/conf"
+SUBSYSTEM_CONF_DIR="${CONF_DIR}/${SUBSYSTEM}"
+ALIAS_DIR="${CONF_DIR}/alias"
+QUARKUS_DIR="/usr/share/pki/${SUBSYSTEM}-quarkus/quarkus-app"
+QUARKUS_JAR="${QUARKUS_DIR}/quarkus-run.jar"
+
+if [ ! -f "${QUARKUS_JAR}" ]; then
+    echo "ERROR: Quarkus runner JAR not found: ${QUARKUS_JAR}" >&2
+    exit 1
+fi
+
+if [ ! -d "${INSTANCE_DIR}" ]; then
+    echo "ERROR: Instance directory not found: ${INSTANCE_DIR}" >&2
+    exit 1
+fi
+
+# Ensure JSS native library directory is in library path so that
+# System.load() and any transitive native dependencies can be found
+export LD_LIBRARY_PATH=/usr/lib64/jss${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+
+exec /usr/bin/java \
+    -Xms256m \
+    -Xmx1024m \
+    -Djava.library.path=/usr/lib64/jss:/usr/lib64 \
+    -Dpki.instance.name="${INSTANCE}" \
+    -Dpki.instance.dir="${INSTANCE_DIR}" \
+    -Dpki.subsystem.type="${SUBSYSTEM}" \
+    -Dpki.nss.database="${ALIAS_DIR}" \
+    -Dquarkus.config.locations="${SUBSYSTEM_CONF_DIR}" \
+    -Dquarkus.http.host=0.0.0.0 \
+    -jar "${QUARKUS_JAR}"

@@ -20,27 +20,13 @@ Type=simple
 User=pkiuser
 Group=pkiuser
 
-# Parse instance name and subsystem type from %i
-# Format: <instance>-<subsystem> (e.g., pki-quarkus-ca)
-Environment=PKI_INSTANCE_DIR=/var/lib/pki
-Environment=PKI_SHARE_DIR=/usr/share/pki
-
-# JVM options
-Environment="JAVA_OPTS=-Xms256m -Xmx1024m"
-
 # Working directory
 WorkingDirectory=/var/lib/pki
 
-# Execute the Quarkus runner JAR
-ExecStart=/usr/bin/java \
-    $JAVA_OPTS \
-    -Dpki.instance.name=%i \
-    -Dpki.instance.dir=/var/lib/pki/%i \
-    -Dquarkus.http.host=0.0.0.0 \
-    -jar /usr/share/pki/quarkus/%i-runner.jar
+# Execute via startup script which parses instance/subsystem from %i
+ExecStart=/usr/share/pki/scripts/pki-quarkus-start %i
 
 # Graceful shutdown
-ExecStop=/bin/kill -TERM $MAINPID
 TimeoutStopSec=30
 
 # Restart on failure
@@ -48,10 +34,13 @@ Restart=on-failure
 RestartSec=10
 
 # Security hardening
-ProtectSystem=full
+# NOTE: Cannot use ProtectSystem=full because /var/lib/pki/<instance>/conf
+# is a symlink to /etc/pki/<instance>, and NSS requires write access to
+# the database files under conf/alias.
 ProtectHome=true
 NoNewPrivileges=true
 PrivateTmp=true
+ReadWritePaths=/etc/pki /var/lib/pki /var/log/pki
 
 # Logging
 StandardOutput=journal
