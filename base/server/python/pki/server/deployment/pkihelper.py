@@ -733,12 +733,16 @@ class Systemd(object):
         self.deployer = deployer
         instance_name = deployer.mdict['pki_instance_name']
 
-        unit_file = 'pki-quarkusd@%s.service' % instance_name
+        # Quarkus services are per-subsystem: pki-quarkusd@<instance>-<subsystem>
+        subsystem_type = deployer.subsystem_type.lower()
+        service_id = '%s-%s' % (instance_name, subsystem_type)
+
+        unit_file = 'pki-quarkusd@%s.service' % service_id
         systemd_link = os.path.join(
             '/etc/systemd/system/pki-quarkusd.target.wants',
             unit_file)
         override_dir = '/etc/systemd/system/pki-quarkusd@{}.service.d'.format(
-            instance_name)
+            service_id)
         self.base_override_dir = override_dir
 
         # self.overrides will be a hash of ConfigParsers indexed by filename

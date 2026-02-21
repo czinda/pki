@@ -5546,6 +5546,7 @@ class PKIDeployer:
         self.setup_acme_certs(subsystem)
 
         self.instance.start(
+            subsystem=self.subsystem_type,
             wait=True,
             max_wait=self.startup_timeout,
             timeout=self.request_timeout)
@@ -5586,6 +5587,7 @@ class PKIDeployer:
         if len(self.instance.get_subsystems()) == 0:
             # if this is the last subsystem, stop the server
             self.instance.stop(
+                subsystem=self.subsystem_type,
                 wait=True,
                 max_wait=self.startup_timeout,
                 timeout=self.request_timeout)

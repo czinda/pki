@@ -114,6 +114,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 logger.info('Starting PKI server')
                 instance.start(
+                    subsystem=deployer.subsystem_type,
                     wait=True,
                     max_wait=deployer.startup_timeout,
                     timeout=deployer.request_timeout)
@@ -206,6 +207,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if using_legacy_id_generator:
                 logger.info('Stopping PKI server')
                 instance.stop(
+                    subsystem=deployer.subsystem_type,
                     wait=True,
                     max_wait=deployer.startup_timeout,
                     timeout=deployer.request_timeout)
@@ -226,6 +228,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if config.str2bool(deployer.mdict['pki_hsm_enable']):
                 logger.info('Stopping PKI server')
                 instance.stop(
+                    subsystem=deployer.subsystem_type,
                     wait=True,
                     max_wait=deployer.startup_timeout,
                     timeout=deployer.request_timeout)
@@ -245,6 +248,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     config.str2bool(deployer.mdict['pki_hsm_enable'])):
                 logger.info('Starting PKI server')
                 instance.start(
+                    subsystem=deployer.subsystem_type,
                     wait=True,
                     max_wait=deployer.startup_timeout,
                     timeout=deployer.request_timeout)

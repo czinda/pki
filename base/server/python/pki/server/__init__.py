@@ -268,29 +268,41 @@ class PKIServer(object):
         if os.environ.get('PKI_SERVER_AUTO_ENABLE_SUBSYSTEMS', 'true') == 'true':
             self.enable_subsystems()
 
-    def start(self, wait=False, max_wait=60, timeout=None):
+    def get_subsystem_service_name(self, subsystem):
+        """Return the systemd service name for a specific subsystem.
 
-        cmd = ['systemctl', 'start', '%s.service' % self.service_name]
+        In Quarkus, each subsystem runs as a separate service:
+        pki-quarkusd@<instance>-<subsystem>
+        """
+        return '%s-%s' % (self.service_name, subsystem.lower())
+
+    def start(self, subsystem=None, wait=False, max_wait=60, timeout=None):
+
+        svc = self.get_subsystem_service_name(subsystem) if subsystem else self.service_name
+        cmd = ['systemctl', 'start', '%s.service' % svc]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def stop(self, wait=False, max_wait=60, timeout=None):
+    def stop(self, subsystem=None, wait=False, max_wait=60, timeout=None):
 
-        cmd = ['systemctl', 'stop', '%s.service' % self.service_name]
+        svc = self.get_subsystem_service_name(subsystem) if subsystem else self.service_name
+        cmd = ['systemctl', 'stop', '%s.service' % svc]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def restart(self, wait=False, max_wait=60, timeout=None):
-        self.stop(wait=True, max_wait=max_wait, timeout=timeout)
-        self.start(wait=wait, max_wait=max_wait, timeout=timeout)
+    def restart(self, subsystem=None, wait=False, max_wait=60, timeout=None):
+        self.stop(subsystem=subsystem, wait=True, max_wait=max_wait, timeout=timeout)
+        self.start(subsystem=subsystem, wait=wait, max_wait=max_wait, timeout=timeout)
 
-    def enable(self):
-        cmd = ['systemctl', 'enable', '%s.service' % self.service_name]
+    def enable(self, subsystem=None):
+        svc = self.get_subsystem_service_name(subsystem) if subsystem else self.service_name
+        cmd = ['systemctl', 'enable', '%s.service' % svc]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def disable(self):
-        cmd = ['systemctl', 'disable', '%s.service' % self.service_name]
+    def disable(self, subsystem=None):
+        svc = self.get_subsystem_service_name(subsystem) if subsystem else self.service_name
+        cmd = ['systemctl', 'disable', '%s.service' % svc]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 

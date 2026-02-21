@@ -153,7 +153,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # to be started upon system boot (default is True)
 
             if config.str2bool(deployer.mdict['pki_enable_on_system_boot']):
-                instance.enable()
+                instance.enable(subsystem=deployer.subsystem_type)
 
     def destroy(self, deployer):
 
@@ -161,21 +161,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Stopping PKI server')
         instance.stop(
+            subsystem=deployer.subsystem_type,
             wait=True,
             max_wait=deployer.startup_timeout,
             timeout=deployer.request_timeout)
 
         # if this is not the last subsystem, skip
         if instance.get_subsystems():
-            logger.info('Starting PKI server')
-            instance.start(
-                wait=True,
-                max_wait=deployer.startup_timeout,
-                timeout=deployer.request_timeout)
             return
 
         logger.info('Disabling PKI server')
-        instance.disable()
+        instance.disable(subsystem=deployer.subsystem_type)
 
         if os.path.exists(deployer.systemd.base_override_dir):
             logger.info('Removing %s', deployer.systemd.base_override_dir)
