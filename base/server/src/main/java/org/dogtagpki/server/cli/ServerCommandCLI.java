@@ -47,22 +47,26 @@ public abstract class ServerCommandCLI extends CommandCLI {
         options.addOption(option);
     }
 
-    protected void initializeJSS() throws Exception {
-        String instanceDir = CMS.getInstanceDir();
-        if (instanceDir == null) {
-            return;
+    protected void initializeJSS() {
+        try {
+            String instanceDir = CMS.getInstanceDir();
+            if (instanceDir == null) {
+                return;
+            }
+            String certdbDir = instanceDir + File.separator + "alias";
+            if (!new File(certdbDir).exists()) {
+                certdbDir = instanceDir + File.separator + "conf" + File.separator + "alias";
+            }
+            if (!new File(certdbDir).exists()) {
+                logger.debug("NSS database not found, skipping JSS initialization");
+                return;
+            }
+            logger.debug("Initializing JSS with NSS database: {}", certdbDir);
+            InitializationValues iv = new InitializationValues(certdbDir);
+            CryptoManager.initialize(iv);
+        } catch (Exception e) {
+            logger.debug("JSS initialization skipped: {}", e.getMessage());
         }
-        String certdbDir = instanceDir + File.separator + "alias";
-        if (!new File(certdbDir).exists()) {
-            certdbDir = instanceDir + File.separator + "conf" + File.separator + "alias";
-        }
-        if (!new File(certdbDir).exists()) {
-            logger.debug("NSS database not found, skipping JSS initialization");
-            return;
-        }
-        logger.debug("Initializing JSS with NSS database: {}", certdbDir);
-        InitializationValues iv = new InitializationValues(certdbDir);
-        CryptoManager.initialize(iv);
     }
 
     protected EngineConfig getEngineConfig(String subsystem) throws Exception {
