@@ -1578,7 +1578,7 @@ done
 # jboss-jaxrs-2.0-api JAR. It is referenced as a dependency in pki-common's pom.xml.
 JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
 mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
-    -Dfile=~/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
+    -Dfile=$HOME/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
     -DgroupId=pki-local \
     -DartifactId=jboss-jaxrs-api_2.0_spec \
     -Dversion=$JAXRS_VERSION \
