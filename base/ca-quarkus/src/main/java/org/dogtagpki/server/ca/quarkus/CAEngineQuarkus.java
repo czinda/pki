@@ -5,6 +5,9 @@
 //
 package org.dogtagpki.server.ca.quarkus;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,6 +15,11 @@ import jakarta.enterprise.event.Observes;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.quarkus.QuarkusSocketListenerRegistry;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
+import org.mozilla.jss.crypto.AlreadyInitializedException;
+import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,9 +82,11 @@ public class CAEngineQuarkus {
         // Configure instance directory for Quarkus
         CMS.setInstanceConfig(new QuarkusInstanceConfig());
 
-        // Pre-initialize JSS/CryptoManager so native library is loaded
-        // before JssSubsystem static initialization references SSLCipher.
-        // In Tomcat, TomcatJSS handles this; in Quarkus we do it here.
+        // Pre-initialize JSS/CryptoManager and login to internal token.
+        // In Tomcat, TomcatJSS handles JSS initialization and token login
+        // before the engine starts. In Quarkus we do it here.
+        // JssSubsystem.init() will get AlreadyInitializedException and
+        // skip re-initialization.
         initJSS();
 
         // Create the real CA engine
@@ -92,18 +102,20 @@ public class CAEngineQuarkus {
     }
 
     /**
-     * Pre-load the JSS native library so that SSLCipher static
-     * initialization (which uses native methods) works when
-     * JssSubsystem class is first loaded. In Tomcat, TomcatJSS
-     * handles this; in Quarkus we load the library explicitly.
+     * Pre-initialize JSS for Quarkus. This performs the same role that
+     * TomcatJSS plays in Tomcat deployments:
      *
-     * We use System.load() with an absolute path rather than
-     * System.loadLibrary() because the Quarkus bootstrap runner
-     * may override java.library.path. We do NOT call
-     * CryptoManager.initialize() here because JssSubsystem.init()
-     * does that later during engine.start().
+     * 1. Load JSS native library (so SSLCipher static init works)
+     * 2. Initialize CryptoManager with the NSS database
+     * 3. Login to the internal token using password.conf
+     *
+     * When JssSubsystem.init() runs later during engine.start(), it
+     * will get AlreadyInitializedException and skip re-initialization.
      */
     private void initJSS() {
+        // Step 1: Load native library using absolute path.
+        // System.loadLibrary("jss") doesn't work because the Quarkus
+        // bootstrap runner may override java.library.path.
         String jssLibPath = System.getProperty(
                 "pki.jss.library", "/usr/lib64/jss/libjss.so");
         try {
@@ -111,7 +123,6 @@ public class CAEngineQuarkus {
             System.load(jssLibPath);
             logger.info("CAEngineQuarkus: JSS native library loaded");
         } catch (UnsatisfiedLinkError e) {
-            // Library might already be loaded
             if (e.getMessage() != null && e.getMessage().contains("already loaded")) {
                 logger.debug("CAEngineQuarkus: JSS native library already loaded");
             } else {
@@ -119,6 +130,104 @@ public class CAEngineQuarkus {
                 throw e;
             }
         }
+
+        // Step 2: Initialize CryptoManager with NSS database.
+        // Use pki.nss.database system property (set by startup script)
+        // or derive from instance directory.
+        String nssDatabase = System.getProperty("pki.nss.database");
+        if (nssDatabase == null) {
+            String instanceDir = CMS.getInstanceDir();
+            if (instanceDir != null) {
+                nssDatabase = instanceDir + File.separator + "conf"
+                        + File.separator + "alias";
+                if (!new File(nssDatabase).exists()) {
+                    nssDatabase = instanceDir + File.separator + "alias";
+                }
+            }
+        }
+
+        if (nssDatabase == null || !new File(nssDatabase).exists()) {
+            logger.warn("CAEngineQuarkus: NSS database not found, skipping CryptoManager init");
+            return;
+        }
+
+        try {
+            logger.info("CAEngineQuarkus: Initializing CryptoManager with NSS database: {}", nssDatabase);
+            // Use same parameters as JssSubsystem.init()
+            InitializationValues iv = new InitializationValues(nssDatabase, "", "", "secmod.db");
+            iv.removeSunProvider = false;
+            iv.installJSSProvider = true;
+            CryptoManager.initialize(iv);
+            logger.info("CAEngineQuarkus: CryptoManager initialized successfully");
+        } catch (AlreadyInitializedException e) {
+            logger.debug("CAEngineQuarkus: CryptoManager already initialized");
+        } catch (Exception e) {
+            logger.error("CAEngineQuarkus: Failed to initialize CryptoManager", e);
+            throw new RuntimeException("CryptoManager initialization failed", e);
+        }
+
+        // Step 3: Login to internal token using password from password.conf
+        loginInternalToken();
+    }
+
+    private void loginInternalToken() {
+        try {
+            String instanceDir = CMS.getInstanceDir();
+            if (instanceDir == null) {
+                return;
+            }
+
+            String passwordFile = instanceDir + File.separator + "conf"
+                    + File.separator + "password.conf";
+            if (!new File(passwordFile).exists()) {
+                logger.debug("CAEngineQuarkus: password.conf not found, skipping token login");
+                return;
+            }
+
+            String internalPassword = readPassword(passwordFile, "internal");
+            if (internalPassword == null) {
+                logger.debug("CAEngineQuarkus: No internal token password found");
+                return;
+            }
+
+            CryptoManager cm = CryptoManager.getInstance();
+            CryptoToken token = cm.getInternalKeyStorageToken();
+
+            if (token.isLoggedIn()) {
+                logger.debug("CAEngineQuarkus: Internal token already logged in");
+                return;
+            }
+
+            Password password = new Password(internalPassword.toCharArray());
+            try {
+                token.login(password);
+                logger.info("CAEngineQuarkus: Logged into internal token");
+            } finally {
+                password.clear();
+            }
+        } catch (Exception e) {
+            logger.warn("CAEngineQuarkus: Token login failed: {}", e.getMessage());
+        }
+    }
+
+    private String readPassword(String passwordFile, String tag) throws Exception {
+        try (BufferedReader reader = new BufferedReader(new FileReader(passwordFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+                int pos = line.indexOf('=');
+                if (pos < 0) continue;
+                String key = line.substring(0, pos).trim();
+                String value = line.substring(pos + 1).trim();
+                if (key.equals(tag)) {
+                    return value;
+                }
+            }
+        }
+        return null;
     }
 
     public void stop() throws Exception {

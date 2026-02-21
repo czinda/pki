@@ -208,6 +208,74 @@ class PKIInstance(pki.server.PKIServer):
     def unit_file(self):
         return PKIInstance.TARGET_WANTS + '/%s.service' % self.service_name
 
+    def start(self, subsystem=None, wait=False, max_wait=60, timeout=None):
+        """Start Quarkus service(s).
+
+        If subsystem is specified, start only that subsystem's service.
+        Otherwise, start all loaded subsystem services.
+        """
+        if subsystem:
+            super().start(subsystem=subsystem, wait=wait, max_wait=max_wait, timeout=timeout)
+        else:
+            for sub in self.get_subsystems():
+                super().start(subsystem=sub.name, wait=wait, max_wait=max_wait, timeout=timeout)
+
+    def stop(self, subsystem=None, wait=False, max_wait=60, timeout=None):
+        """Stop Quarkus service(s).
+
+        If subsystem is specified, stop only that subsystem's service.
+        Otherwise, stop all loaded subsystem services.
+        """
+        if subsystem:
+            super().stop(subsystem=subsystem, wait=wait, max_wait=max_wait, timeout=timeout)
+        else:
+            for sub in self.get_subsystems():
+                super().stop(subsystem=sub.name, wait=wait, max_wait=max_wait, timeout=timeout)
+
+    def enable(self, subsystem=None):
+        """Enable Quarkus service(s).
+
+        If subsystem is specified, enable only that subsystem's service.
+        Otherwise, enable all loaded subsystem services.
+        """
+        if subsystem:
+            super().enable(subsystem=subsystem)
+        else:
+            for sub in self.get_subsystems():
+                super().enable(subsystem=sub.name)
+
+    def disable(self, subsystem=None):
+        """Disable Quarkus service(s).
+
+        If subsystem is specified, disable only that subsystem's service.
+        Otherwise, disable all loaded subsystem services.
+        """
+        if subsystem:
+            super().disable(subsystem=subsystem)
+        else:
+            for sub in self.get_subsystems():
+                super().disable(subsystem=sub.name)
+
+    def is_active(self, subsystem=None):
+        """Check if Quarkus service(s) are active.
+
+        If subsystem is specified, check only that subsystem's service.
+        Otherwise, return True if any loaded subsystem service is active.
+        """
+        if subsystem:
+            service = self.get_subsystem_service_name(subsystem)
+            cmd = ['systemctl', '--quiet', 'is-active', '%s.service' % service]
+            logger.debug('Command: %s', ' '.join(cmd))
+            return subprocess.call(cmd) == 0
+
+        for sub in self.get_subsystems():
+            service = self.get_subsystem_service_name(sub.name)
+            cmd = ['systemctl', '--quiet', 'is-active', '%s.service' % service]
+            logger.debug('Command: %s', ' '.join(cmd))
+            if subprocess.call(cmd) == 0:
+                return True
+        return False
+
     def create(self, force=False):
 
         super().create(force=force)
