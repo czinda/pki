@@ -271,7 +271,9 @@ public class MainCLI extends CLI {
 
         Map<String, String> passwords = new LinkedHashMap<>();
 
-        List<String> list = Files.readAllLines(Paths.get(filename));
+        // Resolve symlinks to avoid transient NoSuchFileException
+        // when the path traverses symbolic links.
+        List<String> list = Files.readAllLines(Paths.get(filename).toRealPath());
         String[] lines = list.toArray(new String[list.size()]);
 
         for (int i=0; i<lines.length; i++) {

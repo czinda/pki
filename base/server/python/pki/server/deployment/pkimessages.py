@@ -338,13 +338,13 @@ PKI_CONFIG_RESPONSE_STATUS = "status:"
 PKI_CONFIG_NOT_YET_IMPLEMENTED_1 = " %s NOT YET IMPLEMENTED"
 PKI_CHECK_STATUS_MESSAGE = '''
       To check the status of the subsystem:
-            systemctl status pki-quarkusd@%s.service'''
+            systemctl status pki-quarkusd@%s-%s.service'''
 PKI_ACCESS_URL = '''\
       The URL for the subsystem is:
             https://%s:%s/%s'''
 PKI_INSTANCE_RESTART_MESSAGE = '''
       To restart the subsystem:
-            systemctl restart pki-quarkusd@%s.service'''
+            systemctl restart pki-quarkusd@%s-%s.service'''
 
 
 PKI_SPAWN_INFORMATION_HEADER = '''

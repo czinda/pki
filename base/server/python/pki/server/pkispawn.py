@@ -924,8 +924,8 @@ def print_skip_configuration_information(mdict, instance):
           (deployer.subsystem_type, instance.name))
 
     if config.str2bool(mdict['pki_systemd_service_create']):
-        print(log.PKI_CHECK_STATUS_MESSAGE % instance.name)
-        print(log.PKI_INSTANCE_RESTART_MESSAGE % instance.name)
+        print(log.PKI_CHECK_STATUS_MESSAGE % (instance.name, deployer.subsystem_type.lower()))
+        print(log.PKI_INSTANCE_RESTART_MESSAGE % (instance.name, deployer.subsystem_type.lower()))
 
     print()
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],
@@ -997,8 +997,8 @@ def print_final_install_information(mdict, instance):
               % instance.name)
 
     if config.str2bool(mdict['pki_systemd_service_create']):
-        print(log.PKI_CHECK_STATUS_MESSAGE % instance.name)
-        print(log.PKI_INSTANCE_RESTART_MESSAGE % instance.name)
+        print(log.PKI_CHECK_STATUS_MESSAGE % (instance.name, deployer.subsystem_type.lower()))
+        print(log.PKI_INSTANCE_RESTART_MESSAGE % (instance.name, deployer.subsystem_type.lower()))
 
     print()
     print(log.PKI_ACCESS_URL % (mdict['pki_hostname'],

@@ -147,7 +147,13 @@ class PKIServer(object):
 
     @property
     def conf_dir(self):
-        return os.path.join(self.base_dir, 'conf')
+        path = os.path.join(self.base_dir, 'conf')
+        # Resolve symlinks so that Java CLI commands receive
+        # real paths and avoid transient symlink resolution
+        # failures in java.nio.file.Files operations.
+        if os.path.islink(path):
+            return os.path.realpath(path)
+        return path
 
     @property
     def actual_conf_dir(self):

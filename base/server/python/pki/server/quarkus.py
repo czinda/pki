@@ -307,10 +307,7 @@ class QuarkusPKIInstance:
                 'http': {
                     'port': http_port,
                     'ssl-port': https_port,
-                    'ssl': {
-                        'client-auth': 'REQUEST',
-                    },
-                    'insecure-requests': 'REDIRECT',
+                    'insecure-requests': 'enabled',
                 },
                 'log': {
                     'level': 'INFO',

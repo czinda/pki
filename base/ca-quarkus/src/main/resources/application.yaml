@@ -11,18 +11,8 @@ quarkus:
     port: 8080
     ssl-port: 8443
 
-    # SSL/TLS Configuration (to be customized per deployment)
-    ssl:
-      # Client certificate authentication
-      client-auth: REQUEST
-      # certificate:
-      #   key-store-file: /etc/pki/pki-quarkus/alias/keystore.p12
-      #   key-store-password: <password>
-      #   trust-store-file: /etc/pki/pki-quarkus/alias/ca.p12
-      #   trust-store-password: <password>
-
-    # Force HTTPS for all endpoints
-    insecure-requests: REDIRECT
+    # Allow HTTP requests (SSL/TLS to be configured per deployment)
+    insecure-requests: enabled
 
     # Security Constraints (replaces web.xml)
     auth:

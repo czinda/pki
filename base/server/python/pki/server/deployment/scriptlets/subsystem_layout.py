@@ -294,6 +294,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.configure_est_authorizer(subsystem)
             deployer.configure_est_realm(subsystem)
 
+        # Generate application.yaml for Quarkus deployments
+        if hasattr(instance, 'generate_application_yaml'):
+            instance.generate_application_yaml()
+
         instance.load()
 
         subsystem = instance.get_subsystem(subsystem_name)
