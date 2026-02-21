@@ -18,6 +18,8 @@
 
 package org.dogtagpki.server.cli;
 
+import java.io.File;
+
 import javax.ws.rs.ProcessingException;
 
 import org.apache.commons.cli.CommandLine;
@@ -28,8 +30,12 @@ import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.cli.CLIModule;
 import org.dogtagpki.util.logging.PKILogger;
 import org.dogtagpki.util.logging.PKILogger.LogLevel;
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.InitializationValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.netscape.cmscore.apps.CMS;
 
 public class PKIServerCLI extends CLI {
 
@@ -116,10 +122,35 @@ public class PKIServerCLI extends CLI {
 
         CommandLine cmd = parseOptions(args);
 
+        // Initialize JSS if instance dir is set
+        initializeJSS();
+
         String[] cmdArgs = cmd.getArgs();
         logger.debug("Command: " + String.join(" ", cmdArgs));
 
         executeCommand(cmdArgs);
+    }
+
+    private void initializeJSS() {
+        try {
+            String instanceDir = CMS.getInstanceDir();
+            if (instanceDir == null) {
+                return;
+            }
+            String certdbDir = instanceDir + File.separator + "alias";
+            if (!new File(certdbDir).exists()) {
+                certdbDir = instanceDir + File.separator + "conf" + File.separator + "alias";
+            }
+            if (!new File(certdbDir).exists()) {
+                logger.debug("NSS database not found, skipping JSS initialization");
+                return;
+            }
+            logger.debug("Initializing JSS with NSS database: {}", certdbDir);
+            InitializationValues iv = new InitializationValues(certdbDir);
+            CryptoManager.initialize(iv);
+        } catch (Exception e) {
+            logger.warn("Failed to initialize JSS: {}", e.getMessage());
+        }
     }
 
     @Override
