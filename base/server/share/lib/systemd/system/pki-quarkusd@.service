@@ -29,6 +29,9 @@ ExecStart=/usr/share/pki/scripts/pki-quarkus-start %i
 # Graceful shutdown
 TimeoutStopSec=30
 
+# JVM exits with 128+SIGTERM=143 on normal stop; treat as success
+SuccessExitStatus=143
+
 # Restart on failure
 Restart=on-failure
 RestartSec=10
