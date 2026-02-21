@@ -831,9 +831,16 @@ public class CMSEngine {
     }
 
     public void initCMSGateway() throws Exception {
-        gateway = new CMSGateway();
-        gateway.setCMSEngine(this);
-        gateway.init();
+        try {
+            gateway = new CMSGateway();
+            gateway.setCMSEngine(this);
+            gateway.init();
+        } catch (NoClassDefFoundError e) {
+            // In Quarkus deployments the javax.servlet API is not
+            // on the classpath, so CMSGateway cannot be instantiated.
+            // The gateway is only used by legacy Tomcat servlets.
+            logger.info("CMSEngine: CMSGateway not available (no servlet API), skipping");
+        }
     }
 
     public void initJobsScheduler() throws Exception {
@@ -1492,17 +1499,22 @@ public class CMSEngine {
     }
 
     public void terminateRequests() {
-        Enumeration<CMSRequest> e = CommandQueue.mCommandQueue.keys();
+        try {
+            Enumeration<CMSRequest> e = CommandQueue.mCommandQueue.keys();
 
-        while (e.hasMoreElements()) {
-            Object thisRequest = e.nextElement();
+            while (e.hasMoreElements()) {
+                Object thisRequest = e.nextElement();
 
-            HttpServlet thisServlet = (HttpServlet) CommandQueue.mCommandQueue.get(thisRequest);
+                HttpServlet thisServlet = (HttpServlet) CommandQueue.mCommandQueue.get(thisRequest);
 
-            if (thisServlet != null) {
-                CommandQueue.mCommandQueue.remove(thisRequest);
-                thisServlet.destroy();
+                if (thisServlet != null) {
+                    CommandQueue.mCommandQueue.remove(thisRequest);
+                    thisServlet.destroy();
+                }
             }
+        } catch (NoClassDefFoundError e) {
+            // In Quarkus deployments HttpServlet is not available.
+            logger.debug("CMSEngine: terminateRequests skipped (no servlet API)");
         }
     }
 

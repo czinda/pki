@@ -63,22 +63,28 @@ public class FileConfigStorage extends ConfigStorage {
     @Override
     public void load(ConfigStore config) throws Exception {
 
-        // Retry up to 3 times with 1-second delay. The config file path
-        // may traverse multiple symlinks (e.g., ca/conf -> conf/ca and
-        // conf -> /etc/pki/<instance>), and File.exists() can transiently
-        // return false on some systems after a prior process writes to
-        // the file via these symlinks.
-        for (int attempt = 1; attempt <= 3; attempt++) {
-            if (mFile.exists()) {
-                try (FileInputStream fi = new FileInputStream(mFile);
+        // Resolve the canonical (real) path to avoid symlink resolution
+        // issues. The config file path may traverse multiple symlinks
+        // (e.g., conf -> /etc/pki/<instance>) and File.exists() can
+        // transiently return false on some systems.
+        File resolvedFile;
+        try {
+            resolvedFile = mFile.getCanonicalFile();
+        } catch (Exception e) {
+            resolvedFile = mFile;
+        }
+
+        for (int attempt = 1; attempt <= 5; attempt++) {
+            if (resolvedFile.exists()) {
+                try (FileInputStream fi = new FileInputStream(resolvedFile);
                         BufferedInputStream bis = new BufferedInputStream(fi)) {
                     config.load(bis);
                 }
                 return;
             }
-            if (attempt < 3) {
+            if (attempt < 5) {
                 logger.warn("Config file not found (attempt {}): {}", attempt, mFile.getPath());
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             }
         }
 
