@@ -78,7 +78,7 @@ public class CACertFindCLI extends CommandCLI {
         // JSS initialization is handled by the Quarkus runtime.
 
         String subsystem = parent.getParent().getName();
-        String confDir = instanceDir + File.separator + subsystem + File.separator + "conf";
+        String confDir = instanceDir + File.separator + "conf" + File.separator + subsystem;
         String configFile = confDir + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);

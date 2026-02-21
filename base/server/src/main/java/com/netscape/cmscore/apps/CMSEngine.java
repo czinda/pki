@@ -848,9 +848,18 @@ public class CMSEngine {
 
         String path = instanceDir + File.separator + "conf" + File.separator + SERVER_XML;
 
-        serverConfig = ServerConfig.load(path);
-        unsecurePort = serverConfig.getUnsecurePort();
-        securePort = serverConfig.getSecurePort();
+        // In Quarkus deployments there is no server.xml, so skip
+        // Tomcat-specific ServerConfig parsing and use defaults.
+        File serverXmlFile = new File(path);
+        if (serverXmlFile.exists()) {
+            serverConfig = ServerConfig.load(path);
+            unsecurePort = serverConfig.getUnsecurePort();
+            securePort = serverConfig.getSecurePort();
+        } else {
+            logger.info("CMSEngine: No server.xml found, using default ports");
+            unsecurePort = "8080";
+            securePort = "8443";
+        }
 
         String port = config.getString("proxy.securePort", "");
         if (!port.equals("")) {
