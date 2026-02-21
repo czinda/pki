@@ -20,6 +20,7 @@ package com.netscape.cmscore.base;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 import org.mozilla.jss.netscape.security.util.Utils;
@@ -63,32 +64,35 @@ public class FileConfigStorage extends ConfigStorage {
     @Override
     public void load(ConfigStore config) throws Exception {
 
-        // Resolve the canonical (real) path to avoid symlink resolution
-        // issues. The config file path may traverse multiple symlinks
-        // (e.g., conf -> /etc/pki/<instance>) and File.exists() can
-        // transiently return false on some systems.
-        File resolvedFile;
-        try {
-            resolvedFile = mFile.getCanonicalFile();
-        } catch (Exception e) {
-            resolvedFile = mFile;
-        }
+        // Try to open the file directly rather than checking exists()
+        // first. File.exists() can transiently return false on systems
+        // where the path traverses symlinks (e.g., conf -> /etc/pki/<instance>).
+        // Directly opening the file avoids this race condition.
 
         for (int attempt = 1; attempt <= 5; attempt++) {
-            if (resolvedFile.exists()) {
-                try (FileInputStream fi = new FileInputStream(resolvedFile);
-                        BufferedInputStream bis = new BufferedInputStream(fi)) {
-                    config.load(bis);
-                }
+            try (FileInputStream fi = new FileInputStream(mFile.getCanonicalPath());
+                    BufferedInputStream bis = new BufferedInputStream(fi)) {
+                config.load(bis);
                 return;
-            }
-            if (attempt < 5) {
-                logger.warn("Config file not found (attempt {}): {}", attempt, mFile.getPath());
-                Thread.sleep(2000);
+            } catch (FileNotFoundException e) {
+                if (attempt < 5) {
+                    logger.warn("Config file not found (attempt {}): {} (canonical: {})",
+                            attempt, mFile.getPath(), getSafeCanonicalPath());
+                    Thread.sleep(2000);
+                }
             }
         }
 
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE", mFile.getPath()));
+        throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE",
+                mFile.getPath() + " (canonical: " + getSafeCanonicalPath() + ")"));
+    }
+
+    private String getSafeCanonicalPath() {
+        try {
+            return mFile.getCanonicalPath();
+        } catch (Exception e) {
+            return mFile.getAbsolutePath();
+        }
     }
 
     /**
