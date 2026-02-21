@@ -62,6 +62,9 @@ public class CASecurityDomainResource {
         if (subsystem == null || subsystem.isBlank()) {
             throw new BadRequestException("Missing subsystem parameter");
         }
+        if (securityContext.getUserPrincipal() == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         String principalName = securityContext.getUserPrincipal().getName();
         InstallToken token = createBase().getInstallToken(hostname, subsystem, principalName);
         return Response.ok(token.toJSON()).build();

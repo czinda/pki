@@ -35,6 +35,9 @@ public class CAAccountResource {
     public Response login() throws Exception {
         Principal principal = securityContext.getUserPrincipal();
         logger.debug("CAAccountResource.login(): principal={}", principal != null ? principal.getName() : "null");
+        if (principal == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
         Account account = AccountServletBase.createAccount(principal);
         return Response.ok(account.toJSON()).build();
     }

@@ -17,6 +17,7 @@ quarkus:
 
     # Security Constraints (replaces web.xml)
     auth:
+      basic: true
       # Account services: require authentication
       permission:
         account:
