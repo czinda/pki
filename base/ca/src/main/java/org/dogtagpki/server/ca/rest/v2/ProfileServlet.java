@@ -56,7 +56,9 @@ public class ProfileServlet extends CAServlet {
         Boolean visible = request.getParameter("visible") == null ? null : Boolean.valueOf(request.getParameter("visible"));
         Boolean enable = request.getParameter("enable") == null ? null : Boolean.valueOf(request.getParameter("enable"));
         String enableBy = request.getParameter("enableBy");
-        ProfileDataInfos profiles = profile.listProfiles(request, start, size, visible, enable,  enableBy);
+        ProfileDataInfos profiles = profile.listProfiles(
+                request.getUserPrincipal(), request.getRequestURL().toString(), request.getLocale(),
+                start, size, visible, enable, enableBy);
         PrintWriter out = response.getWriter();
         out.println(profiles.toJSON());
     }
@@ -67,7 +69,7 @@ public class ProfileServlet extends CAServlet {
         logger.debug("ProfileServlet.retrieveProfile(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String profileId = pathElement[0];
-        ProfileData profileData = profile.retrieveProfile(request, profileId);
+        ProfileData profileData = profile.retrieveProfile(request.getUserPrincipal(), request.getLocale(), profileId);
         PrintWriter out = response.getWriter();
         out.println(profileData.toJSON());
 
@@ -79,7 +81,7 @@ public class ProfileServlet extends CAServlet {
         logger.debug("ProfileServlet.retrieveProfileRaw(): session: {}", session.getId());
         String[] pathElement = request.getPathInfo().substring(1).split("/");
         String profileId = pathElement[0];
-        byte[] rawProfile = profile.retrieveRawProfile(request, profileId);
+        byte[] rawProfile = profile.retrieveRawProfile(request.getUserPrincipal(), profileId);
         response.setContentType(MimeType.APPLICATION_OCTET_STREAM);
         OutputStream out = response.getOutputStream();
         out.write(rawProfile);
@@ -91,8 +93,8 @@ public class ProfileServlet extends CAServlet {
         logger.debug("ProfileServlet.createProfile(): session: {}", session.getId());
         String requestData = request.getReader().lines().collect(Collectors.joining());
         ProfileData reqProfile = JSONSerializer.fromJSON(requestData, ProfileData.class);
-        String newProfileId = profile.createProfile(request, reqProfile);
-        ProfileData newProfile = profile.retrieveProfile(request, newProfileId);
+        String newProfileId = profile.createProfile(request.getLocale(), reqProfile);
+        ProfileData newProfile = profile.retrieveProfile(request.getUserPrincipal(), request.getLocale(), newProfileId);
         String encodedGroupID = URLEncoder.encode(newProfileId, "UTF-8");
         StringBuffer uri = request.getRequestURL();
         uri.append("/" + encodedGroupID);
@@ -114,7 +116,7 @@ public class ProfileServlet extends CAServlet {
         uri.append("/" + encodedGroupID);
         response.setStatus(HttpServletResponse.SC_CREATED);
         response.setHeader("Location", uri.toString());
-        byte[] rawProfile = profile.retrieveRawProfile(request, newProfileId);
+        byte[] rawProfile = profile.retrieveRawProfile(request.getUserPrincipal(), newProfileId);
         response.setContentType(MimeType.APPLICATION_OCTET_STREAM);
         OutputStream out = response.getOutputStream();
         out.write(rawProfile);
@@ -139,7 +141,7 @@ public class ProfileServlet extends CAServlet {
         String profileId = pathElement[0];
         String requestData = request.getReader().lines().collect(Collectors.joining());
         ProfileData reqProfile = JSONSerializer.fromJSON(requestData, ProfileData.class);
-        ProfileData newProfile = profile.modifyProfile(request, profileId, reqProfile);
+        ProfileData newProfile = profile.modifyProfile(request.getUserPrincipal(), request.getLocale(), profileId, reqProfile);
         PrintWriter out = response.getWriter();
         out.println(newProfile.toJSON());
     }

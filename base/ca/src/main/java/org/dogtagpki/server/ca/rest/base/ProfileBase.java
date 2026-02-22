@@ -19,8 +19,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.netscape.cms.realm.PKIPrincipalCore;
 import org.apache.commons.lang3.StringUtils;
 import org.dogtagpki.server.ca.CAEngine;
@@ -94,7 +92,8 @@ public class ProfileBase {
         this.ps = engine.getProfileSubsystem();
     }
 
-    public ProfileDataInfos listProfiles(HttpServletRequest servletRequest, int start, int size, Boolean visible, Boolean enable, String enableBy) {
+    public ProfileDataInfos listProfiles(Principal principal, String requestUrl, Locale locale,
+            int start, int size, Boolean visible, Boolean enable, String enableBy) {
         ProfileDataInfos infos = new ProfileDataInfos();
         boolean visibleOnly = true;
 
@@ -104,7 +103,6 @@ public class ProfileBase {
         }
         // TODO remove hardcoded role names and consult authzmgr
         // (so that we can handle externally-authenticated principals)
-        Principal principal = servletRequest.getUserPrincipal();
         if (principal != null && principal instanceof PKIPrincipalCore) {
             PKIPrincipalCore pkiPrincipal = (PKIPrincipalCore) principal;
             if (pkiPrincipal.hasRole("Certificate Manager Agents") ||
@@ -124,16 +122,15 @@ public class ProfileBase {
         List<ProfileDataInfo> results = new ArrayList<>();
         while (e.hasMoreElements()) {
             String id = e.nextElement();
-            StringBuffer uri = servletRequest.getRequestURL();
-            String encodedID;
+            String uri = requestUrl;
             try {
-                encodedID = URLEncoder.encode(id, "UTF-8");
-                uri.append("/" + encodedID);
+                String encodedID = URLEncoder.encode(id, "UTF-8");
+                uri = requestUrl + "/" + encodedID;
             } catch (UnsupportedEncodingException e1) {
                 logger.error("ProfileBase.listProfiles: Problem to enconding profile {}", id);
             }
             try {
-                ProfileDataInfo info = createProfileDataInfo(id, uri.toString(), servletRequest.getLocale());
+                ProfileDataInfo info = createProfileDataInfo(id, uri, locale);
                 if (info == null ||
                         (visibleOnly && !info.getProfileVisible().booleanValue()) ||
                         (visible != null && !visible.equals(info.getProfileVisible())) ||
@@ -154,16 +151,16 @@ public class ProfileBase {
         return infos;
     }
 
-    public ProfileData retrieveProfile(HttpServletRequest servletRequest, String profileId) {
+    public ProfileData retrieveProfile(Principal principal, Locale locale, String profileId) {
         try {
-            return createProfileData(profileId, servletRequest.getUserPrincipal(), servletRequest.getLocale());
+            return createProfileData(profileId, principal, locale);
         } catch (EBaseException e) {
             throw new ResourceNotFoundException("Profile not found: " + profileId);
         }
     }
 
-    public byte[] retrieveRawProfile(HttpServletRequest servletRequest, String profileId) {
-        Profile profile = getProfile(profileId, servletRequest.getUserPrincipal());
+    public byte[] retrieveRawProfile(Principal principal, String profileId) {
+        Profile profile = getProfile(profileId, principal);
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         // add profileId and classId "virtual" properties
         profile.getConfigStore().put("profileId", profileId);
@@ -177,7 +174,7 @@ public class ProfileBase {
         return data.toByteArray();
     }
 
-    public String createProfile(HttpServletRequest servletRequest, ProfileData data) {
+    public String createProfile(Locale locale, ProfileData data) {
 
         if (data == null) {
             logger.error("createProfile: profile data is null");
@@ -206,8 +203,8 @@ public class ProfileBase {
             PluginInfo info = registry.getPluginInfo("profile", data.getClassId());
 
             profile = ps.createProfile(profileId, data.getClassId(), info.getClassName());
-            profile.setName(servletRequest.getLocale(), data.getName());
-            profile.setDescription(servletRequest.getLocale(), data.getDescription());
+            profile.setName(locale, data.getName());
+            profile.setDescription(locale, data.getDescription());
             profile.setVisible(data.isVisible());
             ps.commitProfile(profileId);
 
@@ -224,7 +221,7 @@ public class ProfileBase {
                     ILogger.SUCCESS,
                     auditParams);
 
-            changeProfileData(data, profile, servletRequest.getLocale());
+            changeProfileData(data, profile, locale);
 
             return profileId;
 
@@ -439,7 +436,7 @@ public class ProfileBase {
         }
     }
 
-    public ProfileData modifyProfile(HttpServletRequest servletRequest, String profileId, ProfileData data) throws EBaseException {
+    public ProfileData modifyProfile(Principal principal, Locale locale, String profileId, ProfileData data) throws EBaseException {
         logger.info("ProfileBase: Modifying certificate profile");
 
 
@@ -469,9 +466,9 @@ public class ProfileBase {
                 throw new ProfileNotFoundException(profileId);
             }
 
-            changeProfileData(data, profile, servletRequest.getLocale());
+            changeProfileData(data, profile, locale);
 
-            return  createProfileData(profileId, servletRequest.getUserPrincipal(), servletRequest.getLocale());
+            return  createProfileData(profileId, principal, locale);
 
         } catch (EBaseException e) {
             logger.error("modifyProfile: error obtaining profile `" + profileId + "`: " + e.getMessage(), e);

@@ -7,6 +7,8 @@ package org.dogtagpki.server.ca.quarkus;
 
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.security.Principal;
+import java.util.Locale;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -19,8 +21,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.dogtagpki.server.ca.CAEngine;
 import org.dogtagpki.server.ca.rest.base.ProfileBase;
@@ -49,8 +53,19 @@ public class CAProfileResource {
     @Inject
     SecurityIdentity identity;
 
+    @Context
+    UriInfo uriInfo;
+
     private ProfileBase getProfileBase() {
         return new ProfileBase(engineQuarkus.getEngine());
+    }
+
+    private Principal getPrincipal() {
+        return CAEngineQuarkus.toPKIPrincipalCore(identity);
+    }
+
+    private Locale getLocale() {
+        return Locale.getDefault();
     }
 
     @GET
@@ -62,7 +77,8 @@ public class CAProfileResource {
             @QueryParam("enable") Boolean enable,
             @QueryParam("enableBy") String enableBy) throws Exception {
 
-        ProfileDataInfos profiles = getProfileBase().listProfiles(null, start, size, visible, enable, enableBy);
+        String requestUrl = uriInfo.getAbsolutePath().toString();
+        ProfileDataInfos profiles = getProfileBase().listProfiles(getPrincipal(), requestUrl, getLocale(), start, size, visible, enable, enableBy);
         return Response.ok(profiles.toJSON()).build();
     }
 
@@ -70,7 +86,7 @@ public class CAProfileResource {
     @Path("{profileId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response retrieveProfile(@PathParam("profileId") String profileId) throws Exception {
-        ProfileData profileData = getProfileBase().retrieveProfile(null, profileId);
+        ProfileData profileData = getProfileBase().retrieveProfile(getPrincipal(), getLocale(), profileId);
         return Response.ok(profileData.toJSON()).build();
     }
 
@@ -78,7 +94,7 @@ public class CAProfileResource {
     @Path("{profileId}/raw")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response retrieveProfileRaw(@PathParam("profileId") String profileId) throws Exception {
-        byte[] rawProfile = getProfileBase().retrieveRawProfile(null, profileId);
+        byte[] rawProfile = getProfileBase().retrieveRawProfile(getPrincipal(), profileId);
         return Response.ok(rawProfile).type(MediaType.APPLICATION_OCTET_STREAM).build();
     }
 
@@ -87,8 +103,8 @@ public class CAProfileResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createProfile(String requestData) throws Exception {
         ProfileData reqProfile = JSONSerializer.fromJSON(requestData, ProfileData.class);
-        String newProfileId = getProfileBase().createProfile(null, reqProfile);
-        ProfileData newProfile = getProfileBase().retrieveProfile(null, newProfileId);
+        String newProfileId = getProfileBase().createProfile(getLocale(), reqProfile);
+        ProfileData newProfile = getProfileBase().retrieveProfile(getPrincipal(), getLocale(), newProfileId);
         return Response.status(Response.Status.CREATED)
                 .entity(newProfile.toJSON())
                 .build();
@@ -100,7 +116,7 @@ public class CAProfileResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response createProfileRaw(byte[] data) throws Exception {
         String newProfileId = getProfileBase().createProfile(data);
-        byte[] rawProfile = getProfileBase().retrieveRawProfile(null, newProfileId);
+        byte[] rawProfile = getProfileBase().retrieveRawProfile(getPrincipal(), newProfileId);
         return Response.status(Response.Status.CREATED)
                 .entity(rawProfile)
                 .type(MediaType.APPLICATION_OCTET_STREAM)
@@ -126,7 +142,7 @@ public class CAProfileResource {
             String requestData) throws Exception {
 
         ProfileData reqProfile = JSONSerializer.fromJSON(requestData, ProfileData.class);
-        ProfileData newProfile = getProfileBase().modifyProfile(null, profileId, reqProfile);
+        ProfileData newProfile = getProfileBase().modifyProfile(getPrincipal(), getLocale(), profileId, reqProfile);
         return Response.ok(newProfile.toJSON()).build();
     }
 

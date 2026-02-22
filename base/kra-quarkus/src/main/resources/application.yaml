@@ -27,62 +27,45 @@ quarkus:
 
     # Security Constraints (replaces web.xml)
     auth:
-      # Account services: require authentication
+      basic: true
       permission:
+        # Account services: require authentication
         account:
           paths: /v2/account/*
           policy: authenticated
-
-      # Admin services: require authentication
-      permission:
+        # Admin services: require authentication
         admin:
           paths: /v2/admin/*
           policy: authenticated
-
-      # Agent services (keys, key requests): require authentication
-      permission:
+        # Agent services (keys, key requests): require authentication
         agent:
           paths: /v2/agent/*
           policy: authenticated
-
-      # Audit: require authentication
-      permission:
+        # Audit: require authentication
         audit:
           paths: /v2/audit/*
           policy: authenticated
-
-      # KRA info: public (no authentication required)
-      permission:
+        # KRA info: public (no authentication required)
         info:
           paths: /v2/info
           policy: permit
-
-      # System certificates (transport cert): public
-      permission:
+        # System certificates (transport cert): public
         config-cert:
           paths: /v2/config/cert/*
           policy: permit
-
-      # Security domain install token: require authentication
-      permission:
+        # Security domain install token: require authentication
         security-domain-install:
           paths: /v2/securityDomain/installToken
           policy: authenticated
-
-      # Security domain info: public
-      permission:
+        # Security domain info: public
         security-domain-info:
           paths: /v2/securityDomain/domainInfo,/v2/securityDomain/hosts,/v2/securityDomain/hosts/*
           policy: permit
-
-      # Self tests: require authentication
-      permission:
+        # Self tests: require authentication
         selftests:
           paths: /v2/selftests/*
           policy: authenticated
-
-      # Jobs: require authentication
-      permission:
+        # Jobs: require authentication
         jobs:
           paths: /v2/jobs/*
           policy: authenticated
