@@ -46,8 +46,6 @@ exec /usr/bin/java \
     -Xms256m \
     -Xmx1024m \
     -Djava.library.path=/usr/lib64/jss:/usr/lib64 \
-    --add-opens java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED \
-    -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl \
     -Dpki.instance.name="${INSTANCE}" \
     -Dpki.instance.dir="${INSTANCE_DIR}" \
     -Dpki.subsystem.type="${SUBSYSTEM}" \

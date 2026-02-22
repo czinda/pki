@@ -85,6 +85,19 @@
             </exclusions>
         </dependency>
 
+        <!-- Exclude xml-apis from runtime classpath.  On Java 17 the JDK's
+             java.xml module provides javax.xml.*, org.w3c.dom.*, and org.xml.sax.*
+             natively.  Having xml-apis on the classpath causes a split-package
+             ClassCastException because Quarkus's RunnerClassLoader loads xml-apis
+             classes into the unnamed module while the JDK implementation lives in
+             the java.xml module (bootstrap classloader). -->
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>1.4.01</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Servlet API (compile-only, for base classes that reference HttpServletRequest) -->
         <!-- On RHEL 9 (javax.servlet), this provides javax.servlet.http.HttpServletRequest -->
         <!-- On Fedora 43+ (jakarta.servlet), the jakarta.servlet-api is used instead -->
