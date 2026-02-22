@@ -215,6 +215,21 @@ public class KRAEngineQuarkus {
     }
 
     /**
+     * Check if the KRA engine is in pre-op mode (not fully initialized).
+     * In pre-op mode, the KeyRecoveryAuthority subsystem is not initialized,
+     * so transport keys, request repositories, and key repositories are
+     * unavailable.
+     *
+     * @return true if the engine is in pre-op mode or not started
+     */
+    public boolean isPreOpMode() {
+        if (engine == null) {
+            return true;
+        }
+        return engine.isPreOpMode();
+    }
+
+    /**
      * Convert a Quarkus SecurityIdentity to a PKIPrincipalCore for use
      * with KRA processors that require PKI principal types.
      *

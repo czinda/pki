@@ -61,6 +61,10 @@ public class KRAKeyRequestResource {
     UriInfo uriInfo;
 
     private KeyRequestProcessor createProcessor() {
+        if (engineQuarkus.isPreOpMode()) {
+            throw new jakarta.ws.rs.ServiceUnavailableException(
+                    "KRA is in pre-op mode; key request operations not available");
+        }
         return new KeyRequestProcessor(engineQuarkus.getEngine());
     }
 

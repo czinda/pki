@@ -49,9 +49,21 @@ public class KRASystemCertResource {
     public Response getTransportCert() throws Exception {
         logger.debug("KRASystemCertResource.getTransportCert()");
 
+        if (engineQuarkus.isPreOpMode()) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity("{\"Message\":\"KRA is in pre-op mode; transport certificate not available\"}")
+                    .build();
+        }
+
         KeyRecoveryAuthority kra = (KeyRecoveryAuthority)
                 engineQuarkus.getEngine().getSubsystem(KeyRecoveryAuthority.ID);
         TransportKeyUnit transportUnit = kra.getTransportKeyUnit();
+
+        if (transportUnit == null) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity("{\"Message\":\"KRA transport key unit not initialized\"}")
+                    .build();
+        }
 
         X509Certificate[] chain = transportUnit.getChain();
         X509CertImpl[] chainImpl = new X509CertImpl[chain.length];
