@@ -1470,7 +1470,10 @@ EOF
 # (see /usr/lib/rpm/macros.d/macros.cmake)
 %set_build_flags
 
-export JAVA_HOME=%{java_home}
+# Use JDK 11 to run Maven/XMvn (XMvn 4.0.0 has a JDK 21 compatibility bug
+# where Files.createDirectory fails in setProjectProperty).
+# The compiler toolchain still uses JDK 21 via xmvn-toolchain-openjdk21.
+export JAVA_HOME=/usr/lib/jvm/jre-11-openjdk
 
 %if %{with maven}
 # build Java binaries and run unit tests with Maven
@@ -1536,40 +1539,42 @@ export JAVA_HOME=$(dirname $(dirname $(readlink -f /usr/bin/javac)))
 _quarkus_repo=%{_builddir}/.m2/repository
 
 # Install parent POMs so Maven can resolve the parent chain for installed artifact POMs.
-mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+# Use -N (non-recursive) to skip reactor scanning which can fail intermittently
+# during RPM builds when XMvn state interferes with standard Maven resolution.
+mvn -N %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
     -Dfile=pom.xml \
     -DpomFile=pom.xml \
     -Dpackaging=pom \
     -Dmaven.repo.local=$_quarkus_repo
 
-mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+mvn -N %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
     -Dfile=base/pom.xml \
     -DpomFile=base/pom.xml \
     -Dpackaging=pom \
     -Dmaven.repo.local=$_quarkus_repo
 
-mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+mvn -N %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
     -Dfile=base/common/target/pki-common.jar \
     -DpomFile=base/common/pom.xml \
     -Dmaven.repo.local=$_quarkus_repo
 
-mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+mvn -N %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
     -Dfile=base/tools/target/pki-tools.jar \
     -DpomFile=base/tools/pom.xml \
     -Dmaven.repo.local=$_quarkus_repo
 
-mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+mvn -N %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
     -Dfile=base/server-core/target/pki-server-core.jar \
     -DpomFile=base/server-core/pom.xml \
     -Dmaven.repo.local=$_quarkus_repo
 
-mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+mvn -N %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
     -Dfile=base/server/target/pki-server.jar \
     -DpomFile=base/server/pom.xml \
     -Dmaven.repo.local=$_quarkus_repo
 
 for sub in ca kra ocsp tks tps acme est; do
-    mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+    mvn -N %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
         -Dfile=base/$sub/target/pki-$sub.jar \
         -DpomFile=base/$sub/pom.xml \
         -Dmaven.repo.local=$_quarkus_repo
@@ -1579,7 +1584,7 @@ done
 # This artifact is created during %prep by copying and optionally migrating the system
 # jboss-jaxrs-2.0-api JAR. It is referenced as a dependency in pki-common's pom.xml.
 JAXRS_VERSION=$(rpm -q jboss-jaxrs-2.0-api | sed -n 's/^jboss-jaxrs-2.0-api-\([^-]*\)-.*$/\1.Final/p')
-mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+mvn -N %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
     -Dfile=$HOME/.m2/repository/pki-local/jboss-jaxrs-api_2.0_spec/$JAXRS_VERSION/jboss-jaxrs-api_2.0_spec-$JAXRS_VERSION.jar \
     -DgroupId=pki-local \
     -DartifactId=jboss-jaxrs-api_2.0_spec \
@@ -1590,7 +1595,7 @@ mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install
 # Install the tomcat-servlet-api into the Quarkus local repo.
 # Some PKI modules reference javax.servlet.http.HttpServletRequest in method signatures,
 # so the Quarkus modules need this on the classpath even though they pass null.
-mvn %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
+mvn -N %{?_mvn_options} org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file \
     -Dfile=/usr/share/java/tomcat/tomcat-servlet-api.jar \
     -DgroupId=pki-local \
     -DartifactId=tomcat-servlet-api \
