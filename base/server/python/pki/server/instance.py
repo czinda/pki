@@ -333,9 +333,10 @@ class PKIInstance(pki.server.PKIServer):
                 check=True
             )
             # Extract private key as clean PEM using openssl
+            # Use file: instead of pass: to avoid special character issues
             extract = subprocess.run(
                 ['openssl', 'pkcs12', '-in', p12_tmp,
-                 '-passin', 'pass:' + nss_password,
+                 '-passin', 'file:' + pw_file_path,
                  '-nocerts', '-nodes'],
                 capture_output=True, text=True, check=True
             )
