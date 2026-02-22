@@ -94,14 +94,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Exclude xml-apis from runtime: Java 17 provides javax.xml.* natively -->
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>1.4.01</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Quarkus Core -->
         <dependency>
             <groupId>io.quarkus</groupId>

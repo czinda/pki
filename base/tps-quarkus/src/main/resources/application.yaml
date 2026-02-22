@@ -117,6 +117,11 @@ quarkus:
           paths: /v2/securityDomain/domainInfo,/v2/securityDomain/hosts,/v2/securityDomain/hosts/*
           policy: permit
 
+  # Class Loading - remove xml-apis which conflicts with JDK's java.xml module
+  class-loading:
+    removed-artifacts:
+      - xml-apis:xml-apis
+
   # Security
   security:
     users:

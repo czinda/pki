@@ -48,6 +48,11 @@ quarkus:
           methods: PUT,DELETE,PATCH,HEAD,OPTIONS
           policy: deny
 
+  # Class Loading - remove xml-apis which conflicts with JDK's java.xml module
+  class-loading:
+    removed-artifacts:
+      - xml-apis:xml-apis
+
   # Security
   security:
     users:
