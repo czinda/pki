@@ -1531,6 +1531,8 @@ popd
 %if %{with quarkus}
 # Phase 2: Build Quarkus modules with standard Maven (xmvn cannot resolve Quarkus BOM).
 # First install xmvn-built artifacts into a local repo so Quarkus modules can depend on them.
+# Ensure JAVA_HOME points to JDK 17+ (xmvn may have set it to JDK 11 when tests are skipped).
+export JAVA_HOME=$(dirname $(dirname $(readlink -f /usr/bin/javac)))
 _quarkus_repo=%{_builddir}/.m2/repository
 
 # Install parent POMs so Maven can resolve the parent chain for installed artifact POMs.
