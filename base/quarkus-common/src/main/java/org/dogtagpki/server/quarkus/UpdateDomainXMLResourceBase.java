@@ -7,7 +7,10 @@ package org.dogtagpki.server.quarkus;
 
 import java.util.Locale;
 
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -15,18 +18,19 @@ import jakarta.ws.rs.core.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
 
 import com.netscape.cms.servlet.csadmin.SecurityDomainProcessor;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
-import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * Abstract base JAX-RS resource replacing the legacy UpdateDomainXML CMSServlet.
  * Updates the security domain (adds or removes subsystem hosts).
  * Used during pkispawn deployment for security domain registration.
+ *
+ * Supports both GET (query params) and POST (form params) to match both
+ * the legacy admin servlet and agent servlet interfaces.
  *
  * Each subsystem extends this with a concrete @Path annotation.
  */
@@ -38,7 +42,7 @@ public abstract class UpdateDomainXMLResourceBase {
 
     @GET
     @Produces(MediaType.APPLICATION_XML)
-    public Response updateDomainXML(
+    public Response updateDomainXMLGet(
             @QueryParam("list") String list,
             @QueryParam("type") String type,
             @QueryParam("host") String host,
@@ -51,6 +55,37 @@ public abstract class UpdateDomainXMLResourceBase {
             @QueryParam("dm") String domainmgr,
             @QueryParam("clone") String clone,
             @QueryParam("operation") String operation) {
+        return doUpdateDomainXML(list, type, host, name, sport,
+                agentsport, adminsport, eecaport, httpport,
+                domainmgr, clone, operation);
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_XML)
+    public Response updateDomainXMLPost(
+            @FormParam("list") String list,
+            @FormParam("type") String type,
+            @FormParam("host") String host,
+            @FormParam("name") String name,
+            @FormParam("sport") String sport,
+            @FormParam("agentsport") String agentsport,
+            @FormParam("adminsport") String adminsport,
+            @FormParam("eeclientauthsport") String eecaport,
+            @FormParam("httpport") String httpport,
+            @FormParam("dm") String domainmgr,
+            @FormParam("clone") String clone,
+            @FormParam("operation") String operation) {
+        return doUpdateDomainXML(list, type, host, name, sport,
+                agentsport, adminsport, eecaport, httpport,
+                domainmgr, clone, operation);
+    }
+
+    private Response doUpdateDomainXML(
+            String list, String type, String host, String name,
+            String sport, String agentsport, String adminsport,
+            String eecaport, String httpport, String domainmgr,
+            String clone, String operation) {
 
         logger.info("UpdateDomainXMLResourceBase: Updating security domain");
 
@@ -99,31 +134,38 @@ public abstract class UpdateDomainXMLResourceBase {
 
         logger.info("UpdateDomainXMLResourceBase: Status: {}", status);
 
-        try {
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
-            xmlObj.addItemToContainer(root, "Status", status);
-            byte[] cb = xmlObj.toByteArray();
-            return Response.ok(new String(cb), MediaType.APPLICATION_XML).build();
-        } catch (Exception e) {
-            logger.warn("UpdateDomainXMLResourceBase: Failed to send output: {}", e.getMessage(), e);
-            return Response.serverError().build();
-        }
+        return xmlResponse(status, null);
     }
 
     private Response errorResponse(String message) {
-        try {
-            XMLObject xmlObj = new XMLObject();
-            Node root = xmlObj.createRoot("XMLResponse");
-            xmlObj.addItemToContainer(root, "Status", "1");
-            xmlObj.addItemToContainer(root, "Error", message);
-            byte[] cb = xmlObj.toByteArray();
-            return Response.serverError()
-                    .type(MediaType.APPLICATION_XML)
-                    .entity(new String(cb))
-                    .build();
-        } catch (Exception e) {
-            return Response.serverError().build();
+        return xmlResponse("1", message);
+    }
+
+    private Response xmlResponse(String status, String error) {
+        StringBuilder xml = new StringBuilder();
+        xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        xml.append("<XMLResponse>");
+        xml.append("<Status>").append(escapeXml(status)).append("</Status>");
+        if (error != null) {
+            xml.append("<Error>").append(escapeXml(error)).append("</Error>");
         }
+        xml.append("</XMLResponse>");
+
+        if ("0".equals(status)) {
+            return Response.ok(xml.toString(), MediaType.APPLICATION_XML).build();
+        }
+        return Response.serverError()
+                .type(MediaType.APPLICATION_XML)
+                .entity(xml.toString())
+                .build();
+    }
+
+    private static String escapeXml(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
 }

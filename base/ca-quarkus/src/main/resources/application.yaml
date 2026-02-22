@@ -87,6 +87,10 @@ quarkus:
         token-auth:
           paths: /ee/ca/tokenAuthenticate,/admin/ca/tokenAuthenticate
           policy: permit
+        # Security domain update: public (auth handled internally via install token)
+        update-domain:
+          paths: /admin/ca/updateDomainXML
+          policy: permit
 
   # Class Loading - remove xml-apis which conflicts with JDK's java.xml module
   class-loading:
