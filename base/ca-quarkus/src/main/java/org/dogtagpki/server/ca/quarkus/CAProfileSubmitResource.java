@@ -12,11 +12,11 @@ import java.util.Map;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 
 import org.dogtagpki.server.authentication.AuthManager;
@@ -69,48 +69,23 @@ public class CAProfileSubmitResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_XML)
-    public Response profileSubmit(
-            @FormParam("profileId") String profileId,
-            @FormParam("cert_request_type") String certRequestType,
-            @FormParam("cert_request") String certRequest,
-            @FormParam("renewal") String renewal,
-            @FormParam("xmlOutput") String xmlOutput,
-            @FormParam("sessionID") String sessionID,
-            @FormParam("subject") String subject,
-            @FormParam("uid") String uid,
-            @FormParam("requestor_name") String requestorName,
-            @FormParam("req_san_entries") String sanEntries,
-            @FormParam("req_san_pattern_0") String sanPattern0,
-            @FormParam("req_san_pattern_1") String sanPattern1,
-            @FormParam("req_san_pattern_2") String sanPattern2,
-            @FormParam("req_san_pattern_3") String sanPattern3) {
+    public Response profileSubmit(MultivaluedMap<String, String> form) {
 
+        String profileId = form.getFirst("profileId");
         logger.info("CAProfileSubmitResource: Processing enrollment request for profile: {}", profileId);
 
         try {
-            return processEnrollment(
-                    profileId, certRequestType, certRequest, sessionID,
-                    subject, uid, requestorName,
-                    sanEntries, sanPattern0, sanPattern1, sanPattern2, sanPattern3);
+            return processEnrollment(form);
         } catch (Exception e) {
             logger.error("CAProfileSubmitResource: Enrollment failed: {}", e.getMessage(), e);
             return buildErrorResponse("1", e.getMessage());
         }
     }
 
-    private Response processEnrollment(
-            String profileId,
-            String certRequestType,
-            String certRequest,
-            String sessionID,
-            String subject,
-            String uid,
-            String requestorName,
-            String sanEntries,
-            String sanPattern0,
-            String sanPattern1,
-            String sanPattern2,
-            String sanPattern3) throws Exception {
+    private Response processEnrollment(MultivaluedMap<String, String> form) throws Exception {
+
+        String profileId = form.getFirst("profileId");
+        String sessionID = form.getFirst("sessionID");
 
         CAEngine engine = engineQuarkus.getEngine();
         Locale locale = Locale.getDefault();
@@ -136,24 +111,12 @@ public class CAProfileSubmitResource {
         data.setRemoteHost("");
         data.setRemoteAddr("");
 
-        // Map form parameters to profile input attributes
+        // Collect all form parameters into a flat map for profile input matching
         Map<String, String> formParams = new HashMap<>();
-        if (certRequestType != null) formParams.put("cert_request_type", certRequestType);
-        if (certRequest != null) formParams.put("cert_request", certRequest);
-        if (subject != null) formParams.put("subject", subject);
-        if (uid != null) formParams.put("uid", uid);
-        if (requestorName != null) formParams.put("requestor_name", requestorName);
-
-        // Add SAN parameters
-        if (sanEntries != null) formParams.put("req_san_entries", sanEntries);
-        if (sanPattern0 != null) formParams.put("req_san_pattern_0", sanPattern0);
-        if (sanPattern1 != null) formParams.put("req_san_pattern_1", sanPattern1);
-        if (sanPattern2 != null) formParams.put("req_san_pattern_2", sanPattern2);
-        if (sanPattern3 != null) formParams.put("req_san_pattern_3", sanPattern3);
-
-        // Subject DN components (sn_ prefixed)
-        if (subject != null) {
-            formParams.put("sn_cn", subject);
+        for (Map.Entry<String, java.util.List<String>> entry : form.entrySet()) {
+            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+                formParams.put(entry.getKey(), entry.getValue().get(0));
+            }
         }
 
         // Populate CertEnrollmentRequest with profile inputs

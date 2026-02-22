@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.HTTPGoneException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ServiceUnavailableException;
+import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
@@ -277,8 +278,21 @@ public class CAAgentCertRequestResource {
 
         logger.debug("CAAgentCertRequestResource: auth token: {}", authToken);
 
-        // Use null for HttpServletRequest since request processing
-        // in Quarkus doesn't have a servlet request available
-        processor.processRequest(null, authToken, data, ireq, op);
+        // Initialize SessionContext (required by CAEnrollProfile.execute)
+        SessionContext sc = SessionContext.getContext();
+        if (authToken != null) {
+            String userid = authToken.getInString(AuthToken.USER_ID);
+            if (userid != null) {
+                sc.put(SessionContext.USER_ID, userid);
+            }
+        }
+
+        try {
+            // Use null for HttpServletRequest since request processing
+            // in Quarkus doesn't have a servlet request available
+            processor.processRequest(null, authToken, data, ireq, op);
+        } finally {
+            SessionContext.releaseContext();
+        }
     }
 }
