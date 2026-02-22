@@ -91,6 +91,10 @@ quarkus:
         update-domain:
           paths: /admin/ca/updateDomainXML
           policy: permit
+        # KRA connector update: public (auth handled internally via install token)
+        update-connector:
+          paths: /admin/ca/updateConnector
+          policy: permit
 
   # Class Loading - remove xml-apis which conflicts with JDK's java.xml module
   class-loading:

@@ -5,14 +5,14 @@
 //
 package org.dogtagpki.server.ca.quarkus;
 
-import java.util.Enumeration;
 import java.util.Locale;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -51,17 +51,18 @@ public class CAUpdateConnectorResource {
     CAEngineQuarkus engineQuarkus;
 
     @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateConnector(
-            @QueryParam("ca.connector.KRA.host") String host,
-            @QueryParam("ca.connector.KRA.port") String port,
-            @QueryParam("ca.connector.KRA.timeout") String timeout,
-            @QueryParam("ca.connector.KRA.subsystemCert") String subsystemCert,
-            @QueryParam("ca.connector.KRA.transportCert") String transportCert,
-            @QueryParam("ca.connector.KRA.transportCertNickname") String transportCertNickname,
-            @QueryParam("ca.connector.KRA.uri") String uri,
-            @QueryParam("ca.connector.KRA.local") String local,
-            @QueryParam("ca.connector.KRA.enable") String enable) {
+            @FormParam("ca.connector.KRA.host") String host,
+            @FormParam("ca.connector.KRA.port") String port,
+            @FormParam("ca.connector.KRA.timeout") String timeout,
+            @FormParam("ca.connector.KRA.subsystemCert") String subsystemCert,
+            @FormParam("ca.connector.KRA.transportCert") String transportCert,
+            @FormParam("ca.connector.KRA.transportCertNickname") String transportCertNickname,
+            @FormParam("ca.connector.KRA.uri") String uri,
+            @FormParam("ca.connector.KRA.local") String local,
+            @FormParam("ca.connector.KRA.enable") String enable) {
 
         logger.info("CAUpdateConnectorResource: Updating KRA connector");
 
