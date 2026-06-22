@@ -75,9 +75,9 @@ public class Keyring {
             output_format = "raw";
 
         String mode;
-        if (output_format.toLowerCase() == "raw")
+        if ("raw".equals(output_format.toLowerCase()))
             mode = "pipe";
-        else if (output_format.toLowerCase() == "hex")
+        else if ("hex".equals(output_format.toLowerCase()))
             mode = "read";
         else
             throw new IllegalArgumentException("output_format must be one of [\'raw\', \'hex\'].");
