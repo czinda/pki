@@ -80,7 +80,7 @@ public class NuxwdogPasswordStore extends PasswordStore {
 
         String keyringTag = id + "/" + tag;
         pwd = Keyring.getPassword(keyringTag, "raw");
-        if ((pwd != null) & pwd.startsWith("keyctl_read_alloc:")) {
+        if ((pwd != null) && pwd.startsWith("keyctl_read_alloc:")) {
             // System.out.println("NuxwdogPasswordStore.getPassword: resetting pwd to null because  Keyring.getPassword returned :" + pwd);
             pwd = null;
         }

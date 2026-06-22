@@ -24,6 +24,8 @@
 Module that provides interface to access Kernel Keyring
 """
 import logging
+import os
+import pwd as pwd_module
 import subprocess
 
 logger = logging.getLogger(__name__)
@@ -41,6 +43,15 @@ class Keyring:
         self.key_type = key_type
         self.user = owner
 
+    def _needs_runuser(self):
+        if not self.user:
+            return False
+        try:
+            target_uid = pwd_module.getpwnam(self.user).pw_uid
+        except KeyError:
+            return True
+        return os.getuid() != target_uid
+
     def put_password(self, key_name, password):
         """
         Save a password to the keyring
@@ -53,7 +64,7 @@ class Keyring:
         :rtype: (bytearray, bytearray)
         """
         cmd = []
-        if self.user:
+        if self._needs_runuser():
             cmd = ['runuser', '-u', self.user, '--']
 
         cmd = cmd + [
@@ -83,7 +94,7 @@ class Keyring:
         """
 
         cmd = []
-        if self.user:
+        if self._needs_runuser():
             cmd = ['runuser', '-u', self.user, '--']
 
         cmd = cmd + [
@@ -126,7 +137,7 @@ class Keyring:
             raise ValueError("No id for key %s in keyring" % key_name)
 
         cmd = []
-        if self.user:
+        if self._needs_runuser():
             cmd = ['runuser', '-u', self.user, '--']
 
         cmd = cmd + [
@@ -147,7 +158,7 @@ class Keyring:
         """
 
         cmd = []
-        if self.user:
+        if self._needs_runuser():
             cmd = ['runuser', '-u', self.user, '--']
 
         cmd = cmd + [

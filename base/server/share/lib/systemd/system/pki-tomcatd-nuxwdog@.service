@@ -27,7 +27,7 @@ ExecStartPre=/usr/bin/pkidaemon start %i
 ExecStart=/usr/sbin/pki-tomcat-start
 ExecStop=/usr/sbin/pki-tomcat-stop
 
-ExecStopPost=+/usr/bin/pki-server-nuxwdog --clear
+ExecStopPost=+/bin/sh -c 'test "$SERVICE_RESULT" = "success" && /usr/bin/pki-server-nuxwdog --clear || true'
 
 KeyringMode=shared
 SuccessExitStatus=143
