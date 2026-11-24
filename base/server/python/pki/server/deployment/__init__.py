@@ -81,6 +81,7 @@ class PKIDeployer:
 
         # PKI Deployment "Mandatory" Command-Line Variables
         self.subsystem_type = None
+        self.preissued_ca = None
 
         # Global dictionary variables
         self.mdict = {}
@@ -2558,7 +2559,10 @@ class PKIDeployer:
         logger.debug("PKIDeployer.import_system_certs()")
 
         if subsystem.name == 'ca':
-            self.import_system_cert(nssdb, subsystem, 'signing', 'CT,C,C')
+            if self.preissued_ca:
+                self.preissued_ca.install(nssdb, self.mdict)
+            else:
+                self.import_system_cert(nssdb, subsystem, 'signing', 'CT,C,C')
             self.import_system_cert(nssdb, subsystem, 'ocsp_signing')
 
         if subsystem.name == 'kra':
@@ -2584,7 +2588,8 @@ class PKIDeployer:
         # to ensure that the system certs are imported with
         # the correct nicknames.
 
-        self.import_cert_chain(nssdb, subsystem)
+        if not self.preissued_ca:
+            self.import_cert_chain(nssdb, subsystem)
 
         # Import admin cert after importing the cert chain so that
         # it can be verified.
@@ -3523,6 +3528,12 @@ class PKIDeployer:
     def setup_system_cert(self, nssdb, subsystem, tag):
 
         logger.info('Setting up %s cert', tag)
+
+        if self.preissued_ca and subsystem.type == 'CA' and tag == 'signing':
+            info = subsystem.get_system_cert_info(tag)
+            if not info or info['object'] != self.preissued_ca.cert:
+                raise ValueError('Configured CA signing certificate differs from prechecked cert')
+            return
 
         # if it's a clone, don't create cert again except sslserver cert
         if self.configuration_file.clone and tag != 'sslserver':

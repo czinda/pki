@@ -586,6 +586,25 @@ def main(argv):
         if config.str2bool(parser.mdict['pki_security_domain_setup']):
             check_security_domain()
 
+    if deployer.mdict.get('pki_ca_signing_key_id'):
+        from pki.server.deployment import preissued
+
+        cfg = deployer.mdict
+        try:
+            if deployer.subsystem_type != 'CA' or not config.str2bool(cfg['pki_hsm_enable']):
+                raise ValueError('Pre-issued signing requires a CA and an enabled HSM')
+            if any(config.str2bool(cfg.get(name) or 'False') for name in (
+                    'pki_clone', 'pki_external', 'pki_external_step_two',
+                    'pki_subordinate', 'pki_backup_keys', 'pki_skip_configuration',
+                    'pki_skip_installation')) or cfg.get('pki_server_pkcs12_path') or \
+                    cfg.get('pki_ca_signing_csr_path') or deployer.instance.get_subsystems():
+                raise ValueError('Pre-issued signing requires a fresh single-step CA installation')
+            deployer.preissued_ca = preissued.verify(cfg)
+        except (ValueError, OSError) as e:
+            print(f'CA signing precheck failed: {e}', file=sys.stderr)
+            sys.exit(1)
+        print('Verified CA signing key, issued certificate and offline root.')
+
     if args.precheck:
         print('pre-checks completed successfully.')
         sys.exit(0)

@@ -247,6 +247,60 @@ if the directory server instance has not yet been created.
 
 See **pki_default.cfg(5)** for more details about available flags.
 
+### Prototype: Precheck an offline-root-issued CA certificate
+
+For a fresh CA on this prototype branch, add the following settings to
+the `[CA]` section of your installation configuration. Set up the HSM
+module and token PIN as for a normal HSM install. The Python environment
+used by `pkispawn` must also provide `python-pkcs11`, and `openssl` must
+be available. The example key ID represents the exact bytes of the
+private key's PKCS #11 `CKA_ID`, including any leading zeros.
+
+```
+pki_hsm_enable=True
+pki_token_name=Ceremony
+pki_ca_signing_token=Ceremony
+pki_ca_signing_key_id=0x0012
+pki_ca_signing_nickname=ca_signing
+pki_ca_signing_cert_path=/path/to/subordinate.pem
+pki_cert_chain_nickname=offline_root
+pki_cert_chain_path=/path/to/root.pem
+```
+
+Run `pkispawn -s CA -f ca.cfg --precheck`. The prototype validates one
+PEM CA certificate against one direct, self-signed root. It opens a
+read-only token session and asks the selected RSA key to sign one random
+challenge using SHA-256 with RSA PKCS #1 v1.5. The HSM may audit that
+signature. The precheck does not import the certificate or generate a key.
+
+Omit `--precheck` to try the installation on a disposable test token.
+The installer repeats the proof, imports the verified certificates, and
+checks that NSS associates the signing certificate with the selected key.
+Use the ordinary one-step CA configuration; leave `pki_external` and
+`pki_subordinate` off. Those options select other installation procedures.
+
+**Thales Luna qualification.** On a Luna-connected Linux test host, use an
+existing test partition registered with the Luna client. Set
+`pki_hsm_libfile=/usr/safenet/lunaclient/lib/libCryptoki2_64.so` (or the
+installed client library path) and `pki_hsm_modulename` to the module name
+configured for Dogtag. Use the partition label for `pki_token_name` and
+`pki_ca_signing_token`. Use the ceremony key's nonempty PKCS #11 `CKA_ID`
+for `pki_ca_signing_key_id`, not its Luna object handle. This prototype
+uses a PIN-authenticated session and `CKM_SHA256_RSA_PKCS`.
+
+Run the precheck first. Installation also requires permission to create
+a public X.509 token object: the installer sets the certificate's `CKA_ID`
+to the key's ID without modifying the key. It refuses an existing
+certificate with the same ID or label. Other subsystem keys still use the
+normal Dogtag provisioning path.
+
+To qualify the partition, install on a fresh instance, issue a leaf
+through Dogtag, and verify its signature using the original subordinate
+certificate. Confirm that the private key's ID and label are unchanged.
+Record the Luna model, client version, firmware, authentication mode and
+partition role with the result. A passing precheck alone does not qualify
+the installation.
+
 ## TWO-STEP INSTALLATION MODE
 
 **pkispawn** provides a number of parameters to customize an instance before it is created.
